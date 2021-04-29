@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">AnimalShelter</string>
+    <string name="service_key">tcAQWSO03Eb5BLMuwXL5hsGHZYFV%2BZoLKZvsJ%2FK7dDdx6jG94FxQprOyO3Gj5qcQGsJpwm7NrRREvd44U0jqyg%3D%3D</string>
+
+    <string name="sido_file">_sido.xml</string>
+    <string name="sigungu_file">_sigungu.xml</string>
+    <string name="kine_file">_kind.xml</string>
+    <string name="shelter_file">_shelter.xml</string>
+    <string name="abandonment_public_file">_abandonmentPublic.xml</string>
+
+    <string name="kind_dog">417000</string>
+    <string name="kind_cat">422400</string>
+    <string name="kind_etc">429900</string>
+
+</resources>

@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="abandonmentPublicDetailActivity"
+            type="com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicDetailActivity" />
+
+        <variable
+            name="abandonmentPublic"
+            type="com.cherryzp.animalshelter.model.response.AbandonmentPublic" />
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:overScrollMode="never">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".ui.main.abandonmentpublic.AbandonmentPublicDetailActivity">
+
+                <com.cherryzp.animalshelter.component.SquareImageView
+                    android:id="@+id/popfile_iv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:transitionName="profile_image"
+                    app:insert_img="@{abandonmentPublic.popfile}"/>
+
+                <TextView
+                    android:id="@+id/kind_tv"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    app:layout_constraintTop_toBottomOf="@id/popfile_iv"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:text="@{abandonmentPublic.kindCd}"
+                    android:gravity="center"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
+                <!--        android:text="@{abandonmentPublic.kindCd}"-->
+
+                <TextView
+                    android:paddingHorizontal="4dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="16dp"
+                    android:id="@+id/process_state_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:text="@{abandonmentPublic.processState}"
+                    android:textSize="14dp"
+                    android:textColor="@color/white"
+                    android:background="@color/textColorDefault"
+                    app:layout_constraintTop_toBottomOf="@id/popfile_iv"
+                    app:layout_constraintRight_toRightOf="parent"/>
+
+                <View
+                    android:id="@+id/first_underline"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/textColorDefault"
+                    app:layout_constraintTop_toBottomOf="@id/kind_tv"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"/>
+
+                <TextView
+                    android:id="@+id/notice_no_title_tv"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="공고번호 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/first_underline"
+                    app:layout_constraintLeft_toLeftOf="parent" />
+
+                <TextView
+                    android:id="@+id/notice_no_tv"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/first_underline"
+                    app:layout_constraintLeft_toRightOf="@id/notice_no_title_tv" />
+
+                <TextView
+                    android:id="@+id/notice_date_title_tv"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="공고기간 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/notice_no_title_tv"
+                    app:layout_constraintLeft_toLeftOf="parent" />
+
+                <TextView
+                    android:id="@+id/notice_date_tv"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.noticeEdt}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/notice_no_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/notice_date_title_tv" />
+
+                <TextView
+                    android:id="@+id/desertion_no_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="유기번호 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/notice_date_tv" />
+
+                <TextView
+                    android:id="@+id/desertion_no_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.desertionNo}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/notice_date_tv"
+                    app:layout_constraintLeft_toRightOf="@id/desertion_no_title_tv" />
+
+                <TextView
+                    android:id="@+id/age_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="출생연도 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/desertion_no_tv" />
+
+                <TextView
+                    android:id="@+id/age_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.age}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/desertion_no_tv"
+                    app:layout_constraintLeft_toRightOf="@id/age_title_tv" />
+
+                <TextView
+                    android:id="@+id/sex_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="성별 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/age_title_tv" />
+
+                <TextView
+                    android:id="@+id/sex_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.sexCd}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/age_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/sex_title_tv" />
+
+                <TextView
+                    android:id="@+id/color_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="색상 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/sex_title_tv" />
+
+                <TextView
+                    android:id="@+id/color_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.colorCd}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/sex_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/color_title_tv" />
+
+                <TextView
+                    android:id="@+id/weight_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="체중 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/color_title_tv" />
+
+                <TextView
+                    android:id="@+id/weight_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.weight}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/color_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/weight_title_tv" />
+
+                <TextView
+                    android:id="@+id/special_mark_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="특징 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/weight_title_tv" />
+
+                <TextView
+                    android:id="@+id/special_mark_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.specialMark}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/weight_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/weight_title_tv" />
+
+                <TextView
+                    android:id="@+id/neuter_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="중성화여부 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/special_mark_title_tv" />
+
+                <TextView
+                    android:id="@+id/neuter_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.neuterYn}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/special_mark_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/neuter_title_tv" />
+
+                <TextView
+                    android:id="@+id/happen_place_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="발견장소 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/neuter_title_tv" />
+
+                <TextView
+                    android:id="@+id/happen_place_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.happenPlace}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/neuter_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/happen_place_title_tv" />
+
+                <TextView
+                    android:id="@+id/happen_date_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="접수일 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/happen_place_title_tv" />
+
+                <TextView
+                    android:id="@+id/happen_date_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.happenDt}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/happen_place_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/happen_date_title_tv" />
+
+                <TextView
+                    android:id="@+id/care_name_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="보호소 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/happen_date_title_tv" />
+
+                <TextView
+                    android:id="@+id/care_name_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.careNm}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/happen_date_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/care_name_title_tv" />
+
+                <TextView
+                    android:id="@+id/care_tel_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="보호소 연락처 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/care_name_title_tv" />
+
+                <TextView
+                    android:id="@+id/care_tel_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.careTel}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/care_name_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/care_tel_title_tv" />
+
+                <TextView
+                    android:id="@+id/care_addr_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="보호장소 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/care_addr_tv"
+                    app:layout_constraintTop_toBottomOf="@id/care_tel_title_tv" />
+
+                <TextView
+                    android:id="@+id/care_addr_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintHorizontal_weight="1"
+                    android:text="@{abandonmentPublic.careAddr}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/care_tel_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/care_addr_title_tv"/>
+
+                <TextView
+                    android:id="@+id/org_name_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="관할기관 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/care_addr_tv" />
+
+                <TextView
+                    android:id="@+id/org_name_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.orgNm}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/care_addr_tv"
+                    app:layout_constraintLeft_toRightOf="@id/care_addr_title_tv" />
+
+                <TextView
+                    android:id="@+id/charge_name_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="담당자 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/org_name_title_tv" />
+
+                <TextView
+                    android:id="@+id/charge_name_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.chargeNm}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/org_name_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/charge_name_title_tv" />
+
+                <TextView
+                    android:id="@+id/office_tel_title_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="19dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="담당자 연락처 : "
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/charge_name_title_tv" />
+
+                <TextView
+                    android:id="@+id/office_tel_tv"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="24dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{abandonmentPublic.officetel}"
+                    android:textColor="@color/textColorDefault"
+                    android:textSize="14dp"
+                    app:layout_constraintTop_toBottomOf="@id/charge_name_title_tv"
+                    app:layout_constraintLeft_toRightOf="@id/office_tel_title_tv"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/contact_btn"
+                android:layout_margin="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="연락하기"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="#FBFBF2"
+                android:background="@drawable/round_square_btn"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+
+</layout>

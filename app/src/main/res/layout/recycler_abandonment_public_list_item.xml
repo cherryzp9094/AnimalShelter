@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/item_view"
+    android:layout_width="match_parent"
+    android:layout_height="132dp"
+    android:background="#FFF"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/popfile_iv"
+        android:layout_margin="16dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:scaleType="centerCrop"
+        android:transitionName="profile_image"
+        android:src="@drawable/ic_launcher_background"/>
+
+    <TextView
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/kind_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:textColor="@color/textColorDefault"
+        android:text="[ 개 ] 믹스견"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/popfile_iv"
+        app:layout_constraintHorizontal_chainStyle="packed"/>
+
+    <TextView
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/age_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:text="출생연도 : 2018(년생)"
+        android:textSize="14dp"
+        android:textColor="@color/textColorDefault"
+        app:layout_constraintTop_toBottomOf="@id/kind_tv"
+        app:layout_constraintLeft_toRightOf="@id/popfile_iv"/>
+
+    <TextView
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:id="@+id/sex_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:text="성별 : 수컷"
+        android:textSize="14dp"
+        android:textColor="@color/textColorDefault"
+        app:layout_constraintTop_toBottomOf="@id/kind_tv"
+        app:layout_constraintLeft_toRightOf="@id/age_tv"/>
+
+    <TextView
+        android:id="@+id/state_tv"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:paddingHorizontal="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        android:text="공고"
+        android:textStyle="bold"
+        android:textSize="12dp"
+        android:textColor="@color/white"
+        android:background="#000"/>
+
+    <TextView
+        android:id="@+id/notice_no_tv"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:text="공고번호 : 제주-제주-2018-00504"
+        android:textSize="14dp"
+        android:textColor="@color/textColorDefault"
+        app:layout_constraintTop_toBottomOf="@id/age_tv"
+        app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
+
+    <TextView
+        android:id="@+id/shelter_tv"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:text="보호소 : 제주동물보호센터"
+        android:textSize="14dp"
+        android:textColor="@color/textColorDefault"
+        app:layout_constraintTop_toBottomOf="@id/notice_no_tv"
+        app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
+
+    <View
+        android:layout_marginHorizontal="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="#CCC"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
