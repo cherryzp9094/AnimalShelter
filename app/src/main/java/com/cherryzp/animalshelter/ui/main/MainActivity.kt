@@ -9,9 +9,7 @@ import com.cherryzp.animalshelter.databinding.ActivityMainBinding
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicFragment
 import com.cherryzp.animalshelter.ui.main.search.SearchFragment
 import com.google.android.gms.ads.AdRequest
-
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -117,8 +115,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             if (state != null) map.put("state", state!!)
             if (neuterYn != null) map.put("neuter_yn", neuterYn!!)
 
-            Log.d(TAG, map.toString())
-
             viewModel.abandonmentPublic(this, map)
 
             pageNo++
@@ -128,7 +124,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     //admob 초기화
     private fun initAdView() {
 
-        MobileAds.initialize(this, OnInitializationCompleteListener {})
+        MobileAds.initialize(this, {})
 
         val adRequest = AdRequest.Builder().build()
         ad_view.loadAd(adRequest)

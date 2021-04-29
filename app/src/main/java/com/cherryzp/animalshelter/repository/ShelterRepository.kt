@@ -22,7 +22,6 @@ class ShelterRepository(appApplication: AppApplication) {
         try {
             val thread = Thread {
                 abandonmentPublicDao.insert(abandonmentPublicEntity)
-                Log.e("데이터", "데이터 들어감")
             }
             thread.start()
         } catch (e: Exception) {

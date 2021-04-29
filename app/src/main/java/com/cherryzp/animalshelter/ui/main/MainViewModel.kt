@@ -81,19 +81,14 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
                 _totalCntLiveData.value = Integer.valueOf(pair.second)
                 abandonmentPublicList.addAll(pair.first)
                 _abandonmentPublicListLiveData.value = abandonmentPublicList
-                Log.d(TAG, response.body().toString())
-                AppApplication.appApplication.progressOff()
-                Log.d(TAG, "화면 종료")
             }
 
             override fun onError(call: Call<String>, response: Response<String>) {
-                AppApplication.appApplication.progressOff()
-                Log.d(TAG, "화면 종료")
+
             }
 
             override fun onFail(call: Call<String>, t: Throwable) {
-                AppApplication.appApplication.progressOff()
-                Log.d(TAG, "화면 종료")
+
             }
         })
     }
