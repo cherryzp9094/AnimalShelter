@@ -1,9 +1,11 @@
 package com.cherryzp.animalshelter.ui.splash
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.cherryzp.animalshelter.AppApplication
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseViewModel
 import com.cherryzp.animalshelter.model.DataModel
@@ -16,7 +18,6 @@ import org.xmlpull.v1.XmlPullParserFactory
 import retrofit2.Call
 import retrofit2.Response
 import java.io.File
-import java.lang.Exception
 
 class SplashViewModel(private val model: DataModel): BaseViewModel() {
 
@@ -44,15 +45,15 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
     val xmlPullParserFactory = XmlPullParserFactory.newInstance()
     val xmlPullParser = xmlPullParserFactory.newPullParser()
 
-    fun sido() {
+    fun sido(activity: Activity) {
         if (!File(CommonUtils.getContext().filesDir.absolutePath + "/" + sidoFile).exists()) {
+            AppApplication.appApplication.progressOn(activity)
+
             model.sido().enqueue(object : CustomCallback<String>() {
                 override fun onSuccess(call: Call<String>, response: Response<String>) {
-                    Log.e(TAG, response.body().toString())
-
                     saveSidoFile(response.body().toString(), sidoFile)
                     parseSidoFile(sidoFile)
-                    sigungu(sidoList)
+                    sigungu(activity, sidoList)
                 }
 
                 override fun onError(call: Call<String>, response: Response<String>) {
@@ -65,18 +66,19 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
             })
         } else {
             parseSidoFile(sidoFile)
-            sigungu(sidoList)
+            sigungu(activity, sidoList)
         }
     }
 
-    fun sigungu(sidoList: ArrayList<Sido>) {
+    fun sigungu(activity: Activity, sidoList: ArrayList<Sido>) {
         for (sido in sidoList) {
             val file = File(CommonUtils.getContext().filesDir.absolutePath + "/" + sido.orgCd + sigunguFile)
 
             if (!file.exists()) {
+                AppApplication.appApplication.progressOn(activity)
+
                 model.sigungu(sido.orgCd).enqueue(object: CustomCallback<String>() {
                     override fun onSuccess(call: Call<String>, response: Response<String>) {
-                        Log.e(TAG, response.body().toString())
                         saveSigunguFile(response.body().toString(), sido.orgCd.toString() + sigunguFile)
                     }
 
@@ -91,10 +93,6 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
                 })
             } else {
                 loadSigunguCnt++
-
-                Log.e(TAG, "$loadSigunguCnt 카운트"
-
-                )
 
                 if (loadSigunguCnt == totalSigunguCnt) {
                     _loadData.value = true
@@ -125,7 +123,7 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
 
             loadSigunguCnt++
 
-            Log.e(TAG, "$fileName -> 저장완료 //// $loadSigunguCnt")
+            Log.d(TAG, "$fileName : 저장완료 , 카운트 : $loadSigunguCnt")
 
             if (loadSigunguCnt == totalSigunguCnt) {
                 _loadData.value = true
@@ -150,16 +148,13 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
                     XmlPullParser.START_TAG -> {
                         if (xmlPullParser.name.equals("orgCd")) {
                             orgCd = Integer.parseInt(xmlPullParser.nextText())
-                            Log.e(TAG, "orgCd : $orgCd")
                         } else if (xmlPullParser.name.equals("orgdownNm")) {
                             orgdownNm = xmlPullParser.nextText()
-                            Log.e(TAG, "orgdownNm : $orgdownNm")
                         }
                     }
                     XmlPullParser.END_TAG -> {
                         if (xmlPullParser.name.equals("item")) {
                             val sido = Sido(orgCd!!, orgdownNm!!)
-                            Log.e(TAG, "sido : $sido")
                             sidoList.add(sido)
 
                             orgCd = null

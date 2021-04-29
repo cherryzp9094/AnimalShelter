@@ -3,6 +3,7 @@ package com.cherryzp.animalshelter
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import com.cherryzp.animalshelter.common.CommonSingleton
 import com.cherryzp.animalshelter.component.LoadingProgressDialog
 import com.cherryzp.animalshelter.di.shelterModule
 import org.koin.android.ext.koin.androidContext
@@ -31,20 +32,31 @@ class AppApplication : Application() {
     }
 
     fun progressOn(activity: Activity) {
-        if (activity == null || activity.isFinishing) {
+        if (activity.isFinishing) {
             return
         }
 
-        if (loadingProgressDialog == null || !loadingProgressDialog!!.isShowing) {
-            loadingProgressDialog = LoadingProgressDialog(activity)
-            loadingProgressDialog!!.show()
+        if (CommonSingleton.PROGRESS_COUNT <= 0) {
+            if (loadingProgressDialog == null || !loadingProgressDialog!!.isShowing) {
+                loadingProgressDialog = LoadingProgressDialog(activity)
+                loadingProgressDialog!!.show()
+            }
+            CommonSingleton.PROGRESS_COUNT = 0
         }
+        CommonSingleton.PROGRESS_COUNT++
     }
 
     fun progressOff() {
-        if (loadingProgressDialog != null && loadingProgressDialog!!.isShowing) {
-            loadingProgressDialog!!.dismiss()
+
+        CommonSingleton.PROGRESS_COUNT--
+
+        if (CommonSingleton.PROGRESS_COUNT <= 0) {
+            if (loadingProgressDialog != null && loadingProgressDialog!!.isShowing) {
+                loadingProgressDialog!!.dismiss()
+            }
+            CommonSingleton.PROGRESS_COUNT = 0
         }
+
     }
 
 }

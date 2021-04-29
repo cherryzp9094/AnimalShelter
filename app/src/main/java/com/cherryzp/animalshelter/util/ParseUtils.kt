@@ -10,7 +10,7 @@ import java.io.StringReader
 class ParseUtils {
 
     companion object {
-        val TAG = "ParseUtils"
+        const val TAG = "ParseUtils"
 
         val xmlPullParserFactory = XmlPullParserFactory.newInstance()
         val parser = xmlPullParserFactory.newPullParser()
