@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.cherryzp.animalshelter">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,9 +13,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AnimalShelter"
-        android:usesCleartextTraffic="true">
-        <activity android:name=".ui.main.abandonmentpublic.DetailPhotoActivity"></activity>
-        <activity android:name=".ui.main.abandonmentpublic.AbandonmentPublicDetailActivity" />
+        android:usesCleartextTraffic="true"
+        tools:targetApi="m">
+        <activity android:name=".ui.main.abandonmentpublic.DetailPhotoActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.main.abandonmentpublic.AbandonmentPublicDetailActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.splash.SplashActivity"
             android:screenOrientation="portrait">
@@ -26,7 +30,8 @@
         </activity>
         <activity
             android:name=".ui.main.MainActivity"
-            android:screenOrientation="portrait" /> <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
+            android:screenOrientation="portrait" />
+        <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-2488110704514213~1612580944" />

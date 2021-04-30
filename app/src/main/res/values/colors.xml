@@ -9,4 +9,12 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="textColorDefault">#000000</color>
+
+    <color name="blue_air_superiority">#78A1BB</color>
+
+    <color name="color_body_powder">#FBFBF2</color>
+    <color name="color_platinum">#E5E6E4</color>
+    <color name="color_timberwolf">#CFD2CD</color>
+    <color name="color_quick_silver">#A6A2A2</color>
+    <color name="color_rocket_metallic">#847577</color>
 </resources>

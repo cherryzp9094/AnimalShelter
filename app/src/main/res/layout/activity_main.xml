@@ -47,7 +47,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="보기1"
+                android:text="목록"
                 android:gravity="center"/>
 
             <View
@@ -60,7 +60,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="보기1"
+                android:text="검색"
                 android:gravity="center"/>
 
         </LinearLayout>

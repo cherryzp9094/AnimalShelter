@@ -59,6 +59,11 @@ class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding,
 
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if (mainActivity.pageNo == 1) mainActivity.loadData()
+    }
 
 
 }

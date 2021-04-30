@@ -1,98 +1,277 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_margin="16dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="유기날짜"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/white">
+
+                <RelativeLayout
+                    android:layout_marginTop="16dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="품종"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/color_platinum"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <RelativeLayout
+                        android:id="@+id/total_btn"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_width="0dp"
+                        android:layout_height="80dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/selector_btn">
+
+                        <TextView
+                            android:layout_marginStart="16dp"
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="전체"
+                            android:textSize="16dp"
+                            android:textColor="@color/textColorDefault"/>
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/dog_btn"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_width="0dp"
+                        android:layout_height="80dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/selector_btn">
+
+                        <TextView
+                            android:layout_marginStart="16dp"
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="개"
+                            android:textSize="16dp"
+                            android:textColor="@color/textColorDefault"/>
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/cat_btn"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_width="0dp"
+                        android:layout_height="80dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/selector_btn">
+
+                        <TextView
+                            android:layout_marginStart="16dp"
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="고양이"
+                            android:textSize="16dp"
+                            android:textColor="@color/textColorDefault"/>
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/etc_btn"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_width="0dp"
+                        android:layout_height="80dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="@drawable/selector_btn">
+
+                        <TextView
+                            android:layout_marginStart="16dp"
+                            android:layout_centerVertical="true"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="기타"
+                            android:textSize="16dp"
+                            android:textColor="@color/textColorDefault"/>
+
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="유기날짜"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="시/도"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="시/군/구"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="보호소"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="상태"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/border_line_blue_radius">
+
+                    <TextView
+                        android:layout_marginStart="16dp"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="중성화"
+                        android:textSize="16dp"
+                        android:textColor="@color/textColorDefault"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <RelativeLayout
+            android:paddingTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:background="@drawable/gradient_blur"
+            android:layout_alignParentBottom="true">
 
             <TextView
-                android:id="@+id/dog_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="개"
-                android:gravity="center"
+                android:id="@+id/search_btn"
+                android:layout_margin="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="검색하기"
                 android:textSize="16dp"
-                android:textColor="@color/textColorDefault"/>
-
-            <TextView
-                android:id="@+id/cat_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="고양이"
+                android:textStyle="bold"
                 android:gravity="center"
-                android:textSize="16dp"
-                android:textColor="@color/textColorDefault"/>
+                android:textColor="#FBFBF2"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="@drawable/round_square_btn"/>
 
-            <TextView
-                android:id="@+id/etc_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="기타"
-                android:gravity="center"
-                android:textSize="16dp"
-                android:textColor="@color/textColorDefault"/>
+        </RelativeLayout>
 
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="품종"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="시도"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="시군구"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="보호소"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="상태"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="중성화"
-            android:textSize="16dp"
-            android:textColor="@color/textColorDefault"/>
-
-    </LinearLayout>
+    </RelativeLayout>
 
 </layout>
