@@ -15,15 +15,14 @@
 
     </data>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:overScrollMode="never">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -100,7 +99,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
+                    android:text="@{abandonmentPublic.noticeNo}"
                     android:textColor="@color/textColorDefault"
                     android:textSize="14dp"
                     app:layout_constraintTop_toBottomOf="@id/first_underline"
@@ -109,7 +108,7 @@
                 <TextView
                     android:id="@+id/notice_date_title_tv"
                     android:layout_marginLeft="16dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="공고기간 : "
@@ -120,7 +119,7 @@
 
                 <TextView
                     android:id="@+id/notice_date_tv"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{abandonmentPublic.noticeEdt}"
@@ -470,7 +469,7 @@
                 <TextView
                     android:id="@+id/office_tel_tv"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="24dp"
+                    android:layout_marginBottom="150dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{abandonmentPublic.officetel}"
@@ -485,8 +484,11 @@
         </androidx.core.widget.NestedScrollView>
 
         <RelativeLayout
+            android:paddingTop="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@drawable/gradient_blur"
+            android:layout_alignParentBottom="true">
 
             <TextView
                 android:id="@+id/contact_btn"
@@ -502,7 +504,7 @@
 
         </RelativeLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 

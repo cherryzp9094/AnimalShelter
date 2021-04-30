@@ -71,9 +71,12 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
         })
     }
 
-    fun abandonmentPublic(activity: Activity, map: MutableMap<String, String>) {
+    fun abandonmentPublic(activity: Activity, map: MutableMap<String, String>, listInit: Boolean) {
 
         AppApplication.appApplication.progressOn(activity)
+
+        if (listInit)
+            abandonmentPublicList.clear()
 
         model.abandonmentPublic(map).enqueue(object : CustomCallback<String>() {
             override fun onSuccess(call: Call<String>, response: Response<String>) {

@@ -21,7 +21,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         ANIMAL, SEARCH
     }
 
-    var fragmentState = FRAGMENT_STATE.ANIMAL
+    private var fragmentState = FRAGMENT_STATE.ANIMAL
+
+    private val searchFragment  = SearchFragment()
+    private val abandonmentPublicFragment = AbandonmentPublicFragment()
+
+    var searchMap = mutableMapOf<String, String>()
 
     override val layoutResourceId: Int
         get() = R.layout.activity_main
@@ -46,20 +51,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     * @neuter_yn : 중성화 여부 y, n
     *
     * */
-    var bgnde: String? = null
-    var endde: String? = null
-    var upkind: String? = null
-    var kind: String? = null
-    var uprCd: String? = null
-    var orgCd: String? = null
-    var careRegNo: String? = null
-    var state: String? = null
-    var neuterYn: String? = null
 
     override fun initStartView() {
         initAdView()
-
-        loadData()
 
         btn_1.setOnClickListener(onClickListener)
         btn_2.setOnClickListener(onClickListener)
@@ -80,42 +74,53 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     private val onClickListener = View.OnClickListener {
         when (it.id) {
             R.id.btn_1 -> {
-                if (fragmentState == FRAGMENT_STATE.SEARCH) {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_view, AbandonmentPublicFragment()).commit()
-                    fragmentState = FRAGMENT_STATE.ANIMAL
-                }
+               moveFragment(FRAGMENT_STATE.ANIMAL)
             }
             R.id.btn_2 -> {
-                if (fragmentState == FRAGMENT_STATE.ANIMAL) {
-                    supportFragmentManager.beginTransaction().replace(R.id.fragment_view, SearchFragment()).commit()
-                    fragmentState = FRAGMENT_STATE.SEARCH
-                }
+               moveFragment(FRAGMENT_STATE.SEARCH)
             }
         }
     }
 
+    //프래그먼트 이동
+    private fun moveFragment(state: FRAGMENT_STATE) {
+        fragmentState = when (state){
+            FRAGMENT_STATE.ANIMAL -> {
+                supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
+                FRAGMENT_STATE.ANIMAL
+            }
+
+            FRAGMENT_STATE.SEARCH -> {
+                supportFragmentManager.beginTransaction().replace(R.id.fragment_view, searchFragment).commit()
+                FRAGMENT_STATE.SEARCH
+            }
+        }
+
+    }
+
+    fun searchData(map: MutableMap<String, String>) {
+        searchMap = map
+        pageNo = 1
+
+        loadData()
+        moveFragment(FRAGMENT_STATE.ANIMAL)
+    }
+
+    //유기동물 보호 조회
     fun loadData() {
         if (viewModel.totalCntLiveData.value == null || viewModel.totalCntLiveData.value!! - (pageNo * numOfRows) >= 0) {
             if (viewModel.totalCntLiveData.value != null) {
                 Log.d(TAG, ""+ (viewModel.totalCntLiveData.value!! - (pageNo * numOfRows)))
                 Log.d(TAG, "" + viewModel.totalCntLiveData.value!!)
             }
-            val map = mutableMapOf<String, String>()
 
-            map.put("pageNo", pageNo.toString())
-            map.put("numOfRows", numOfRows.toString())
+            searchMap["pageNo"] = pageNo.toString()
+            searchMap["numOfRows"] = numOfRows.toString()
 
-            if (bgnde != null) map.put("bgnde", bgnde!!)
-            if (endde != null) map.put("endde", endde!!)
-            if (upkind != null) map.put("upkind", upkind!!)
-            if (kind != null) map.put("kind", kind!!)
-            if (uprCd != null) map.put("upr_cd", uprCd!!)
-            if (orgCd != null) map.put("org_cd", orgCd!!)
-            if (careRegNo != null) map.put("care_reg_no", careRegNo!!)
-            if (state != null) map.put("state", state!!)
-            if (neuterYn != null) map.put("neuter_yn", neuterYn!!)
-
-            viewModel.abandonmentPublic(this, map)
+            when (pageNo) {
+                1 -> viewModel.abandonmentPublic(this, searchMap, true)
+                else -> viewModel.abandonmentPublic(this, searchMap, false)
+            }
 
             pageNo++
         }
@@ -124,7 +129,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     //admob 초기화
     private fun initAdView() {
 
-        MobileAds.initialize(this, {})
+        MobileAds.initialize(this) {}
 
         val adRequest = AdRequest.Builder().build()
         ad_view.loadAd(adRequest)
