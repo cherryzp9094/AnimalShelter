@@ -8,10 +8,11 @@ import retrofit2.Call
 
 class DataModelImpl(private val service: ShelterService) : DataModel {
 
-    val serviceKey = CommonUtils.getContext().getString(R.string.service_key)
+    private val serviceKey = CommonUtils.getContext().getString(R.string.service_key)
+    private val sidoNumOfRows = 30
 
     override fun sido(): Call<String> {
-        return service.sido(serviceKey)
+        return service.sido(serviceKey, sidoNumOfRows)
     }
 
     override fun sigungu(uprCd: Int): Call<String> {

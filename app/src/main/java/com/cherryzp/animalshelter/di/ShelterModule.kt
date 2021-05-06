@@ -8,6 +8,7 @@ import com.cherryzp.animalshelter.service.ShelterService
 import com.cherryzp.animalshelter.ui.main.MainRecyclerAdatper
 import com.cherryzp.animalshelter.ui.main.MainViewModel
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicRecyclerAdapter
+import com.cherryzp.animalshelter.ui.main.search.SearchRecyclerAdapter
 import com.cherryzp.animalshelter.ui.splash.SplashViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -30,6 +31,9 @@ val adapterModule = module {
     }
     factory {
         AbandonmentPublicRecyclerAdapter()
+    }
+    factory {
+        SearchRecyclerAdapter()
     }
 }
 

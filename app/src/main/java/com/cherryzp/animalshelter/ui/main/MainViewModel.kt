@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.cherryzp.animalshelter.AppApplication
+import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseViewModel
 import com.cherryzp.animalshelter.model.DataModel
 import com.cherryzp.animalshelter.model.response.*
@@ -45,19 +46,20 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
     val totalCntLiveData : LiveData<Int>
         get() = _totalCntLiveData
 
-    private val sidoList = ArrayList<Sido>()
+    private var sidoList = ArrayList<Sido>()
     private var sigunguList = ArrayList<Sigungu>()
-    private var shelterList = ArrayList<Shelter>()
     private var abandonmentPublicList = ArrayList<AbandonmentPublic>()
 
     val xmlPullParserFactory = XmlPullParserFactory.newInstance()
     val parser = xmlPullParserFactory.newPullParser()
 
-    fun shelter() {
-        model.shelter(6410000, 4020000).enqueue(object: CustomCallback<String>() {
+    //보호소 조회
+    fun loadShelter(activity: Activity, uprCd: Int, orgCd: Int) {
+        AppApplication.appApplication.progressOn(activity)
+
+        model.shelter(uprCd, orgCd).enqueue(object: CustomCallback<String>() {
             override fun onSuccess(call: Call<String>, response: Response<String>) {
-                shelterList.addAll(ParseUtils.parseShelter(response.body().toString()))
-                _shelterListLiveData.value = shelterList
+                _shelterListLiveData.value = ParseUtils.parseShelter(response.body().toString())
             }
 
             override fun onError(call: Call<String>, response: Response<String>) {
@@ -71,12 +73,9 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
         })
     }
 
-    fun abandonmentPublic(activity: Activity, map: MutableMap<String, String>, listInit: Boolean) {
-
+    //유기동물 조회
+    fun loadAbandonmentPublic(activity: Activity, map: MutableMap<String, String>) {
         AppApplication.appApplication.progressOn(activity)
-
-        if (listInit)
-            abandonmentPublicList.clear()
 
         model.abandonmentPublic(map).enqueue(object : CustomCallback<String>() {
             override fun onSuccess(call: Call<String>, response: Response<String>) {
@@ -94,6 +93,57 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
 
             }
         })
+    }
+
+    fun loadSido(activity: Activity) {
+        AppApplication.appApplication.progressOn(activity)
+
+        model.sido().enqueue(object : CustomCallback<String>() {
+            override fun onSuccess(call: Call<String>, response: Response<String>) {
+                sidoList = ParseUtils.parseSido(response.body().toString())
+                _sidoListLiveData.value = sidoList
+            }
+
+            override fun onError(call: Call<String>, response: Response<String>) {
+
+            }
+
+            override fun onFail(call: Call<String>, t: Throwable) {
+
+            }
+
+        })
+    }
+
+    fun loadSigungu(activity: Activity, uprCd: Int) {
+        AppApplication.appApplication.progressOn(activity)
+
+        model.sigungu(uprCd).enqueue(object : CustomCallback<String>() {
+            override fun onSuccess(call: Call<String>, response: Response<String>) {
+                sigunguList = ParseUtils.parseSigungu(response.body().toString())
+                _sigunguListLiveData.value = sigunguList
+            }
+
+            override fun onError(call: Call<String>, response: Response<String>) {
+
+            }
+
+            override fun onFail(call: Call<String>, t: Throwable) {
+
+            }
+
+        })
+    }
+
+    //유기동물 리스트 리셋
+    fun resetAbandonmentPublic() {
+        abandonmentPublicList.clear()
+        _totalCntLiveData.value = null
+    }
+
+    //보호소 정보 리셋
+    fun resetShelter() {
+        _shelterListLiveData.value?.clear()
     }
 
     fun insert() {
