@@ -8,6 +8,7 @@ import com.cherryzp.animalshelter.base.BaseActivity
 import com.cherryzp.animalshelter.databinding.ActivityMainBinding
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicFragment
 import com.cherryzp.animalshelter.ui.main.search.SearchFragment
+import com.cherryzp.animalshelter.util.CommonUtils
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
@@ -38,8 +39,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     override fun initStartView() {
         initAdView()
 
-        btn_1.setOnClickListener(onClickListener)
-        btn_2.setOnClickListener(onClickListener)
+        abandonment_fragment_btn.setOnClickListener(onClickListener)
+        search_fragment_btn.setOnClickListener(onClickListener)
 
         supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
 
@@ -55,11 +56,13 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     }
 
     private val onClickListener = View.OnClickListener {
+        CommonUtils.hideKeyboard(this)
+
         when (it.id) {
-            R.id.btn_1 -> {
+            R.id.abandonment_fragment_btn -> {
                moveFragment(FragmentState.ANIMAL)
             }
-            R.id.btn_2 -> {
+            R.id.search_fragment_btn -> {
                moveFragment(FragmentState.SEARCH)
             }
         }
