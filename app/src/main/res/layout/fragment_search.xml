@@ -8,129 +8,126 @@
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:overScrollMode="never">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:background="@color/white">
+                android:background="@color/white"
+                android:orientation="vertical">
 
                 <RelativeLayout
-                    android:layout_marginTop="16dp"
-                    android:layout_marginHorizontal="16dp"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="16dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="품종"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
 
                 <LinearLayout
-                    android:layout_marginTop="8dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:background="@color/color_platinum"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
                     <RelativeLayout
                         android:id="@+id/total_btn"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginVertical="16dp"
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:background="@drawable/selector_btn">
+                        android:focusable="true">
 
                         <TextView
-                            android:layout_marginStart="16dp"
-                            android:layout_centerVertical="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
                             android:text="전체"
-                            android:textSize="16dp"
-                            android:textColor="@color/textColorDefault"/>
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
 
                     </RelativeLayout>
 
                     <RelativeLayout
                         android:id="@+id/dog_btn"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginVertical="16dp"
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:background="@drawable/selector_btn">
+                        android:focusable="true">
 
                         <TextView
-                            android:layout_marginStart="16dp"
-                            android:layout_centerVertical="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
                             android:text="개"
-                            android:textSize="16dp"
-                            android:textColor="@color/textColorDefault"/>
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
 
                     </RelativeLayout>
 
                     <RelativeLayout
                         android:id="@+id/cat_btn"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginVertical="16dp"
                         android:layout_width="0dp"
-                        android:layout_height="80dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:background="@drawable/selector_btn">
+                        android:focusable="true">
 
                         <TextView
-                            android:layout_marginStart="16dp"
-                            android:layout_centerVertical="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
                             android:text="고양이"
-                            android:textSize="16dp"
-                            android:textColor="@color/textColorDefault"/>
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
 
                     </RelativeLayout>
 
                     <RelativeLayout
                         android:id="@+id/etc_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
                         android:layout_marginHorizontal="16dp"
                         android:layout_marginVertical="16dp"
-                        android:layout_width="0dp"
-                        android:layout_height="80dp"
                         android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:background="@drawable/selector_btn">
+                        android:focusable="true">
 
                         <TextView
-                            android:layout_marginStart="16dp"
-                            android:layout_centerVertical="true"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
                             android:text="기타"
-                            android:textSize="16dp"
-                            android:textColor="@color/textColorDefault"/>
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
 
                     </RelativeLayout>
 
@@ -138,137 +135,350 @@
                 </LinearLayout>
 
                 <RelativeLayout
-                    android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="16dp"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="유기날짜"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
 
-                <RelativeLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:background="@color/color_platinum"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/bgnde_et"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:hint="YYYYMMDD"
+                        android:inputType="numberDecimal"
+                        android:maxLength="8"
+                        android:maxLines="1"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="8dp"
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="8dp"
+                        android:text="~"
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
+
+                    <EditText
+                        android:id="@+id/endde_et"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:hint="YYYYMMDD"
+                        android:inputType="numberDecimal"
+                        android:maxLength="8"
+                        android:maxLines="1"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="8dp"
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="시/도"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
 
-                <RelativeLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sido_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
                     android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:padding="8dp"
+                    android:background="@color/color_platinum"/>
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="시/군/구"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
 
-                <RelativeLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sigungu_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
                     android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:padding="8dp"
+                    android:background="@color/color_platinum"/>
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="보호소"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
 
-                <RelativeLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/shelter_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
                     android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:padding="8dp"
+                    android:background="@color/color_platinum"/>
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="상태"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
 
-                <RelativeLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="16dp"
+                    android:background="@color/color_platinum"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:id="@+id/state_total_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
+                            android:text="전체"
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/state_notice_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
+                            android:text="공고중"
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/state_protect_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
+                            android:text="보호중"
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/border_line_blue_radius">
 
                     <TextView
-                        android:layout_marginStart="16dp"
-                        android:layout_centerVertical="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
                         android:text="중성화"
-                        android:textSize="16dp"
-                        android:textColor="@color/textColorDefault"/>
+                        android:textColor="@color/textColorDefault"
+                        android:textSize="16dp" />
 
                 </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/color_platinum"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:id="@+id/neuter_y_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
+                            android:text="중성화(Y)"
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/neuter_n_btn"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_search_item"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="16dp"
+                            android:text="중성화(N)"
+                            android:textColor="@color/textColorDefault"
+                            android:textSize="16dp" />
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp" />
 
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
 
         <RelativeLayout
-            android:paddingTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:background="@drawable/gradient_blur"
-            android:layout_alignParentBottom="true">
+            android:paddingTop="20dp">
 
             <TextView
                 android:id="@+id/search_btn"
-                android:layout_margin="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:text="검색하기"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:textColor="#FBFBF2"
+                android:layout_margin="20dp"
+                android:background="@drawable/round_square_btn"
                 android:clickable="true"
                 android:focusable="true"
-                android:background="@drawable/round_square_btn"/>
+                android:gravity="center"
+                android:text="검색하기"
+                android:textColor="#FBFBF2"
+                android:textSize="16dp"
+                android:textStyle="bold" />
 
         </RelativeLayout>
 

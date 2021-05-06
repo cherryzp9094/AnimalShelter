@@ -11,7 +11,7 @@ interface ShelterService {
 
     //시도 검색
     @GET("sido")
-    fun sido(@Query(value="serviceKey", encoded = true) serviceKey: String): Call<String>
+    fun sido(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query(value="numOfRows", encoded = true) numOfRows: Int): Call<String>
 
     //시도 검색
     @GET("sigungu")

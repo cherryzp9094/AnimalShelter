@@ -53,14 +53,21 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
                 shelter_tv.text = "보호소 : ${abandonmentPublic.chargeNm}"
                 sex_tv.text = "성별 : ${abandonmentPublic.sexCd}"
 
-                item_view.setOnClickListener(View.OnClickListener {
-                    val intent = Intent(CommonUtils.getContext(), AbandonmentPublicDetailActivity::class.java)
+                item_view.setOnClickListener {
+                    val intent = Intent(
+                        CommonUtils.getContext(),
+                        AbandonmentPublicDetailActivity::class.java
+                    )
                     intent.putExtra("itemPosition", layoutPosition)
 
-                    val options = ActivityOptions.makeSceneTransitionAnimation(activity , popfile_iv, "profile_image")
+                    val options = ActivityOptions.makeSceneTransitionAnimation(
+                        activity,
+                        popfile_iv,
+                        "profile_image"
+                    )
 
                     ContextCompat.startActivity(context, intent, options.toBundle())
-                })
+                }
             }
         }
 

@@ -3,6 +3,8 @@ package com.cherryzp.animalshelter.util
 import android.util.Log
 import com.cherryzp.animalshelter.model.response.AbandonmentPublic
 import com.cherryzp.animalshelter.model.response.Shelter
+import com.cherryzp.animalshelter.model.response.Sido
+import com.cherryzp.animalshelter.model.response.Sigungu
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.StringReader
@@ -15,6 +17,7 @@ class ParseUtils {
         val xmlPullParserFactory = XmlPullParserFactory.newInstance()
         val parser = xmlPullParserFactory.newPullParser()
 
+        //보호소 정보 파싱
         fun parseShelter(xmlData: String): ArrayList<Shelter> {
             parser.setInput(StringReader(xmlData))
 
@@ -150,6 +153,81 @@ class ParseUtils {
             return Pair(abandonmentPublicList, totalCount)
         }
 
+        fun parseSido(xmlData: String): ArrayList<Sido> {
+            parser.setInput(StringReader(xmlData))
+
+            val sidoList = ArrayList<Sido>()
+
+            var event = parser.eventType
+
+            var orgCd: Int? = null
+            var orgdownNm: String? = null
+
+            while (event != XmlPullParser.END_DOCUMENT) {
+                when (event) {
+                    XmlPullParser.START_TAG -> {
+                        if (parser.name.equals("orgCd")) {
+                            orgCd = Integer.parseInt(parser.nextText())
+                        } else if (parser.name.equals("orgdownNm")) {
+                            orgdownNm = parser.nextText()
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        if (parser.name.equals("item")) {
+                            val sido = Sido(orgCd!!, orgdownNm!!)
+                            sidoList.add(sido)
+
+                            orgCd = null
+                            orgdownNm = null
+                        }
+                    }
+                }
+                event = parser.next()
+            }
+            Log.d(TAG, "파싱완료")
+
+            return sidoList
+        }
+
+        fun parseSigungu(xmlData: String): ArrayList<Sigungu> {
+            parser.setInput(StringReader(xmlData))
+
+            val sigunguList = ArrayList<Sigungu>()
+
+            var event = parser.eventType
+
+            var orgCd: Int? = null
+            var uprCd: Int? = null
+            var orgdownNm: String? = null
+
+            while (event != XmlPullParser.END_DOCUMENT) {
+                when (event) {
+                    XmlPullParser.START_TAG -> {
+                        if (parser.name.equals("orgCd")) {
+                            orgCd = Integer.parseInt(parser.nextText())
+                        } else if (parser.name.equals("orgdownNm")) {
+                            orgdownNm = parser.nextText()
+                        } else if (parser.name.equals("uprCd")) {
+                            uprCd = Integer.parseInt(parser.nextText())
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        if (parser.name.equals("item")) {
+                            val sido = Sigungu(orgCd!!, orgdownNm!!, uprCd!!)
+                            sigunguList.add(sido)
+
+                            orgCd = null
+                            orgdownNm = null
+                            uprCd = null
+                        }
+                    }
+                }
+                event = parser.next()
+            }
+            Log.d(TAG, "파싱완료")
+
+            return sigunguList
+        }
     }
 
 }

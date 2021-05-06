@@ -50,6 +50,7 @@ class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding,
     override fun initDataBinding() {
         viewModel.abandonmentPublicListLiveData.observe(this, Observer {
             Log.d(TAG, "${it.size}")
+
             abandonmentPublicRecyclerAdapter.setAbandonmentPublicList(it)
             abandonmentPublicRecyclerAdapter.notifyDataSetChanged()
         })

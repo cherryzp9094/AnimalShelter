@@ -50,5 +50,6 @@ abstract class CustomCallback<T> : retrofit2.Callback<T> {
     override fun onFailure(call: Call<T>, t: Throwable) {
         t.printStackTrace()
         onFail(call, t)
+        AppApplication.appApplication.progressOff()
     }
 }
