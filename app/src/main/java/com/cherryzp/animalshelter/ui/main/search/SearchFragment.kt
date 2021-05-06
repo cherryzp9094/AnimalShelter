@@ -12,6 +12,8 @@ import com.cherryzp.animalshelter.model.response.Shelter
 import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.model.response.Sigungu
 import com.cherryzp.animalshelter.ui.main.*
+import com.cherryzp.animalshelter.util.CommonUtils
+import kotlinx.android.synthetic.main.fragment_search.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -109,47 +111,58 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(), Sea
         })
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun initListener() {
         //동물 품종 선택
-        dataBinding.catBtn.setOnTouchListener(upkindTouchListener)
-        dataBinding.dogBtn.setOnTouchListener(upkindTouchListener)
-        dataBinding.etcBtn.setOnTouchListener(upkindTouchListener)
-        dataBinding.totalBtn.setOnTouchListener(upkindTouchListener)
+        dataBinding.catBtn.setOnClickListener(upkindClickListener)
+        dataBinding.dogBtn.setOnClickListener(upkindClickListener)
+        dataBinding.etcBtn.setOnClickListener(upkindClickListener)
+        dataBinding.totalBtn.setOnClickListener(upkindClickListener)
 
-        //검색하기 버튼
-        dataBinding.searchBtn.setOnTouchListener(upkindTouchListener)
+        //동물 상태 선택
+        dataBinding.stateTotalBtn.setOnClickListener(stateClickListener)
+        dataBinding.stateNoticeBtn.setOnClickListener(stateClickListener)
+        dataBinding.stateProtectBtn.setOnClickListener(stateClickListener)
+
+        //중성화 선택
+        dataBinding.neuterYBtn.setOnClickListener(neuterClickListener)
+        dataBinding.neuterNBtn.setOnClickListener(neuterClickListener)
+
+        //검색하기 버튼 (upkind 리스너에 있음)
+        dataBinding.searchBtn.setOnClickListener(upkindClickListener)
     }
 
     //축종 리스너
-    @SuppressLint("ClickableViewAccessibility")
-    private val upkindTouchListener = View.OnTouchListener { v, event ->
+    private val upkindClickListener = View.OnClickListener {
+        resetUpkindState()
+        selectUpkind(it)
+    }
 
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                resetUpkindState()
-            }
+    //상태 리스너
+    private val stateClickListener = View.OnClickListener {
+        resetState()
+        selectState(it)
+    }
 
-            MotionEvent.ACTION_UP -> {
-                selectUpkind(v)
-            }
-        }
-
-        false
+    //중성화 리스너
+    private val neuterClickListener = View.OnClickListener {
+        resetNeuter()
+        selectNeuter(it)
     }
 
     private fun selectUpkind(view: View) {
+        CommonUtils.hideKeyboard(mainActivity)
+
         when (view.id) {
             R.id.dog_btn -> {
-                insertSearchMap(SEARCH_PARAMS_UPKIND, resources.getString(R.string.kind_dog))
+                insertSearchMap(SEARCH_PARAMS_UPKIND, UPKIND_DOG)
                 dataBinding.dogBtn.isActivated = true
             }
             R.id.cat_btn -> {
-                insertSearchMap(SEARCH_PARAMS_UPKIND, resources.getString(R.string.kind_cat))
+                insertSearchMap(SEARCH_PARAMS_UPKIND, UPKIND_CAT)
                 dataBinding.catBtn.isActivated = true
             }
             R.id.etc_btn -> {
-                insertSearchMap(SEARCH_PARAMS_UPKIND, resources.getString(R.string.kind_etc))
+                insertSearchMap(SEARCH_PARAMS_UPKIND, UPKIND_ETC)
                 dataBinding.etcBtn.isActivated = true
             }
             R.id.total_btn -> {
@@ -157,6 +170,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(), Sea
                 dataBinding.totalBtn.isActivated = true
             }
             R.id.search_btn -> {
+                checkDate()
                 mainActivity.searchData(searchMap)
             }
         }
@@ -169,7 +183,72 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(), Sea
         dataBinding.totalBtn.isActivated = false
     }
 
-    //선택된 아이템 리스너
+    private fun selectState(view: View) {
+        CommonUtils.hideKeyboard(mainActivity)
+
+        when (view.id) {
+            R.id.state_notice_btn -> {
+                insertSearchMap(SEARCH_PARAMS_STATE, STATE_NOTICE)
+                dataBinding.stateNoticeBtn.isActivated = true
+            }
+            R.id.state_protect_btn -> {
+                insertSearchMap(SEARCH_PARAMS_STATE, STATE_PROTECT)
+                dataBinding.stateProtectBtn.isActivated = true
+            }
+            R.id.state_total_btn -> {
+                removeSearchMap(SEARCH_PARAMS_STATE)
+                dataBinding.stateTotalBtn.isActivated = true
+            }
+        }
+    }
+
+    private fun resetState() {
+        dataBinding.stateTotalBtn.isActivated = false
+        dataBinding.stateNoticeBtn.isActivated = false
+        dataBinding.stateProtectBtn.isActivated = false
+    }
+
+    private fun selectNeuter(view: View) {
+        CommonUtils.hideKeyboard(mainActivity)
+
+        when (view.id) {
+            R.id.neuter_y_btn -> {
+                insertSearchMap(SEARCH_PARAMS_NEUTER_YN, NEUTER_Y)
+                dataBinding.neuterYBtn.isActivated = true
+            }
+            R.id.neuter_n_btn -> {
+                insertSearchMap(SEARCH_PARAMS_NEUTER_YN, NEUTER_N)
+                dataBinding.neuterNBtn.isActivated = true
+            }
+        }
+    }
+
+    private fun resetNeuter() {
+        dataBinding.neuterYBtn.isActivated = false
+        dataBinding.neuterNBtn.isActivated = false
+    }
+
+    private fun checkDate() {
+        val startDate: String?
+        val endDate: String?
+
+        if (dataBinding.bgndeEt.text.isNotEmpty() && dataBinding.bgndeEt.text.length == 8) {
+            startDate = dataBinding.bgndeEt.text.toString()
+            insertSearchMap(SEARCH_PARAMS_BGNDE, startDate)
+        } else {
+            removeSearchMap(SEARCH_PARAMS_BGNDE)
+        }
+
+        if (dataBinding.enddeEt.text.isNotEmpty() && dataBinding.enddeEt.text.length == 8) {
+            endDate = dataBinding.enddeEt.text.toString()
+            insertSearchMap(SEARCH_PARAMS_ENDDE, endDate)
+        } else {
+            removeSearchMap(SEARCH_PARAMS_ENDDE)
+        }
+
+    }
+
+    //선택된 아이템 리스너 ( 시/도, 시/군/구, 보호소 )
     override fun itemSelectedListener(
         itemKind: SearchRecyclerAdapter.SearchItemKind,
         selectItem: Any,

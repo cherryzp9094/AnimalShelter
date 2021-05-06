@@ -39,7 +39,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:background="@color/color_platinum"
+                    android:background="@color/color_timberwolf"
                     android:gravity="center"
                     android:orientation="horizontal">
 
@@ -156,7 +156,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:background="@color/color_platinum"
+                    android:background="@color/color_timberwolf"
                     android:gravity="center"
                     android:orientation="horizontal">
 
@@ -229,7 +229,7 @@
                     android:overScrollMode="never"
                     android:layout_marginTop="8dp"
                     android:padding="8dp"
-                    android:background="@color/color_platinum"/>
+                    android:background="@color/color_timberwolf"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -256,7 +256,7 @@
                     android:overScrollMode="never"
                     android:layout_marginTop="8dp"
                     android:padding="8dp"
-                    android:background="@color/color_platinum"/>
+                    android:background="@color/color_timberwolf"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -283,7 +283,7 @@
                     android:overScrollMode="never"
                     android:layout_marginTop="8dp"
                     android:padding="8dp"
-                    android:background="@color/color_platinum"/>
+                    android:background="@color/color_timberwolf"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -307,7 +307,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:background="@color/color_platinum"
+                    android:background="@color/color_timberwolf"
                     android:gravity="center"
                     android:orientation="horizontal">
 
@@ -401,7 +401,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:background="@color/color_platinum"
+                    android:background="@color/color_timberwolf"
                     android:gravity="center"
                     android:orientation="horizontal">
 

@@ -10,6 +10,7 @@ import com.cherryzp.animalshelter.model.response.Shelter
 import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.model.response.Sigungu
 import com.cherryzp.animalshelter.ui.main.MainActivity
+import com.cherryzp.animalshelter.util.CommonUtils
 import kotlinx.android.synthetic.main.recycler_search_item.view.*
 
 class SearchRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
@@ -79,6 +80,8 @@ class SearchRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     }
 
     val onClickListener = View.OnClickListener {
+        CommonUtils.hideKeyboard(activity)
+
         val position: Int = it.tag as Int
 
         if (activatedPosition == position) {
