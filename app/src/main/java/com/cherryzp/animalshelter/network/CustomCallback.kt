@@ -27,19 +27,20 @@ abstract class CustomCallback<T> : retrofit2.Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
         when (response.code()) {
             200 -> {
-                Log.d("success", response.toString() + "")
+                Log.d("onSuccess", response.toString() + "")
                 logLine(response.body().toString())
                 onSuccess(call, response)
                 AppApplication.appApplication.progressOff()
             }
             400, 401, 402, 403, 404, 500 -> {
-                Log.d("error", response.toString() + "")
+                Log.d("onError", response.toString() + "")
+                Log.d("onError", response.errorBody().toString())
                 onError(call, response)
                 AppApplication.appApplication.progressOff()
             }
             else -> {
-                Log.e("error", response.toString() + "")
-                Log.e("error", response.errorBody().toString())
+                Log.d("onError", response.toString() + "")
+                Log.d("onError", response.errorBody().toString())
                 onError(call, response)
                 AppApplication.appApplication.progressOff()
             }
@@ -49,6 +50,7 @@ abstract class CustomCallback<T> : retrofit2.Callback<T> {
 
     override fun onFailure(call: Call<T>, t: Throwable) {
         t.printStackTrace()
+        Log.d("onFail", t.message.toString())
         onFail(call, t)
         AppApplication.appApplication.progressOff()
     }

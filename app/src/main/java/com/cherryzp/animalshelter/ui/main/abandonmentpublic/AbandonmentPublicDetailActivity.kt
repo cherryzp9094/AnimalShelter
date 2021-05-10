@@ -41,7 +41,7 @@ class AbandonmentPublicDetailActivity : BaseActivity<ActivityAbandonmentPublicDe
 
     }
 
-    val onClickListener = View.OnClickListener {
+    private val onClickListener = View.OnClickListener {
         when (it.id) {
             R.id.popfile_iv ->{
                 val intent = Intent(this, DetailPhotoActivity::class.java)

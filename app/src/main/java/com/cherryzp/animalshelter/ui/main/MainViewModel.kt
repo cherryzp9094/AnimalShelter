@@ -50,9 +50,6 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
     private var sigunguList = ArrayList<Sigungu>()
     private var abandonmentPublicList = ArrayList<AbandonmentPublic>()
 
-    val xmlPullParserFactory = XmlPullParserFactory.newInstance()
-    val parser = xmlPullParserFactory.newPullParser()
-
     //보호소 조회
     fun loadShelter(activity: Activity, uprCd: Int, orgCd: Int) {
         AppApplication.appApplication.progressOn(activity)
@@ -139,6 +136,10 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
     fun resetAbandonmentPublic() {
         abandonmentPublicList.clear()
         _totalCntLiveData.value = null
+    }
+
+    fun resetSigungu() {
+        _sigunguListLiveData.value?.clear()
     }
 
     //보호소 정보 리셋
