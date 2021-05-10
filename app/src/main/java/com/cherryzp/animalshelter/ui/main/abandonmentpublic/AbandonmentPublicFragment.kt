@@ -48,12 +48,18 @@ class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding,
     }
 
     override fun initDataBinding() {
-        viewModel.abandonmentPublicListLiveData.observe(this, Observer {
+        viewModel.abandonmentPublicListLiveData.observe(this) {
             Log.d(TAG, "${it.size}")
 
-            abandonmentPublicRecyclerAdapter.setAbandonmentPublicList(it)
+            if (it.size > 0) {
+                dataBinding.searchNoItemTv.visibility = View.GONE
+                abandonmentPublicRecyclerAdapter.setAbandonmentPublicList(it)
+            } else {
+                dataBinding.searchNoItemTv.visibility = View.VISIBLE
+            }
             abandonmentPublicRecyclerAdapter.notifyDataSetChanged()
-        })
+
+        }
     }
 
     override fun initAfterBinding() {

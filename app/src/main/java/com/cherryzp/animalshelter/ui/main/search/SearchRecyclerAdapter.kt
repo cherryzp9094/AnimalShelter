@@ -84,11 +84,13 @@ class SearchRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
         val position: Int = it.tag as Int
 
+        // 선택된 아이템 클릭시 취소
         if (activatedPosition == position) {
             this.resetActivatedPosition()
             notifyDataSetChanged()
             searchItemSelectListener.itemSelectedListener(itemKind, searchList[position], true)
-        } else {
+
+        } else { // 선택되지 않은 아이템 클릭시 선택
             activatedPosition = position
             notifyDataSetChanged()
             searchItemSelectListener.itemSelectedListener(itemKind, searchList[position], false)

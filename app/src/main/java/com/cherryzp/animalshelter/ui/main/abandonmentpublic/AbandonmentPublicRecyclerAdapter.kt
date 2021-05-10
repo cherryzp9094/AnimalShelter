@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.model.response.AbandonmentPublic
 import com.cherryzp.animalshelter.ui.main.MainActivity
+import com.cherryzp.animalshelter.util.BindingAdapter
 import com.cherryzp.animalshelter.util.CommonUtils
 import kotlinx.android.synthetic.main.fragment_abandonment_public.view.*
 import kotlinx.android.synthetic.main.recycler_abandonment_public_list_item.view.*
@@ -49,8 +50,8 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
                 kind_tv.text = abandonmentPublic.kindCd
                 age_tv.text = "출생연도 : ${abandonmentPublic.age}"
                 notice_no_tv.text = "공고번호 : ${abandonmentPublic.noticeNo}"
-                state_tv.text = abandonmentPublic.processState
-                shelter_tv.text = "보호소 : ${abandonmentPublic.chargeNm}"
+                BindingAdapter.insertProcessState(state_tv, abandonmentPublic)
+                shelter_tv.text = "보호소 : ${abandonmentPublic.careNm}"
                 sex_tv.text = "성별 : ${abandonmentPublic.sexCd}"
 
                 item_view.setOnClickListener {
