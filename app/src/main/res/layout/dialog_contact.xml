@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="250dp"
+        xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/border_line_null_solid_white_radius"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <TextView
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="연락하기"
+            android:textSize="20dp"
+            android:textColor="@color/black"/>
+
+        <TextView
             android:id="@+id/call_shelter_btn"
             android:layout_marginVertical="20dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="40dp"
             android:layout_width="200dp"
             android:layout_height="40dp"
             android:text="보호소 연락하기"
@@ -23,7 +31,7 @@
         <TextView
             android:id="@+id/call_guardian_btn"
             android:layout_marginBottom="20dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="40dp"
             android:layout_width="200dp"
             android:layout_height="40dp"
             android:text="담당자 연락하기"
