@@ -15,55 +15,40 @@
         tools:context=".ui.main.MainActivity"
         android:background="#FFF">
 
-<!--        <androidx.core.widget.NestedScrollView-->
-<!--            android:id="@+id/main_nsv"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            app:layout_constraintVertical_weight="1"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/ad_view">-->
-
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/main_recycler_view"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent" />-->
-
-<!--        </androidx.core.widget.NestedScrollView>-->
-
-        <LinearLayout
-            android:id="@+id/menu_layout"
+        <RelativeLayout
+            android:id="@+id/top_layout"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal"
+            android:layout_height="50dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/fragment_view">
+            app:layout_constraintBottom_toTopOf="@id/fragment_view"
+            android:background="@color/blue_air_superiority">
 
             <TextView
                 android:id="@+id/abandonment_fragment_btn"
-                android:layout_width="0dp"
+                android:layout_width="200dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="목록"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:textSize="22dp"
+                android:textColor="@color/white"
+                android:text="Animal Shelter"
+                android:textStyle=""
+                android:layout_centerInParent="true"/>
 
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="@color/textColorDefault"/>
-
-            <TextView
+            <ImageView
                 android:id="@+id/search_fragment_btn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="검색"
-                android:gravity="center"/>
+                android:layout_marginEnd="8dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/outline_search_24"
+                app:tint="@color/white"
+                android:scaleX="0.5"
+                android:scaleY="0.5"/>
 
-        </LinearLayout>
+        </RelativeLayout>
 
         <FrameLayout
             android:id="@+id/fragment_view"
@@ -71,7 +56,7 @@
             android:layout_height="0dp"
             app:layout_constraintVertical_weight="1"
             app:layout_constraintBottom_toTopOf="@id/ad_view"
-            app:layout_constraintTop_toBottomOf="@id/menu_layout"
+            app:layout_constraintTop_toBottomOf="@id/top_layout"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"/>
 

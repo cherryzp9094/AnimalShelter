@@ -16,6 +16,7 @@ import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.model.response.Sigungu
 import com.cherryzp.animalshelter.ui.main.*
 import com.cherryzp.animalshelter.util.CommonUtils
+import kotlinx.android.synthetic.main.fragment_search.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.w3c.dom.Text
@@ -99,17 +100,25 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(),
     //검색 관련 리스트 아이템 관찰
     private fun observeRecyclerItem() {
         viewModel.sidoListLiveData.observe(this, {
-            sidoRecyclerAdatper.setSearchList(it as ArrayList<Any>)
-            sidoRecyclerAdatper.notifyDataSetChanged()
+            observeChange(sidoRecyclerAdatper, sido_recycler_view, it as ArrayList<Any>)
         })
         viewModel.sigunguListLiveData.observe(this, {
-            sigunguRecyclerAdapter.setSearchList(it as ArrayList<Any>)
-            sigunguRecyclerAdapter.notifyDataSetChanged()
+            observeChange(sigunguRecyclerAdapter, sigungu_recycler_view, it as ArrayList<Any>)
         })
         viewModel.shelterListLiveData.observe(this, {
-            shelterRecyclerAdatper.setSearchList(it as ArrayList<Any>)
-            shelterRecyclerAdatper.notifyDataSetChanged()
+            observeChange(shelterRecyclerAdatper, shelter_recycler_view, it as ArrayList<Any>)
         })
+    }
+
+    // 관찰된 아이템 어뎁터 값 변경
+    private fun observeChange(adapter: SearchRecyclerAdapter, recyclerView: RecyclerView ,itemList: ArrayList<Any>) {
+        adapter.setSearchList(itemList)
+        adapter.notifyDataSetChanged()
+        if (itemList.size > 0) {
+            recyclerView.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = View.GONE
+        }
     }
 
     private fun initListener() {
@@ -292,6 +301,7 @@ class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(),
                 insertSearchMap(SEARCH_PARAMS_UPR_CD, item.orgCd.toString())
                 viewModel.loadSigungu(mainActivity, item.orgCd)
                 viewModel.resetShelter()
+                shelterRecyclerAdatper.notifyDataSetChanged()
             }
             SearchRecyclerAdapter.SearchItemKind.SIGUNGU -> {
                 shelterRecyclerAdatper.resetActivatedPosition()

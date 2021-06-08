@@ -1,10 +1,13 @@
 package com.cherryzp.animalshelter.ui.main
 
+import android.os.HandlerThread
 import android.util.Log
 import android.view.View
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentTransaction
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseActivity
+import com.cherryzp.animalshelter.component.AppFinishDialog
 import com.cherryzp.animalshelter.databinding.ActivityMainBinding
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicFragment
 import com.cherryzp.animalshelter.ui.main.search.SearchFragment
@@ -13,6 +16,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.logging.Handler
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
@@ -21,6 +25,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     enum class FragmentState {
         ANIMAL, SEARCH
     }
+
+    private var isMoveFragment = false;
 
     private var fragmentState = FragmentState.ANIMAL
 
@@ -70,18 +76,27 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
     //프래그먼트 이동
     private fun moveFragment(state: FragmentState) {
+
+        if (isMoveFragment) return
+
+        isMoveFragment = true
+
+        val fragmentTransaction = supportFragmentManager.beginTransaction();
         fragmentState = when (state){
             FragmentState.ANIMAL -> {
-                supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
+                fragmentTransaction.setCustomAnimations(R.anim.none, R.anim.vertical_exit)
+                fragmentTransaction.replace(R.id.fragment_view, abandonmentPublicFragment).commit()
                 FragmentState.ANIMAL
             }
 
             FragmentState.SEARCH -> {
-                supportFragmentManager.beginTransaction().replace(R.id.fragment_view, searchFragment).commit()
+                fragmentTransaction.setCustomAnimations(R.anim.vertical_enter, R.anim.none)
+                fragmentTransaction.replace(R.id.fragment_view, searchFragment).commit()
                 FragmentState.SEARCH
             }
         }
 
+        isMoveFragment = false
     }
 
     //조건 검색
@@ -121,6 +136,14 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
     }
 
     override fun onBackPressed() {
-        ActivityCompat.finishAffinity(this)
+        when (fragmentState) {
+            FragmentState.ANIMAL -> {
+                val appFinishDialog = AppFinishDialog(this)
+                appFinishDialog.showContactDialog()
+            }
+            FragmentState.SEARCH -> {
+                moveFragment(FragmentState.ANIMAL)
+            }
+        }
     }
 }

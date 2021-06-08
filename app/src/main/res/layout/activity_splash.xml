@@ -3,24 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.splash.SplashActivity">
+        tools:context=".ui.splash.SplashActivity"
+        android:background="@color/blue_air_superiority">
 
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/progress_cat"
-            android:layout_width="100dp"
+<!--        <com.airbnb.lottie.LottieAnimationView-->
+<!--            android:id="@+id/progress_cat"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:adjustViewBounds="true"-->
+<!--            app:lottie_fileName="lottie/progress_cat.json"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            app:lottie_loop="true"-->
+<!--            app:lottie_autoPlay="true"/>-->
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            app:lottie_fileName="lottie/progress_cat.json"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:lottie_loop="true"
-            app:lottie_autoPlay="true"/>
+            android:text="Animal Shelter"
+            android:textColor="@color/white"
+            android:textSize="40dp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </RelativeLayout>
 
 </layout>

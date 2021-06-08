@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,10 @@ import com.cherryzp.animalshelter.util.BindingAdapter
 import com.cherryzp.animalshelter.util.CommonUtils
 import kotlinx.android.synthetic.main.fragment_abandonment_public.view.*
 import kotlinx.android.synthetic.main.recycler_abandonment_public_list_item.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.logging.Handler
 
 class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
@@ -26,6 +31,8 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
     private var abandonmentPublicList = ArrayList<AbandonmentPublic>()
 
     lateinit var activity: MainActivity
+
+    private var isSelectItem = false;
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return VH(parent)
@@ -46,7 +53,7 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
                     setBackgroundResource(R.drawable.background_round_image)
                     clipToOutline = true
                 }
-                Glide.with(CommonUtils.getContext()).load(abandonmentPublic.popfile).into(popfile_iv)
+                Glide.with(CommonUtils.getContext()).load(abandonmentPublic.filename).into(popfile_iv)
                 kind_tv.text = abandonmentPublic.kindCd
                 age_tv.text = "출생연도 : ${abandonmentPublic.age}"
                 notice_no_tv.text = "공고번호 : ${abandonmentPublic.noticeNo}"
@@ -55,6 +62,11 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
                 sex_tv.text = "성별 : ${abandonmentPublic.sexCd}"
 
                 item_view.setOnClickListener {
+
+                    if (isSelectItem) return@setOnClickListener
+
+                    isSelectItem = true
+
                     val intent = Intent(
                         CommonUtils.getContext(),
                         AbandonmentPublicDetailActivity::class.java
@@ -68,6 +80,12 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
                     )
 
                     ContextCompat.startActivity(context, intent, options.toBundle())
+
+                    //연속 클릭 방지
+                    GlobalScope.launch {
+                        delay(1000)
+                        isSelectItem = false
+                    }
                 }
             }
         }
