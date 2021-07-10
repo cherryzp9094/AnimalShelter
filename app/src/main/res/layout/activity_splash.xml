@@ -22,15 +22,22 @@
 <!--            app:lottie_loop="true"-->
 <!--            app:lottie_autoPlay="true"/>-->
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Animal Shelter"
-            android:textColor="@color/white"
-            android:textSize="40dp"
-            android:textStyle="bold"
-            android:layout_centerInParent="true"/>
+<!--        <TextView-->
+<!--            android:fontFamily="@font/paybooc_medium"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Animal Shelter"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:textSize="40dp"-->
+<!--            android:textStyle="bold"-->
+<!--            android:layout_centerInParent="true"/>-->
 
+        <ImageView
+            android:layout_centerInParent="true"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/splash_animal_shelter"/>
 
     </RelativeLayout>
 

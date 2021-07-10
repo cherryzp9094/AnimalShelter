@@ -4,6 +4,8 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +24,7 @@ class ContactDialog(private val context: Context, private val shelterNumber: Str
         val databindng = DataBindingUtil.inflate<DialogContactBinding>(LayoutInflater.from(context), R.layout.dialog_contact, null, false)
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         dialog.setContentView(databindng.root)
 

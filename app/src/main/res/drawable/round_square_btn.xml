@@ -3,6 +3,6 @@
     android:shape="rectangle">
 
     <solid android:color="@color/blue_air_superiority" />
-    <corners android:radius="20dp" />
+    <corners android:radius="8dp" />
 
 </shape>
