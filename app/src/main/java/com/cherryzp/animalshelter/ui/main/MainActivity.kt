@@ -47,6 +47,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
         abandonment_fragment_btn.setOnClickListener(onClickListener)
         search_fragment_btn.setOnClickListener(onClickListener)
+        back_btn.setOnClickListener(onClickListener)
 
         supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
 
@@ -70,6 +71,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             }
             R.id.search_fragment_btn -> {
                moveFragment(FragmentState.SEARCH)
+            }
+            R.id.back_btn -> {
+                moveFragment(FragmentState.ANIMAL)
             }
         }
     }
@@ -96,7 +100,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             }
         }
 
+        isShowBackBtn(state)
+
         isMoveFragment = false
+    }
+
+    // 뒤로가기 버튼 생성여부
+    private fun isShowBackBtn(state: FragmentState) {
+        when (state) {
+            FragmentState.ANIMAL -> back_btn.visibility = View.GONE
+            FragmentState.SEARCH -> back_btn.visibility = View.VISIBLE
+        }
     }
 
     //조건 검색

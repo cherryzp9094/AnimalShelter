@@ -18,6 +18,8 @@
             android:overScrollMode="never"/>
 
         <TextView
+            android:fontFamily="@font/paybooc_medium"
+
             android:id="@+id/search_no_item_tv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -3,8 +3,8 @@ package com.cherryzp.animalshelter.component
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -12,13 +12,12 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.databinding.DialogAppFinishBinding
-import com.cherryzp.animalshelter.databinding.DialogContactBinding
 
 class AppFinishDialog (private val context: Context) {
 
     lateinit var dialog: Dialog
 
-    public fun showContactDialog() {
+    fun showContactDialog() {
         dialog = Dialog(context)
 
         val databindng = DataBindingUtil.inflate<DialogAppFinishBinding>(
@@ -29,6 +28,7 @@ class AppFinishDialog (private val context: Context) {
         )
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         dialog.setContentView(databindng.root)
 

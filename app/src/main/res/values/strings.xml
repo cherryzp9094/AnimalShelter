@@ -9,6 +9,6 @@
     <string name="abandonment_public_file">_abandonmentPublic.xml</string>
 
 
-    <string name="abandonment_public_fragment_search_no_item">조건에 맞는 친구들이 없어요.</string>
+    <string name="abandonment_public_fragment_search_no_item">조건에 맞는 동물 친구들이 없어요.</string>
 
 </resources>

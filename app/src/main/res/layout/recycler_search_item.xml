@@ -7,6 +7,7 @@
     android:background="@drawable/selector_search_item">
 
     <TextView
+        android:fontFamily="@font/paybooc_medium"
         android:id="@+id/search_item_tv"
         android:layout_marginStart="16dp"
         android:layout_width="wrap_content"
