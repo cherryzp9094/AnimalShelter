@@ -147,6 +147,7 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
         _shelterListLiveData.value?.clear()
     }
 
+    //테스트
     fun insert() {
         val abandonmentPublicEntity = AbandonmentPublicEntity(
             age = "20",

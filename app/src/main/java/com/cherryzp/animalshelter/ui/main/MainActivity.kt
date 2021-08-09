@@ -51,7 +51,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
         supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
 
-        viewModel.insert()
     }
 
     override fun initDataBinding() {
