@@ -46,6 +46,7 @@ android {
 }
 
 dependencies {
+    def paging_version = "3.0.1"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
@@ -59,16 +60,25 @@ dependencies {
     //coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
 
-    // 코어
-    implementation "org.koin:koin-core:$koin_version"
-    // 유닛 테스트
-    testImplementation "org.koin:koin-test:$koin_version"
-    // AndroidX Scope 생성 - 삭제 자동화
-    implementation "org.koin:koin-androidx-scope:$koin_version"
-    // AndroidX ViewModel
-    implementation "org.koin:koin-androidx-viewmodel:$koin_version"
-    // AndroidX Fragment
-    implementation "org.koin:koin-androidx-fragment:$koin_version"
+    // Koin core features
+    implementation "io.insert-koin:koin-core:$koin_version"
+    // Koin test features
+    testImplementation "io.insert-koin:koin-test:$koin_version"
+    // Koin main features for Android (Scope,ViewModel ...)
+    implementation "io.insert-koin:koin-android:$koin_version"
+    // Koin Java Compatibility
+    implementation "io.insert-koin:koin-android-compat:$koin_version"
+    // Koin for Jetpack WorkManager
+    implementation "io.insert-koin:koin-androidx-workmanager:$koin_version"
+    // Koin for Jetpack Compose
+    implementation "io.insert-koin:koin-androidx-compose:$koin_version"
+    // Koin for JUnit 4
+    testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
+    // Koin for JUnit 5
+    testImplementation "io.insert-koin:koin-test-junit5:$koin_version"
+
+    // paging3
+    implementation("androidx.paging:paging-runtime:$paging_version")
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:2.6.2"

@@ -18,7 +18,7 @@
             android:overScrollMode="never"/>
 
         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
             android:id="@+id/search_no_item_tv"
             android:layout_width="match_parent"
