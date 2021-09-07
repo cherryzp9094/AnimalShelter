@@ -15,7 +15,7 @@
         android:background="#FFF">
 
         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
             android:id="@+id/careNm"
             android:layout_width="wrap_content"
@@ -28,7 +28,7 @@
             app:layout_constraintBottom_toTopOf="@id/careRegNo" />
 
         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
             android:id="@+id/careRegNo"
             android:layout_width="wrap_content"

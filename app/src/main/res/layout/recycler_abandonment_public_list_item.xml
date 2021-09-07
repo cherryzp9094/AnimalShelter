@@ -19,7 +19,7 @@
         android:transitionName="profile_image"/>
 
     <TextView
-        android:fontFamily="@font/paybooc_medium"
+        android:fontFamily="@font/nanum_gothic"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:id="@+id/kind_tv"
@@ -34,7 +34,7 @@
         app:layout_constraintHorizontal_chainStyle="packed"/>
 
     <TextView
-        android:fontFamily="@font/paybooc_medium"
+        android:fontFamily="@font/nanum_gothic"
         android:layout_marginTop="8dp"
         android:layout_marginStart="16dp"
         android:id="@+id/age_tv"
@@ -47,7 +47,7 @@
         app:layout_constraintLeft_toRightOf="@id/popfile_iv"/>
 
     <TextView
-        android:fontFamily="@font/paybooc_medium"
+        android:fontFamily="@font/nanum_gothic"
         android:layout_marginTop="8dp"
         android:layout_marginStart="16dp"
         android:id="@+id/sex_tv"
@@ -60,7 +60,7 @@
         app:layout_constraintLeft_toRightOf="@id/age_tv"/>
 
     <TextView
-        android:fontFamily="@font/paybooc_medium"
+        android:fontFamily="@font/nanum_gothic"
         android:id="@+id/state_tv"
         android:layout_marginTop="16dp"
         android:layout_marginRight="16dp"
@@ -77,7 +77,7 @@
         android:background="#000"/>
 
     <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
         android:id="@+id/notice_no_tv"
         android:layout_marginStart="16dp"
@@ -91,7 +91,7 @@
         app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
 
     <TextView
-        android:fontFamily="@font/paybooc_medium"
+        android:fontFamily="@font/nanum_gothic"
         android:id="@+id/shelter_tv"
         android:layout_marginStart="16dp"
         android:layout_marginTop="2dp"

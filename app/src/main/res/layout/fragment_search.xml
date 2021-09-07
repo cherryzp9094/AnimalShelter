@@ -18,7 +18,7 @@
                 android:orientation="vertical">
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -47,7 +47,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -132,7 +132,7 @@
                 </LinearLayout>
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -168,7 +168,7 @@
                         android:textSize="16dp" />
 
                     <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -196,7 +196,7 @@
                 </LinearLayout>
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -216,7 +216,7 @@
                     android:padding="8dp"/>
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -236,7 +236,7 @@
                     android:padding="8dp"/>
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -256,7 +256,7 @@
                     android:padding="8dp"/>
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -285,7 +285,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -308,7 +308,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -331,7 +331,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -346,7 +346,7 @@
                 </LinearLayout>
 
                 <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                     android:layout_marginTop="20dp"
                     android:layout_width="wrap_content"
@@ -375,7 +375,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -398,7 +398,7 @@
                         android:focusable="true">
 
                         <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -428,7 +428,7 @@
             android:paddingTop="20dp">
 
             <TextView
-            android:fontFamily="@font/paybooc_medium"
+            android:fontFamily="@font/nanum_gothic"
 
                 android:id="@+id/search_btn"
                 android:layout_width="match_parent"
