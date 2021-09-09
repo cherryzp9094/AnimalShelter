@@ -1,26 +1,18 @@
 package com.cherryzp.animalshelter.ui.main
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.cherryzp.animalshelter.AppApplication
-import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseViewModel
 import com.cherryzp.animalshelter.model.DataModel
 import com.cherryzp.animalshelter.model.response.*
-import com.cherryzp.animalshelter.network.CustomCallback
 import com.cherryzp.animalshelter.repository.ShelterRepository
 import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
-import com.cherryzp.animalshelter.util.CommonUtils
 import com.cherryzp.animalshelter.util.ParseUtils
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserFactory
-import retrofit2.Call
-import retrofit2.Response
-import java.io.StringReader
-import java.lang.Exception
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 class MainViewModel(private val model: DataModel, private val repository: ShelterRepository): BaseViewModel() {
 
@@ -54,82 +46,138 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
     fun loadShelter(activity: Activity, uprCd: Int, orgCd: Int) {
         AppApplication.appApplication.progressOn(activity)
 
-        model.shelter(uprCd, orgCd).enqueue(object: CustomCallback<String>() {
-            override fun onSuccess(call: Call<String>, response: Response<String>) {
-                _shelterListLiveData.value = ParseUtils.parseShelter(response.body().toString())
-            }
+        addDisposable(model.shelter(uprCd, orgCd)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                _shelterListLiveData.value = ParseUtils.parseShelter(it)
+                AppApplication.appApplication.progressOff()
 
-            override fun onError(call: Call<String>, response: Response<String>) {
+            },{
+                AppApplication.appApplication.progressOff()
 
-            }
+            })
+        )
 
-            override fun onFail(call: Call<String>, t: Throwable) {
-
-            }
-
-        })
+//        model.shelter(uprCd, orgCd).enqueue(object: CustomCallback<String>() {
+//            override fun onSuccess(call: Call<String>, response: Response<String>) {
+//                _shelterListLiveData.value = ParseUtils.parseShelter(response.body().toString())
+//            }
+//
+//            override fun onError(call: Call<String>, response: Response<String>) {
+//
+//            }
+//
+//            override fun onFail(call: Call<String>, t: Throwable) {
+//
+//            }
+//
+//        })
     }
 
     //유기동물 조회
     fun loadAbandonmentPublic(activity: Activity, map: MutableMap<String, String>) {
         AppApplication.appApplication.progressOn(activity)
 
-        model.abandonmentPublic(map).enqueue(object : CustomCallback<String>() {
-            override fun onSuccess(call: Call<String>, response: Response<String>) {
-                val pair = ParseUtils.parseAbandonment(response.body().toString())
+        addDisposable(model.abandonmentPublic(map)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val pair = ParseUtils.parseAbandonment(it)
                 _totalCntLiveData.value = Integer.valueOf(pair.second)
                 abandonmentPublicList.addAll(pair.first)
                 _abandonmentPublicListLiveData.value = abandonmentPublicList
-            }
+                AppApplication.appApplication.progressOff()
 
-            override fun onError(call: Call<String>, response: Response<String>) {
+            }, {
+                AppApplication.appApplication.progressOff()
 
-            }
+            }))
 
-            override fun onFail(call: Call<String>, t: Throwable) {
-
-            }
-        })
+//        model.abandonmentPublic(map).enqueue(object : CustomCallback<String>() {
+//            override fun onSuccess(call: Call<String>, response: Response<String>) {
+//                val pair = ParseUtils.parseAbandonment(response.body().toString())
+//                _totalCntLiveData.value = Integer.valueOf(pair.second)
+//                abandonmentPublicList.addAll(pair.first)
+//                _abandonmentPublicListLiveData.value = abandonmentPublicList
+//            }
+//
+//            override fun onError(call: Call<String>, response: Response<String>) {
+//
+//            }
+//
+//            override fun onFail(call: Call<String>, t: Throwable) {
+//
+//            }
+//        })
     }
 
     fun loadSido(activity: Activity) {
         AppApplication.appApplication.progressOn(activity)
 
-        model.sido().enqueue(object : CustomCallback<String>() {
-            override fun onSuccess(call: Call<String>, response: Response<String>) {
-                sidoList = ParseUtils.parseSido(response.body().toString())
+        addDisposable(model.sido()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                sidoList = ParseUtils.parseSido(it)
                 _sidoListLiveData.value = sidoList
-            }
+                AppApplication.appApplication.progressOff()
 
-            override fun onError(call: Call<String>, response: Response<String>) {
+            }, {
+                AppApplication.appApplication.progressOff()
 
-            }
+            })
+        )
 
-            override fun onFail(call: Call<String>, t: Throwable) {
-
-            }
-
-        })
+//        model.sido().enqueue(object : CustomCallback<String>() {
+//            override fun onSuccess(call: Call<String>, response: Response<String>) {
+//                sidoList = ParseUtils.parseSido(response.body().toString())
+//                _sidoListLiveData.value = sidoList
+//            }
+//
+//            override fun onError(call: Call<String>, response: Response<String>) {
+//
+//            }
+//
+//            override fun onFail(call: Call<String>, t: Throwable) {
+//
+//            }
+//
+//        })
     }
 
     fun loadSigungu(activity: Activity, uprCd: Int) {
         AppApplication.appApplication.progressOn(activity)
 
-        model.sigungu(uprCd).enqueue(object : CustomCallback<String>() {
-            override fun onSuccess(call: Call<String>, response: Response<String>) {
-                sigunguList = ParseUtils.parseSigungu(response.body().toString())
+        addDisposable(model.sigungu(uprCd)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                sigunguList = ParseUtils.parseSigungu(it)
                 _sigunguListLiveData.value = sigunguList
-            }
+                AppApplication.appApplication.progressOff()
 
-            override fun onError(call: Call<String>, response: Response<String>) {
+            }, {
+                AppApplication.appApplication.progressOff()
 
-            }
+            })
+        )
 
-            override fun onFail(call: Call<String>, t: Throwable) {
-
-            }
-
-        })
+//        model.sigungu(uprCd).enqueue(object : CustomCallback<String>() {
+//            override fun onSuccess(call: Call<String>, response: Response<String>) {
+//                sigunguList = ParseUtils.parseSigungu(response.body().toString())
+//                _sigunguListLiveData.value = sigunguList
+//            }
+//
+//            override fun onError(call: Call<String>, response: Response<String>) {
+//
+//            }
+//
+//            override fun onFail(call: Call<String>, t: Throwable) {
+//
+//            }
+//
+//        })
     }
 
     //유기동물 리스트 리셋
@@ -174,5 +222,11 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
             weight = "asdf"
         )
         repository.insert(abandonmentPublicEntity)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        Log.e(TAG, "OnCleared Call")
     }
 }

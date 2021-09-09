@@ -13,6 +13,8 @@ import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.model.response.Sigungu
 import com.cherryzp.animalshelter.network.CustomCallback
 import com.cherryzp.animalshelter.util.CommonUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import retrofit2.Call
@@ -49,21 +51,32 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
         if (!File(CommonUtils.getContext().filesDir.absolutePath + "/" + sidoFile).exists()) {
             AppApplication.appApplication.progressOn(activity)
 
-            model.sido().enqueue(object : CustomCallback<String>() {
-                override fun onSuccess(call: Call<String>, response: Response<String>) {
-                    saveSidoFile(response.body().toString(), sidoFile)
+            model.sido()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    saveSidoFile(it, sidoFile)
                     parseSidoFile(sidoFile)
                     sigungu(activity, sidoList)
-                }
+                }, {
 
-                override fun onError(call: Call<String>, response: Response<String>) {
+                })
 
-                }
-
-                override fun onFail(call: Call<String>, t: Throwable) {
-                    t.printStackTrace()
-                }
-            })
+//            model.sido().enqueue(object : CustomCallback<String>() {
+//                override fun onSuccess(call: Call<String>, response: Response<String>) {
+//                    saveSidoFile(response.body().toString(), sidoFile)
+//                    parseSidoFile(sidoFile)
+//                    sigungu(activity, sidoList)
+//                }
+//
+//                override fun onError(call: Call<String>, response: Response<String>) {
+//
+//                }
+//
+//                override fun onFail(call: Call<String>, t: Throwable) {
+//                    t.printStackTrace()
+//                }
+//            })
         } else {
             parseSidoFile(sidoFile)
             sigungu(activity, sidoList)
@@ -77,20 +90,29 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
             if (!file.exists()) {
                 AppApplication.appApplication.progressOn(activity)
 
-                model.sigungu(sido.orgCd).enqueue(object: CustomCallback<String>() {
-                    override fun onSuccess(call: Call<String>, response: Response<String>) {
-                        saveSigunguFile(response.body().toString(), sido.orgCd.toString() + sigunguFile)
-                    }
+                model.sigungu(sido.orgCd)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        saveSigunguFile(it, sido.orgCd.toString() + sigunguFile)
+                    }, {
 
-                    override fun onError(call: Call<String>, response: Response<String>) {
+                    })
 
-                    }
-
-                    override fun onFail(call: Call<String>, t: Throwable) {
-
-                    }
-
-                })
+//                model.sigungu(sido.orgCd).enqueue(object: CustomCallback<String>() {
+//                    override fun onSuccess(call: Call<String>, response: Response<String>) {
+//                        saveSigunguFile(response.body().toString(), sido.orgCd.toString() + sigunguFile)
+//                    }
+//
+//                    override fun onError(call: Call<String>, response: Response<String>) {
+//
+//                    }
+//
+//                    override fun onFail(call: Call<String>, t: Throwable) {
+//
+//                    }
+//
+//                })
             } else {
                 loadSigunguCnt++
 
