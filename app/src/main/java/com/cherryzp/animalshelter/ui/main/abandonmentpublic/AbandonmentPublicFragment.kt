@@ -19,7 +19,7 @@ import retrofit2.http.QueryMap
 
 class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding, MainViewModel>(){
 
-    private val TAG = "AbandonmentPublicFragment"
+    private val TAG = "AbandonPublicFragment"
 
     override val layoutResourceId: Int
         get() = R.layout.fragment_abandonment_public

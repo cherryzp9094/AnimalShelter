@@ -38,7 +38,7 @@ class DetailPhotoActivity : BaseActivity<ActivityDetailPhotoBinding, MainViewMod
         return true
     }
 
-    inner private class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector?): Boolean {
 
             scaleFactor *= scaleGestureDetector.scaleFactor

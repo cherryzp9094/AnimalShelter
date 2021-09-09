@@ -3,14 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/background_round_image.xml" value="0.16513157894736843" />
+        <entry key="app/src/main/res/drawable/ic_back_24px.xml" value="0.16513157894736843" />
         <entry key="app/src/main/res/layout/activity_abandonment_public_detail.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/activity_detail_photo.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.21693811074918568" />
-        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.21693811074918568" />
+        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.15493421052631579" />
         <entry key="app/src/main/res/layout/dialog_app_finish.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/dialog_contact.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/fragment_search.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/recycler_search_item.xml" value="0.21693811074918568" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_animal_shelter.xml" value="0.16513157894736843" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_animal_shelter_round.xml" value="0.16513157894736843" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.16513157894736843" />
       </map>
     </option>
   </component>

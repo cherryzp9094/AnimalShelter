@@ -2,6 +2,7 @@ package com.cherryzp.animalshelter.service
 
 import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.network.CustomCallback
+import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -11,19 +12,19 @@ interface ShelterService {
 
     //시도 검색
     @GET("sido")
-    fun sido(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query(value="numOfRows", encoded = true) numOfRows: Int): Call<String>
+    fun sido(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query(value="numOfRows", encoded = true) numOfRows: Int): Single<String>
 
     //시도 검색
     @GET("sigungu")
-    fun sigungu(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query("upr_cd") uprCd : Int): Call<String>
+    fun sigungu(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query("upr_cd") uprCd : Int): Single<String>
 
     //보호소 검색
     @GET("shelter")
-    fun shelter(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query("upr_cd") uprCd: Int, @Query("org_cd") orgCd: Int): Call<String>
+    fun shelter(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query("upr_cd") uprCd: Int, @Query("org_cd") orgCd: Int): Single<String>
 
     //품종 검색
     @GET("kind")
-    fun kind(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query("up_kind_cd") upKindCd: Int): Call<String>
+    fun kind(@Query(value="serviceKey", encoded = true) serviceKey: String, @Query("up_kind_cd") upKindCd: Int): Single<String>
 
     //유기동물 조회
     /*
@@ -45,215 +46,215 @@ interface ShelterService {
     @GET("abandonmentPublic")
     fun abandonmentPublic(
             @QueryMap(encoded = true) map: Map<String, String>
-    ): Call<String>
+    ): Single<String>
 
     @GET("abandonmentPublic")
     fun abandonmentPublic(
         @Query(value="serviceKey", encoded = true) serviceKey: String,
         @Query("pageNo") pageNo: Int,
         @Query("numOfRows") numOfRows: Int
-    ): Call<String>
+    ): Single<String>
 
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDate(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkind(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkindAndUprCd(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int,
-        @Query("upr_cd") uprCd: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkindAndUprCdAndState(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int,
-        @Query("upr_cd") uprCd: Int,
-        @Query("state") state: String
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkindAndOrgCd(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int,
-        @Query("org_cd") orgCd: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkindAndCareRegNo(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int,
-        @Query("care_reg_no") careRegNo: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkindAndState(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int,
-        @Query("state") state: String
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUpkindAndNeuterYn(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upkind") upkind: Int,
-        @Query("neuter_yn") neuterYn: String
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndKind(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("kind") kind: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndUprCd(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("upr_cd") uprCd: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndOrgCd(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("org_cd") OrgCd: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndCareRegNo(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("care_reg_no") careRegNo: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndState(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("state") state: String
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereDateAndNeuterYn(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("bgnde") bgnde: Int,
-        @Query("endde") endde: Int,
-        @Query("neuter_yn") neuterYn: String
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereUpkind(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("upkind") upkind: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereKind(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("kind") kind: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereUprCd(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("upr_cd") uprCd: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereOrgCd(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("org_cd") orgCd: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereCareRegNo(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("care_reg_no") careRegNo: Int
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereState(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("state") state: String
-    ): Call<String>
-
-    @GET("abandonmentPublic")
-    fun abandonmentPublicWhereNeuterYn(
-        @Query(value="serviceKey", encoded = true) serviceKey: String,
-        @Query("pageNo") pageNo: Int,
-        @Query("numOfRows") numOfRows: Int,
-        @Query("neuter_yn") neuterYn: String
-    ): Call<String>
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDate(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int
+//    ): Single<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkind(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int
+//    ): Single<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkindAndUprCd(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int,
+//        @Query("upr_cd") uprCd: Int
+//    ): Single<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkindAndUprCdAndState(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int,
+//        @Query("upr_cd") uprCd: Int,
+//        @Query("state") state: String
+//    ): Single<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkindAndOrgCd(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int,
+//        @Query("org_cd") orgCd: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkindAndCareRegNo(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int,
+//        @Query("care_reg_no") careRegNo: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkindAndState(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int,
+//        @Query("state") state: String
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUpkindAndNeuterYn(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upkind") upkind: Int,
+//        @Query("neuter_yn") neuterYn: String
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndKind(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("kind") kind: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndUprCd(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("upr_cd") uprCd: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndOrgCd(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("org_cd") OrgCd: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndCareRegNo(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("care_reg_no") careRegNo: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndState(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("state") state: String
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereDateAndNeuterYn(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("bgnde") bgnde: Int,
+//        @Query("endde") endde: Int,
+//        @Query("neuter_yn") neuterYn: String
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereUpkind(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("upkind") upkind: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereKind(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("kind") kind: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereUprCd(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("upr_cd") uprCd: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereOrgCd(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("org_cd") orgCd: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereCareRegNo(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("care_reg_no") careRegNo: Int
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereState(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("state") state: String
+//    ): Call<String>
+//
+//    @GET("abandonmentPublic")
+//    fun abandonmentPublicWhereNeuterYn(
+//        @Query(value="serviceKey", encoded = true) serviceKey: String,
+//        @Query("pageNo") pageNo: Int,
+//        @Query("numOfRows") numOfRows: Int,
+//        @Query("neuter_yn") neuterYn: String
+//    ): Call<String>
 
 }

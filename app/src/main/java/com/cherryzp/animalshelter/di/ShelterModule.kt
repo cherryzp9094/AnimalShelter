@@ -13,12 +13,14 @@ import com.cherryzp.animalshelter.ui.splash.SplashViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
 val retrofitModule = module {
     single {
         Retrofit.Builder()
             .baseUrl("http://openapi.animal.go.kr/openapi/service/rest/abandonmentPublicSrvc/")
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
             .create(ShelterService::class.java)
