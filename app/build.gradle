@@ -62,23 +62,18 @@ dependencies {
 
     // Koin core features
     implementation "io.insert-koin:koin-core:$koin_version"
-    // Koin test features
-    testImplementation "io.insert-koin:koin-test:$koin_version"
-    // Koin main features for Android (Scope,ViewModel ...)
     implementation "io.insert-koin:koin-android:$koin_version"
-    // Koin Java Compatibility
     implementation "io.insert-koin:koin-android-compat:$koin_version"
-    // Koin for Jetpack WorkManager
     implementation "io.insert-koin:koin-androidx-workmanager:$koin_version"
-    // Koin for Jetpack Compose
     implementation "io.insert-koin:koin-androidx-compose:$koin_version"
-    // Koin for JUnit 4
+
+    testImplementation "io.insert-koin:koin-test:$koin_version"
     testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
-    // Koin for JUnit 5
     testImplementation "io.insert-koin:koin-test-junit5:$koin_version"
 
     // paging3
-    implementation("androidx.paging:paging-runtime:$paging_version")
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+    implementation "androidx.paging:paging-rxjava2:$paging_version"
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:2.6.2"

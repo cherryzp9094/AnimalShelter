@@ -10,9 +10,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.cherryzp.animalshelter.R
+import com.cherryzp.animalshelter.databinding.RecyclerAbandonmentPublicListItemBinding
 import com.cherryzp.animalshelter.model.response.AbandonmentPublic
 import com.cherryzp.animalshelter.ui.main.MainActivity
 import com.cherryzp.animalshelter.util.BindingAdapter
@@ -35,7 +37,7 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
     private var isSelectItem = false;
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return VH(parent)
+        return VH(DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.recycler_abandonment_public_list_item, parent, false))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -44,22 +46,18 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
 
     override fun getItemCount(): Int = abandonmentPublicList.size
 
-    inner class VH(parent: ViewGroup) : RecyclerView.ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.recycler_abandonment_public_list_item, parent, false)
-    ) {
-        fun onBind(abandonmentPublic: AbandonmentPublic) {
+    inner class VH(private val binding: RecyclerAbandonmentPublicListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun onBind(abandonmentPublicItem: AbandonmentPublic) {
+            with(binding) {
+                abandonmentPublic = abandonmentPublicItem
+                executePendingBindings()
+            }
+
             itemView.run {
                 popfile_iv.run {
                     setBackgroundResource(R.drawable.background_round_image)
                     clipToOutline = true
                 }
-                Glide.with(CommonUtils.getContext()).load(abandonmentPublic.filename).into(popfile_iv)
-                kind_tv.text = abandonmentPublic.kindCd
-                age_tv.text = "출생연도 : ${abandonmentPublic.age}"
-                notice_no_tv.text = "공고번호 : ${abandonmentPublic.noticeNo}"
-                BindingAdapter.insertProcessState(state_tv, abandonmentPublic)
-                shelter_tv.text = "보호소 : ${abandonmentPublic.careNm}"
-                sex_tv.text = "성별 : ${abandonmentPublic.sexCd}"
 
                 item_view.setOnClickListener {
 
