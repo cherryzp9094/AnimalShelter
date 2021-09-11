@@ -59,20 +59,6 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
             })
         )
 
-//        model.shelter(uprCd, orgCd).enqueue(object: CustomCallback<String>() {
-//            override fun onSuccess(call: Call<String>, response: Response<String>) {
-//                _shelterListLiveData.value = ParseUtils.parseShelter(response.body().toString())
-//            }
-//
-//            override fun onError(call: Call<String>, response: Response<String>) {
-//
-//            }
-//
-//            override fun onFail(call: Call<String>, t: Throwable) {
-//
-//            }
-//
-//        })
     }
 
     //유기동물 조회
@@ -94,22 +80,6 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
 
             }))
 
-//        model.abandonmentPublic(map).enqueue(object : CustomCallback<String>() {
-//            override fun onSuccess(call: Call<String>, response: Response<String>) {
-//                val pair = ParseUtils.parseAbandonment(response.body().toString())
-//                _totalCntLiveData.value = Integer.valueOf(pair.second)
-//                abandonmentPublicList.addAll(pair.first)
-//                _abandonmentPublicListLiveData.value = abandonmentPublicList
-//            }
-//
-//            override fun onError(call: Call<String>, response: Response<String>) {
-//
-//            }
-//
-//            override fun onFail(call: Call<String>, t: Throwable) {
-//
-//            }
-//        })
     }
 
     fun loadSido(activity: Activity) {
@@ -129,21 +99,6 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
             })
         )
 
-//        model.sido().enqueue(object : CustomCallback<String>() {
-//            override fun onSuccess(call: Call<String>, response: Response<String>) {
-//                sidoList = ParseUtils.parseSido(response.body().toString())
-//                _sidoListLiveData.value = sidoList
-//            }
-//
-//            override fun onError(call: Call<String>, response: Response<String>) {
-//
-//            }
-//
-//            override fun onFail(call: Call<String>, t: Throwable) {
-//
-//            }
-//
-//        })
     }
 
     fun loadSigungu(activity: Activity, uprCd: Int) {
@@ -163,21 +118,6 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
             })
         )
 
-//        model.sigungu(uprCd).enqueue(object : CustomCallback<String>() {
-//            override fun onSuccess(call: Call<String>, response: Response<String>) {
-//                sigunguList = ParseUtils.parseSigungu(response.body().toString())
-//                _sigunguListLiveData.value = sigunguList
-//            }
-//
-//            override fun onError(call: Call<String>, response: Response<String>) {
-//
-//            }
-//
-//            override fun onFail(call: Call<String>, t: Throwable) {
-//
-//            }
-//
-//        })
     }
 
     //유기동물 리스트 리셋
@@ -224,9 +164,4 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
         repository.insert(abandonmentPublicEntity)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-
-        Log.e(TAG, "OnCleared Call")
-    }
 }

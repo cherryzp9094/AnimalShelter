@@ -1,113 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/item_view"
-    android:layout_width="match_parent"
-    android:layout_height="132dp"
-    android:background="#FFF"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout>
+    <data>
+        <variable
+            name="abandonmentPublic"
+            type="com.cherryzp.animalshelter.model.response.AbandonmentPublic" />
+    </data>
 
-    <ImageView
-        android:id="@+id/popfile_iv"
-        android:layout_margin="16dp"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:scaleType="centerCrop"
-        android:transitionName="profile_image"/>
-
-    <TextView
-        android:fontFamily="@font/nanum_gothic"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:id="@+id/kind_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:gravity="center"
-        android:textSize="16dp"
-        android:textStyle="bold"
-        android:textColor="@color/textColorDefault"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/popfile_iv"
-        app:layout_constraintHorizontal_chainStyle="packed"/>
-
-    <TextView
-        android:fontFamily="@font/nanum_gothic"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:id="@+id/age_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:gravity="center"
-        android:textSize="14dp"
-        android:textColor="@color/textColorDefault"
-        app:layout_constraintTop_toBottomOf="@id/kind_tv"
-        app:layout_constraintLeft_toRightOf="@id/popfile_iv"/>
-
-    <TextView
-        android:fontFamily="@font/nanum_gothic"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:id="@+id/sex_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:gravity="center"
-        android:textSize="14dp"
-        android:textColor="@color/textColorDefault"
-        app:layout_constraintTop_toBottomOf="@id/kind_tv"
-        app:layout_constraintLeft_toRightOf="@id/age_tv"/>
-
-    <TextView
-        android:fontFamily="@font/nanum_gothic"
-        android:id="@+id/state_tv"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="16dp"
-        android:paddingHorizontal="4dp"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center"
-        android:text="공고"
-        android:textStyle="bold"
-        android:textSize="12dp"
-        android:textColor="@color/white"
-        android:background="#000"/>
-
-    <TextView
-            android:fontFamily="@font/nanum_gothic"
-
-        android:id="@+id/notice_no_tv"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="2dp"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:gravity="center"
-        android:textSize="14dp"
-        android:textColor="@color/textColorDefault"
-        app:layout_constraintTop_toBottomOf="@id/age_tv"
-        app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
-
-    <TextView
-        android:fontFamily="@font/nanum_gothic"
-        android:id="@+id/shelter_tv"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="2dp"
-        android:layout_width="wrap_content"
-        android:layout_height="20dp"
-        android:gravity="center"
-        android:textSize="14dp"
-        android:textColor="@color/textColorDefault"
-        app:layout_constraintTop_toBottomOf="@id/notice_no_tv"
-        app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
-
-    <View
-        android:layout_marginHorizontal="16dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/item_view"
         android:layout_width="match_parent"
-        android:layout_height="1px"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:background="#CCC"/>
+        android:layout_height="132dp"
+        android:background="#FFF"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/popfile_iv"
+            android:layout_margin="16dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            insert_img="@{abandonmentPublic.filename}"
+            android:scaleType="centerCrop"
+            android:transitionName="profile_image"/>
+
+        <TextView
+            android:fontFamily="@font/nanum_gothic"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            android:id="@+id/kind_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:text="@{abandonmentPublic.kindCd}"
+            android:textColor="@color/textColorDefault"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/popfile_iv"
+            app:layout_constraintHorizontal_chainStyle="packed"/>
+
+        <TextView
+            android:fontFamily="@font/nanum_gothic"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:id="@+id/age_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="@{@string/abandonment_recycler_item_age_info(abandonmentPublic.age)}"
+            android:textColor="@color/textColorDefault"
+            app:layout_constraintTop_toBottomOf="@id/kind_tv"
+            app:layout_constraintLeft_toRightOf="@id/popfile_iv"/>
+
+        <TextView
+            android:fontFamily="@font/nanum_gothic"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:id="@+id/sex_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="@{@string/abandonment_recycler_item_sex_info(abandonmentPublic.sexCd)}"
+            android:textColor="@color/textColorDefault"
+            app:layout_constraintTop_toBottomOf="@id/kind_tv"
+            app:layout_constraintLeft_toRightOf="@id/age_tv"/>
+
+        <TextView
+            android:fontFamily="@font/nanum_gothic"
+            android:id="@+id/state_tv"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="16dp"
+            android:paddingHorizontal="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:gravity="center"
+            insert_process_state="@{abandonmentPublic}"
+            android:textStyle="bold"
+            android:textSize="12dp"
+            android:textColor="@color/white"
+            android:background="#000"/>
+
+        <TextView
+            android:fontFamily="@font/nanum_gothic"
+            android:id="@+id/notice_no_tv"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="@{@string/abandonment_recycler_item_notice_info(abandonmentPublic.noticeNo)}"
+            android:textColor="@color/textColorDefault"
+            app:layout_constraintTop_toBottomOf="@id/age_tv"
+            app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
+
+        <TextView
+            android:fontFamily="@font/nanum_gothic"
+            android:id="@+id/shelter_tv"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="@{@string/abandonment_recycler_item_shelter_info(abandonmentPublic.careNm)}"
+            android:textColor="@color/textColorDefault"
+            app:layout_constraintTop_toBottomOf="@id/notice_no_tv"
+            app:layout_constraintLeft_toRightOf="@id/popfile_iv" />
+
+        <View
+            android:layout_marginHorizontal="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="#CCC"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

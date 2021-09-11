@@ -11,4 +11,10 @@
 
     <string name="abandonment_public_fragment_search_no_item">조건에 맞는 동물 친구들이 없어요.</string>
 
+    <string name="abandonment_recycler_item_age_info">출생연도 : %s</string>
+    <string name="abandonment_recycler_item_sex_info">성별 : %s</string>
+    <string name="abandonment_recycler_item_notice_info">공고번호 : %s</string>
+    <string name="abandonment_recycler_item_shelter_info">보호소 : %s</string>
+
+
 </resources>

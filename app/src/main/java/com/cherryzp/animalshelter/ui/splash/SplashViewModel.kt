@@ -51,7 +51,7 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
         if (!File(CommonUtils.getContext().filesDir.absolutePath + "/" + sidoFile).exists()) {
             AppApplication.appApplication.progressOn(activity)
 
-            model.sido()
+            addDisposable(model.sido()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
@@ -61,22 +61,7 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
                 }, {
 
                 })
-
-//            model.sido().enqueue(object : CustomCallback<String>() {
-//                override fun onSuccess(call: Call<String>, response: Response<String>) {
-//                    saveSidoFile(response.body().toString(), sidoFile)
-//                    parseSidoFile(sidoFile)
-//                    sigungu(activity, sidoList)
-//                }
-//
-//                override fun onError(call: Call<String>, response: Response<String>) {
-//
-//                }
-//
-//                override fun onFail(call: Call<String>, t: Throwable) {
-//                    t.printStackTrace()
-//                }
-//            })
+            )
         } else {
             parseSidoFile(sidoFile)
             sigungu(activity, sidoList)
@@ -90,7 +75,7 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
             if (!file.exists()) {
                 AppApplication.appApplication.progressOn(activity)
 
-                model.sigungu(sido.orgCd)
+                addDisposable(model.sigungu(sido.orgCd)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
@@ -98,21 +83,8 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
                     }, {
 
                     })
+                )
 
-//                model.sigungu(sido.orgCd).enqueue(object: CustomCallback<String>() {
-//                    override fun onSuccess(call: Call<String>, response: Response<String>) {
-//                        saveSigunguFile(response.body().toString(), sido.orgCd.toString() + sigunguFile)
-//                    }
-//
-//                    override fun onError(call: Call<String>, response: Response<String>) {
-//
-//                    }
-//
-//                    override fun onFail(call: Call<String>, t: Throwable) {
-//
-//                    }
-//
-//                })
             } else {
                 loadSigunguCnt++
 
