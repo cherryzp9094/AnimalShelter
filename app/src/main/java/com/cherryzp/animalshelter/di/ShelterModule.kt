@@ -6,11 +6,13 @@ import com.cherryzp.animalshelter.model.DataModelImpl
 import com.cherryzp.animalshelter.repository.ShelterRepository
 import com.cherryzp.animalshelter.service.ShelterService
 import com.cherryzp.animalshelter.ui.main.MainRecyclerAdatper
-import com.cherryzp.animalshelter.ui.main.MainViewModel
+import com.cherryzp.animalshelter.viewmodel.MainViewModel
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicRecyclerAdapter
 import com.cherryzp.animalshelter.ui.main.search.SearchRecyclerAdapter
-import com.cherryzp.animalshelter.ui.splash.SplashViewModel
+import com.cherryzp.animalshelter.viewmodel.SplashViewModel
+import com.cherryzp.animalshelter.viewmodel.BookmarkViewModel
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -49,11 +51,14 @@ val modelModule = module {
 }
 
 val viewModelModule = module {
-    factory {
+    viewModel {
         SplashViewModel(get())
     }
-    single {
+    viewModel {
         MainViewModel(get(), get())
+    }
+    viewModel {
+        BookmarkViewModel(get())
     }
 }
 

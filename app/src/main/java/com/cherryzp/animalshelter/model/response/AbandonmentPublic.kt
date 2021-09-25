@@ -26,4 +26,9 @@ class AbandonmentPublic(){
     var sexCd: String? = null
     var specialMark: String? = null
     var weight: String? = null
+
+    override fun toString(): String {
+        return "AbandonmentPublic(age=$age, careAddr=$careAddr, careNm=$careNm, careTel=$careTel, chargeNm=$chargeNm, colorCd=$colorCd, desertionNo=$desertionNo, filename=$filename, happenDt=$happenDt, happenPlace=$happenPlace, kindCd=$kindCd, neuterYn=$neuterYn, noticeEdt=$noticeEdt, noticeNo=$noticeNo, noticeSdt=$noticeSdt, officetel=$officetel, orgNm=$orgNm, popfile=$popfile, processState=$processState, sexCd=$sexCd, specialMark=$specialMark, weight=$weight)"
+    }
+
 }

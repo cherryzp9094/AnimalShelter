@@ -6,7 +6,7 @@ import com.bumptech.glide.Glide
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseActivity
 import com.cherryzp.animalshelter.databinding.ActivityDetailPhotoBinding
-import com.cherryzp.animalshelter.ui.main.MainViewModel
+import com.cherryzp.animalshelter.viewmodel.MainViewModel
 import kotlinx.android.synthetic.main.activity_detail_photo.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

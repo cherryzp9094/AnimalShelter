@@ -71,6 +71,8 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
                     )
                     intent.putExtra("itemPosition", layoutPosition)
 
+                    insertIntentAbandonmentItem(abandonmentPublicItem, intent)
+
                     val options = ActivityOptions.makeSceneTransitionAnimation(
                         activity,
                         popfile_iv,
@@ -92,5 +94,33 @@ class AbandonmentPublicRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewH
 
     fun setAbandonmentPublicList(abandonmentPublicList: ArrayList<AbandonmentPublic>) {
         this.abandonmentPublicList = abandonmentPublicList
+    }
+
+    //AbandonmentPublic 데이터 인텐트에 넣기
+    fun insertIntentAbandonmentItem(abandonmentPublicItem: AbandonmentPublic, intent: Intent): Intent {
+        intent.putExtra("age", abandonmentPublicItem.age)
+        intent.putExtra("careAddr", abandonmentPublicItem.careAddr)
+        intent.putExtra("careNm", abandonmentPublicItem.careNm)
+        intent.putExtra("careTel", abandonmentPublicItem.careTel)
+        intent.putExtra("chargeNm", abandonmentPublicItem.chargeNm)
+        intent.putExtra("colorCd", abandonmentPublicItem.colorCd)
+        intent.putExtra("desertionNo", abandonmentPublicItem.desertionNo)
+        intent.putExtra("filename", abandonmentPublicItem.filename)
+        intent.putExtra("happenDt", abandonmentPublicItem.happenDt)
+        intent.putExtra("happenPlace", abandonmentPublicItem.happenPlace)
+        intent.putExtra("kindCd", abandonmentPublicItem.kindCd)
+        intent.putExtra("neuterYn", abandonmentPublicItem.neuterYn)
+        intent.putExtra("noticeEdt", abandonmentPublicItem.noticeEdt)
+        intent.putExtra("noticeNo", abandonmentPublicItem.noticeNo)
+        intent.putExtra("noticeSdt", abandonmentPublicItem.noticeSdt)
+        intent.putExtra("officetel", abandonmentPublicItem.officetel)
+        intent.putExtra("orgNm", abandonmentPublicItem.orgNm)
+        intent.putExtra("popfile", abandonmentPublicItem.popfile)
+        intent.putExtra("processState", abandonmentPublicItem.processState)
+        intent.putExtra("sexCd", abandonmentPublicItem.sexCd)
+        intent.putExtra("specialMark", abandonmentPublicItem.specialMark)
+        intent.putExtra("weight", abandonmentPublicItem.weight)
+
+        return intent
     }
 }

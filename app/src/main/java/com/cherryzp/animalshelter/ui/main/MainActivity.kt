@@ -12,6 +12,7 @@ import com.cherryzp.animalshelter.databinding.ActivityMainBinding
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicFragment
 import com.cherryzp.animalshelter.ui.main.search.SearchFragment
 import com.cherryzp.animalshelter.util.CommonUtils
+import com.cherryzp.animalshelter.viewmodel.MainViewModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_main.*

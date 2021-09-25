@@ -6,38 +6,34 @@ import com.cherryzp.animalshelter.AppApplication
 import com.cherryzp.animalshelter.room.AbandonmentPublicDatabase
 import com.cherryzp.animalshelter.room.dao.AbandonmentPublicDao
 import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.Exception
 
 class ShelterRepository(appApplication: AppApplication) {
 
     private val abandonmentPublicDatabase = AbandonmentPublicDatabase.getInstance(appApplication)!!
     private val abandonmentPublicDao: AbandonmentPublicDao = abandonmentPublicDatabase.abandonmentPublicDao()
-    private val contacts: LiveData<List<AbandonmentPublicEntity>> = abandonmentPublicDao.getAll()
+    private lateinit var contacts: List<AbandonmentPublicEntity>
 
-    fun getAll(): LiveData<List<AbandonmentPublicEntity>> {
+    fun getAll(): List<AbandonmentPublicEntity> {
+        contacts = abandonmentPublicDao.getAll()
+        Log.e("TAG", contacts.toString())
+
         return contacts
     }
 
     fun insert(abandonmentPublicEntity: AbandonmentPublicEntity) {
-        try {
-            val thread = Thread {
-                abandonmentPublicDao.insert(abandonmentPublicEntity)
-            }
-            thread.start()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Log.e("TAG", abandonmentPublicEntity.toString())
+        abandonmentPublicDao.insert(abandonmentPublicEntity)
+        Log.e("TAG", "success")
     }
 
     fun delete(abandonmentPublicEntity: AbandonmentPublicEntity) {
-        try {
-            val thread = Thread {
-                abandonmentPublicDao.delete(abandonmentPublicEntity)
-            }
-            thread.start()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        Log.e("TAG", abandonmentPublicEntity.toString())
+        abandonmentPublicDao.delete(abandonmentPublicEntity)
+        Log.e("TAG", "success")
     }
 
 }

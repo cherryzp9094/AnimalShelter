@@ -16,8 +16,10 @@ import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.model.response.Sigungu
 import com.cherryzp.animalshelter.ui.main.*
 import com.cherryzp.animalshelter.util.CommonUtils
+import com.cherryzp.animalshelter.viewmodel.MainViewModel
 import kotlinx.android.synthetic.main.fragment_search.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.w3c.dom.Text
 
@@ -25,12 +27,11 @@ private const val SIDO_LINE_COUNT = 2
 private const val SIGUNGU_LINE_COUNT = 2
 private const val SHELTER_LINE_COUNT = 1
 
-class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(),
-    SearchItemSelectListener {
+class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(), SearchItemSelectListener {
 
     override val layoutResourceId: Int
         get() = R.layout.fragment_search
-    override val viewModel: MainViewModel by viewModel()
+    override val viewModel: MainViewModel by sharedViewModel()
 
     private lateinit var mainActivity: MainActivity
 
