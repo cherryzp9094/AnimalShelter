@@ -1,9 +1,9 @@
-package com.cherryzp.animalshelter.ui.main
+package com.cherryzp.animalshelter.viewmodel
 
 import android.app.Activity
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.cherryzp.animalshelter.AppApplication
 import com.cherryzp.animalshelter.base.BaseViewModel
 import com.cherryzp.animalshelter.model.DataModel
@@ -13,6 +13,8 @@ import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
 import com.cherryzp.animalshelter.util.ParseUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainViewModel(private val model: DataModel, private val repository: ShelterRepository): BaseViewModel() {
 
@@ -133,35 +135,6 @@ class MainViewModel(private val model: DataModel, private val repository: Shelte
     //보호소 정보 리셋
     fun resetShelter() {
         _shelterListLiveData.value?.clear()
-    }
-
-    //테스트
-    fun insert() {
-        val abandonmentPublicEntity = AbandonmentPublicEntity(
-            age = "20",
-            careAddr = "asdf",
-            careNm = "하염",
-            careTel = "010101010101",
-            chargeNm = "ddd",
-            colorCd = "asdf",
-            desertionNo = "123",
-            filename = "123",
-            happenDt = "123",
-            happenPlace = "adsf",
-            kindCd = "adsf",
-            neuterYn = "t",
-            noticeEdt = "dfdf",
-            noticeNo = "adsf",
-            noticeSdt = "adsf",
-            officetel = "asdf",
-            orgNm = "asdfasdf",
-            popfile = "asdf",
-            processState = "asdf",
-            sexCd = "asdf",
-            specialMark = "adsf",
-            weight = "asdf"
-        )
-        repository.insert(abandonmentPublicEntity)
     }
 
 }

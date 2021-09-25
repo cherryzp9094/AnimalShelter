@@ -1,21 +1,24 @@
 package com.cherryzp.animalshelter.ui.main.abandonmentpublic
 
-import android.app.ProgressDialog
+import android.app.ActivityOptions
+import android.content.Intent
 import android.util.Log
 import android.view.View
-import androidx.lifecycle.Observer
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseFragment
-import com.cherryzp.animalshelter.component.LoadingProgressDialog
 import com.cherryzp.animalshelter.databinding.FragmentAbandonmentPublicBinding
+import com.cherryzp.animalshelter.model.response.AbandonmentPublic
 import com.cherryzp.animalshelter.ui.main.MainActivity
-import com.cherryzp.animalshelter.ui.main.MainViewModel
-import kotlinx.android.synthetic.main.fragment_abandonment_public.*
+import com.cherryzp.animalshelter.util.CommonUtils
+import com.cherryzp.animalshelter.viewmodel.MainViewModel
+import kotlinx.android.synthetic.main.recycler_abandonment_public_list_item.view.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import retrofit2.http.QueryMap
 
 class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding, MainViewModel>(){
 
@@ -23,7 +26,7 @@ class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding,
 
     override val layoutResourceId: Int
         get() = R.layout.fragment_abandonment_public
-    override val viewModel: MainViewModel by viewModel()
+    override val viewModel: MainViewModel by sharedViewModel()
 
     lateinit var mainActivity: MainActivity
 
@@ -71,6 +74,4 @@ class AbandonmentPublicFragment : BaseFragment<FragmentAbandonmentPublicBinding,
 
         if (mainActivity.pageNo == 1) mainActivity.loadData()
     }
-
-
 }

@@ -1,8 +1,7 @@
-package com.cherryzp.animalshelter.ui.splash
+package com.cherryzp.animalshelter.viewmodel
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.cherryzp.animalshelter.AppApplication
@@ -11,14 +10,11 @@ import com.cherryzp.animalshelter.base.BaseViewModel
 import com.cherryzp.animalshelter.model.DataModel
 import com.cherryzp.animalshelter.model.response.Sido
 import com.cherryzp.animalshelter.model.response.Sigungu
-import com.cherryzp.animalshelter.network.CustomCallback
 import com.cherryzp.animalshelter.util.CommonUtils
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
-import retrofit2.Call
-import retrofit2.Response
 import java.io.File
 
 class SplashViewModel(private val model: DataModel): BaseViewModel() {
@@ -116,8 +112,6 @@ class SplashViewModel(private val model: DataModel): BaseViewModel() {
             fos.flush()
 
             loadSigunguCnt++
-
-            Log.d(TAG, "$fileName : 저장완료 , 카운트 : $loadSigunguCnt")
 
             if (loadSigunguCnt == totalSigunguCnt) {
                 _loadData.value = true

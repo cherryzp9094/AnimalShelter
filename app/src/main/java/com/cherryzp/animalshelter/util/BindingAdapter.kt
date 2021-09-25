@@ -20,20 +20,21 @@ object BindingAdapter{
 
     @BindingAdapter("insert_process_state")
     @JvmStatic
-    fun insertProcessState(view: TextView, abandonmentPublic: AbandonmentPublic){
-        val currentDateTime = Calendar.getInstance().time
-        var dateFormat = SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(currentDateTime)
+    fun insertProcessState(view: TextView, abandonmentPublic: AbandonmentPublic?){
+        if (abandonmentPublic?.noticeEdt != null && abandonmentPublic.noticeEdt!!.toIntOrNull() != null) {
+            val currentDateTime = Calendar.getInstance().time
+            var dateFormat = SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(currentDateTime)
 
-        val noticeEdtInt = abandonmentPublic.noticeEdt?.toInt()
-        val currentInt = dateFormat.toInt()
+            val noticeEdtInt = abandonmentPublic.noticeEdt?.toInt()
+            val currentInt = dateFormat.toInt()
 
-        if (noticeEdtInt != null) {
-            if (noticeEdtInt - currentInt > 0) {
-                view.text = "공고중"
-            } else {
-                view.text = abandonmentPublic.processState
+            if (noticeEdtInt != null) {
+                if (noticeEdtInt - currentInt > 0) {
+                    view.text = "공고중"
+                } else {
+                    view.text = abandonmentPublic.processState
+                }
             }
         }
-
     }
 }

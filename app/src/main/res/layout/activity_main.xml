@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.cherryzp.animalshelter.ui.main.MainViewModel" />
+            type="com.cherryzp.animalshelter.viewmodel.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

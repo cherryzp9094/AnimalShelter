@@ -14,8 +14,9 @@ abstract class AbandonmentPublicDatabase : RoomDatabase(){
     abstract fun abandonmentPublicDao(): AbandonmentPublicDao
 
     companion object {
-        private val database_name = "abandonment_public"
+        private const val database_name = "abandonment_public"
 
+        @Volatile
         private var INSTANCE: AbandonmentPublicDatabase? = null
 
         fun getInstance(context: Context): AbandonmentPublicDatabase? {

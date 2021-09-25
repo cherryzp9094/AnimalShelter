@@ -7,8 +7,8 @@ import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
 @Dao
 interface AbandonmentPublicDao {
 
-    @Query("SELECT * FROM abandonmentPublic ORDER BY id ASC")
-    fun getAll(): LiveData<List<AbandonmentPublicEntity>>
+    @Query("SELECT * FROM abandonment_public")
+    fun getAll(): List<AbandonmentPublicEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(abandonmentPublicEntity: AbandonmentPublicEntity)
