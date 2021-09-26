@@ -8,6 +8,7 @@ import com.cherryzp.animalshelter.service.ShelterService
 import com.cherryzp.animalshelter.ui.main.MainRecyclerAdatper
 import com.cherryzp.animalshelter.viewmodel.MainViewModel
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicRecyclerAdapter
+import com.cherryzp.animalshelter.ui.main.bookmark.AbandonmentPublicBookmarkRecyclerAdapter
 import com.cherryzp.animalshelter.ui.main.search.SearchRecyclerAdapter
 import com.cherryzp.animalshelter.viewmodel.SplashViewModel
 import com.cherryzp.animalshelter.viewmodel.BookmarkViewModel
@@ -35,6 +36,9 @@ val adapterModule = module {
     }
     factory {
         AbandonmentPublicRecyclerAdapter()
+    }
+    factory {
+        AbandonmentPublicBookmarkRecyclerAdapter()
     }
     factory {
         SearchRecyclerAdapter()

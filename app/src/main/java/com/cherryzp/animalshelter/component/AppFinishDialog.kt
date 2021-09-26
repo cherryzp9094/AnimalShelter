@@ -12,6 +12,9 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.databinding.DialogAppFinishBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppFinishDialog (private val context: Context) {
 
@@ -36,7 +39,11 @@ class AppFinishDialog (private val context: Context) {
         databindng.cancelBtn.setOnClickListener(onClickListener)
 
         val activity = context as Activity
-        if (!activity.isFinishing) dialog.show()
+        if (!activity.isFinishing) {
+            CoroutineScope(Dispatchers.Main).launch {
+                dialog.show()
+            }
+        }
     }
 
     private val onClickListener = View.OnClickListener {

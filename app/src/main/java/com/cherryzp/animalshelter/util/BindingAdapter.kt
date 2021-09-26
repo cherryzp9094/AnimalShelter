@@ -14,8 +14,8 @@ object BindingAdapter{
 
     @BindingAdapter("insert_img")
     @JvmStatic
-    fun insertImg(view: ImageView, uri: String) {
-        Glide.with(CommonUtils.getContext()).load(uri).into(view)
+    fun insertImg(view: ImageView, uri: String?) {
+        if (uri != null) Glide.with(CommonUtils.getContext()).load(uri).into(view)
     }
 
     @BindingAdapter("insert_process_state")

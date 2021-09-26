@@ -1,47 +1,39 @@
-package com.cherryzp.animalshelter.ui.main.abandonmentpublic
+package com.cherryzp.animalshelter.ui.main.bookmark
 
 import android.content.Intent
-import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.Observer
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseActivity
-import com.cherryzp.animalshelter.databinding.ActivityAbandonmentPublicDetailBinding
+import com.cherryzp.animalshelter.databinding.ActivityAbandonmentPublicBookmarkDetailBinding
 import com.cherryzp.animalshelter.model.response.AbandonmentPublic
-import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
+import com.cherryzp.animalshelter.ui.main.abandonmentpublic.ContactDialog
+import com.cherryzp.animalshelter.ui.main.abandonmentpublic.DetailPhotoActivity
 import com.cherryzp.animalshelter.viewmodel.BookmarkViewModel
-import com.cherryzp.animalshelter.viewmodel.MainViewModel
-import com.cherryzp.animalshelter.viewmodel.SplashViewModel
 import kotlinx.android.synthetic.main.activity_abandonment_public_detail.*
-import kotlinx.android.synthetic.main.recycler_abandonment_public_list_item.view.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.component.getScopeId
 
-class AbandonmentPublicDetailActivity : BaseActivity<ActivityAbandonmentPublicDetailBinding, BookmarkViewModel>() {
-
-    private val TAG = "AbandonmentPublicActivity"
+class AbandonmentPublicBookmarkDetailActivity : BaseActivity<ActivityAbandonmentPublicBookmarkDetailBinding, BookmarkViewModel>() {
 
     override val layoutResourceId: Int
-        get() = R.layout.activity_abandonment_public_detail
+        get() = R.layout.activity_abandonment_public_bookmark_detail
     override val viewModel: BookmarkViewModel by viewModel()
 
     private var abandonmentPublic: AbandonmentPublic? = null
 
     override fun initStartView() {
-        dataBinding.abandonmentPublicDetailActivity = this
+        dataBinding.abandonmentPublicBookmarkDetailActivity = this
 
         popfile_iv.setOnClickListener(onClickListener)
         contact_btn.setOnClickListener(onClickListener)
         bookmark_iv.setOnClickListener(onClickListener)
 
         getAbandonment()
-
-
     }
 
     override fun initDataBinding() {
         dataBinding.abandonmentPublic = abandonmentPublic
-
         viewModel.bookmarkLiveData.observe(this) {
             bookmark_iv.isChecked = it != null
         }
@@ -75,7 +67,6 @@ class AbandonmentPublicDetailActivity : BaseActivity<ActivityAbandonmentPublicDe
         }
     }
 
-    //전송된 abandonment 불러오기
     private fun getAbandonment() {
         abandonmentPublic = AbandonmentPublic()
         abandonmentPublic?.run {
