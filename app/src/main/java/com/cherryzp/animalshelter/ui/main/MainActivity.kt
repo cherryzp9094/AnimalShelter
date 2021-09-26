@@ -1,5 +1,6 @@
 package com.cherryzp.animalshelter.ui.main
 
+import android.content.Intent
 import android.os.HandlerThread
 import android.util.Log
 import android.view.View
@@ -10,6 +11,7 @@ import com.cherryzp.animalshelter.base.BaseActivity
 import com.cherryzp.animalshelter.component.AppFinishDialog
 import com.cherryzp.animalshelter.databinding.ActivityMainBinding
 import com.cherryzp.animalshelter.ui.main.abandonmentpublic.AbandonmentPublicFragment
+import com.cherryzp.animalshelter.ui.main.bookmark.AbandonmentPublicBookmarkActivity
 import com.cherryzp.animalshelter.ui.main.search.SearchFragment
 import com.cherryzp.animalshelter.util.CommonUtils
 import com.cherryzp.animalshelter.viewmodel.MainViewModel
@@ -49,6 +51,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         abandonment_fragment_btn.setOnClickListener(onClickListener)
         search_fragment_btn.setOnClickListener(onClickListener)
         back_btn.setOnClickListener(onClickListener)
+        floating_btn.setOnClickListener(onClickListener)
 
         supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
 
@@ -74,6 +77,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             }
             R.id.back_btn -> {
                 moveFragment(FragmentState.ANIMAL)
+            }
+            R.id.floating_btn -> {
+                startActivity(Intent(this, AbandonmentPublicBookmarkActivity::class.java))
             }
         }
     }

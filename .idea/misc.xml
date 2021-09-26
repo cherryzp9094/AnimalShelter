@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22703583061889251" />
+        <entry key="app/src/main/res/drawable-xxxhdpi/checkbox_favorite.xml" value="0.2940928270042194" />
         <entry key="app/src/main/res/drawable/background_round_image.xml" value="0.16513157894736843" />
         <entry key="app/src/main/res/drawable/checkbox_bookmark.xml" value="0.19658119658119658" />
         <entry key="app/src/main/res/drawable/gradient_blur.xml" value="0.22703583061889251" />
@@ -11,6 +12,8 @@
         <entry key="app/src/main/res/drawable/ic_bookmark_24.xml" value="0.19658119658119658" />
         <entry key="app/src/main/res/drawable/ic_bookmark_border_24.xml" value="0.19658119658119658" />
         <entry key="app/src/main/res/drawable/ic_catching_pokemon_24px.xml" value="0.22703583061889251" />
+        <entry key="app/src/main/res/drawable/ic_favorite_24.xml" value="0.2940928270042194" />
+        <entry key="app/src/main/res/drawable/ic_favorite_border_24.xml" value="0.2940928270042194" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.22703583061889251" />
         <entry key="app/src/main/res/drawable/ic_menu_24px.xml" value="0.2940928270042194" />
         <entry key="app/src/main/res/drawable/ic_pets_24px.xml" value="0.2940928270042194" />
@@ -18,14 +21,16 @@
         <entry key="app/src/main/res/drawable/outline_bookmark_24.xml" value="0.22703583061889251" />
         <entry key="app/src/main/res/drawable/outline_bookmark_border_24.xml" value="0.22703583061889251" />
         <entry key="app/src/main/res/layout/activity_abandonment_public_bookmark.xml" value="0.21693811074918568" />
+        <entry key="app/src/main/res/layout/activity_abandonment_public_bookmark_detail.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_abandonment_public_detail.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_detail_photo.xml" value="0.21693811074918568" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.21693811074918568" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.15493421052631579" />
         <entry key="app/src/main/res/layout/dialog_app_finish.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/dialog_contact.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/fragment_abandonment_public.xml" value="0.13418803418803418" />
         <entry key="app/src/main/res/layout/fragment_search.xml" value="0.21693811074918568" />
+        <entry key="app/src/main/res/layout/recycler_abandonment_public_bookmark_list_item.xml" value="0.15" />
         <entry key="app/src/main/res/layout/recycler_abandonment_public_list_item.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/recycler_search_item.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_animal_shelter.xml" value="0.16513157894736843" />

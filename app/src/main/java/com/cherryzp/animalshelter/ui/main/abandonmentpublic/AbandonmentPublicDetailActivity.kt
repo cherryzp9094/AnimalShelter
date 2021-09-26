@@ -3,10 +3,12 @@ package com.cherryzp.animalshelter.ui.main.abandonmentpublic
 import android.content.Intent
 import android.util.Log
 import android.view.View
+import androidx.lifecycle.Observer
 import com.cherryzp.animalshelter.R
 import com.cherryzp.animalshelter.base.BaseActivity
 import com.cherryzp.animalshelter.databinding.ActivityAbandonmentPublicDetailBinding
 import com.cherryzp.animalshelter.model.response.AbandonmentPublic
+import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
 import com.cherryzp.animalshelter.viewmodel.BookmarkViewModel
 import com.cherryzp.animalshelter.viewmodel.MainViewModel
 import com.cherryzp.animalshelter.viewmodel.SplashViewModel
@@ -32,8 +34,49 @@ class AbandonmentPublicDetailActivity : BaseActivity<ActivityAbandonmentPublicDe
         contact_btn.setOnClickListener(onClickListener)
         bookmark_iv.setOnClickListener(onClickListener)
 
-//        abandonmentPublic = viewModel.abandonmentPublicListLiveData.value?.get(intent.getIntExtra("itemPosition", 0))
+        getAbandonment()
 
+
+    }
+
+    override fun initDataBinding() {
+        dataBinding.abandonmentPublic = abandonmentPublic
+
+        viewModel.bookmarkLiveData.observe(this) {
+            bookmark_iv.isChecked = it != null
+        }
+    }
+
+    override fun initAfterBinding() {
+        abandonmentPublic?.desertionNo?.let { viewModel.getByDesertionNo(it) }
+    }
+
+    private val onClickListener = View.OnClickListener {
+        when (it.id) {
+            R.id.popfile_iv ->{
+                val intent = Intent(this, DetailPhotoActivity::class.java)
+                intent.putExtra("popfile", abandonmentPublic?.popfile)
+
+                startActivity(intent)
+            }
+            R.id.contact_btn -> {
+                val contactDialog = ContactDialog(this,  abandonmentPublic?.careTel, abandonmentPublic?.officetel)
+                contactDialog.showContactDialog()
+            }
+            R.id.bookmark_iv -> {
+                if (bookmark_iv.isChecked) {
+                    abandonmentPublic?.let { abandonment -> viewModel.insert(abandonment) }
+                } else {
+                    abandonmentPublic?.desertionNo?.run {
+                        viewModel.deleteByDesertionNo(this)
+                    }
+                }
+            }
+        }
+    }
+
+    //전송된 abandonment 불러오기
+    private fun getAbandonment() {
         abandonmentPublic = AbandonmentPublic()
         abandonmentPublic?.run {
             age = intent.getStringExtra("age")
@@ -58,38 +101,6 @@ class AbandonmentPublicDetailActivity : BaseActivity<ActivityAbandonmentPublicDe
             sexCd = intent.getStringExtra("sexCd")
             specialMark = intent.getStringExtra("specialMark")
             weight = intent.getStringExtra("weight")
-        }
-
-        dataBinding.abandonmentPublic = abandonmentPublic
-    }
-
-    override fun initDataBinding() {
-
-    }
-
-    override fun initAfterBinding() {
-
-    }
-
-    private val onClickListener = View.OnClickListener {
-        when (it.id) {
-            R.id.popfile_iv ->{
-                val intent = Intent(this, DetailPhotoActivity::class.java)
-                intent.putExtra("popfile", abandonmentPublic?.popfile)
-
-                startActivity(intent)
-            }
-            R.id.contact_btn -> {
-                val contactDialog = ContactDialog(this,  abandonmentPublic?.careTel, abandonmentPublic?.officetel)
-                contactDialog.showContactDialog()
-            }
-            R.id.bookmark_iv -> {
-                if (bookmark_iv.isChecked) {
-                    abandonmentPublic?.let { abandonment -> viewModel.insert(abandonment) }
-                } else {
-                    viewModel.getAll()
-                }
-            }
         }
     }
 }

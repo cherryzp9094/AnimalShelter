@@ -1,5 +1,7 @@
 package com.cherryzp.animalshelter.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.cherryzp.animalshelter.base.BaseViewModel
 import com.cherryzp.animalshelter.model.response.AbandonmentPublic
@@ -9,6 +11,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BookmarkViewModel(private val repository: ShelterRepository): BaseViewModel() {
+
+    private val _animalListLiveData = MutableLiveData<List<AbandonmentPublicEntity>>()
+    val animalListLiveData: LiveData<List<AbandonmentPublicEntity>>
+        get() = _animalListLiveData
+
+    private val _bookmarkLiveData = MutableLiveData<AbandonmentPublicEntity>()
+    val bookmarkLiveData: LiveData<AbandonmentPublicEntity>
+        get() = _bookmarkLiveData
 
     fun insert(abandonmentPublic: AbandonmentPublic) {
         val abandonmentPublicEntity = abandonmentPublic.let {
@@ -42,16 +52,21 @@ class BookmarkViewModel(private val repository: ShelterRepository): BaseViewMode
         }
     }
 
-    fun delete() {
+    fun deleteByDesertionNo(desertionNo: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
+            repository.deleteByDesertionNo(desertionNo)
         }
     }
 
-    fun getAll() {
+    fun getAll(){
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getAll()
+            _animalListLiveData.postValue(repository.getAll())
         }
     }
 
+    fun getByDesertionNo(desertionNo: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _bookmarkLiveData.postValue(repository.getByDesertionNo(desertionNo))
+        }
+    }
 }
