@@ -76,7 +76,7 @@ abstract class BaseActivity<T : ViewDataBinding, V : BaseViewModel> : AppCompatA
         overridePendingTransition(R.anim.horizon_enter, R.anim.none)
     }
 
-    private fun backAnim() {
+    fun backAnim() {
         overridePendingTransition(R.anim.none, R.anim.horizon_exit)
     }
 

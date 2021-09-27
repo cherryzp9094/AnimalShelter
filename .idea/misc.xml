@@ -6,6 +6,10 @@
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22703583061889251" />
         <entry key="app/src/main/res/drawable-xxxhdpi/checkbox_favorite.xml" value="0.2940928270042194" />
         <entry key="app/src/main/res/drawable/background_round_image.xml" value="0.16513157894736843" />
+        <entry key="app/src/main/res/drawable/border_line_blue_radius.xml" value="0.16348684210526315" />
+        <entry key="app/src/main/res/drawable/border_line_grey_solid_white_radius.xml" value="0.16348684210526315" />
+        <entry key="app/src/main/res/drawable/border_line_null_solid_grey_radius.xml" value="0.16348684210526315" />
+        <entry key="app/src/main/res/drawable/border_line_null_solid_white_radius.xml" value="0.16348684210526315" />
         <entry key="app/src/main/res/drawable/checkbox_bookmark.xml" value="0.19658119658119658" />
         <entry key="app/src/main/res/drawable/gradient_blur.xml" value="0.22703583061889251" />
         <entry key="app/src/main/res/drawable/ic_back_24px.xml" value="0.16513157894736843" />
@@ -20,11 +24,13 @@
         <entry key="app/src/main/res/drawable/ic_search_24px.xml" value="0.2940928270042194" />
         <entry key="app/src/main/res/drawable/outline_bookmark_24.xml" value="0.22703583061889251" />
         <entry key="app/src/main/res/drawable/outline_bookmark_border_24.xml" value="0.22703583061889251" />
+        <entry key="app/src/main/res/drawable/process_state_background.xml" value="0.16348684210526315" />
+        <entry key="app/src/main/res/drawable/round_square_btn.xml" value="0.16348684210526315" />
         <entry key="app/src/main/res/layout/activity_abandonment_public_bookmark.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/activity_abandonment_public_bookmark_detail.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/activity_abandonment_public_detail.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_abandonment_public_detail.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_detail_photo.xml" value="0.21693811074918568" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.15493421052631579" />
         <entry key="app/src/main/res/layout/dialog_app_finish.xml" value="0.21693811074918568" />
         <entry key="app/src/main/res/layout/dialog_contact.xml" value="0.21693811074918568" />

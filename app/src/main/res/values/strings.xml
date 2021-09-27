@@ -10,6 +10,8 @@
 
 
     <string name="abandonment_public_fragment_search_no_item">조건에 맞는 동물 친구들이 없어요.</string>
+    <string name="abandonment_public_bookmark_activity_search_no_item">북마크에 추가된 동물 친구들이 없어요.</string>
+
 
     <string name="abandonment_recycler_item_age_info">출생연도 : %s</string>
     <string name="abandonment_recycler_item_sex_info">성별 : %s</string>

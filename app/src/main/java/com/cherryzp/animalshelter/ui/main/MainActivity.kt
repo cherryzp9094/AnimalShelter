@@ -51,7 +51,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
         abandonment_fragment_btn.setOnClickListener(onClickListener)
         search_fragment_btn.setOnClickListener(onClickListener)
         back_btn.setOnClickListener(onClickListener)
-        floating_btn.setOnClickListener(onClickListener)
+        bookmark_btn.setOnClickListener(onClickListener)
 
         supportFragmentManager.beginTransaction().replace(R.id.fragment_view, abandonmentPublicFragment).commit()
 
@@ -78,7 +78,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
             R.id.back_btn -> {
                 moveFragment(FragmentState.ANIMAL)
             }
-            R.id.floating_btn -> {
+            R.id.bookmark_btn -> {
                 startActivity(Intent(this, AbandonmentPublicBookmarkActivity::class.java))
             }
         }
