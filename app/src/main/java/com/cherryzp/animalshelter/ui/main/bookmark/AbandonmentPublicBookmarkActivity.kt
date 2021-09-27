@@ -2,6 +2,7 @@ package com.cherryzp.animalshelter.ui.main.bookmark
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cherryzp.animalshelter.R
@@ -27,12 +28,20 @@ class AbandonmentPublicBookmarkActivity : BaseActivity<ActivityAbandonmentPublic
     private val abandonmentPublicBookmarkRecyclerAdapter: AbandonmentPublicBookmarkRecyclerAdapter by inject()
 
     override fun initStartView() {
+        dataBinding.activity = this
+
         bookmark_rv.adapter = abandonmentPublicBookmarkRecyclerAdapter
         bookmark_rv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         abandonmentPublicBookmarkRecyclerAdapter.activity = this
 
         viewModel.animalListLiveData.observe(this) {
-            abandonmentPublicBookmarkRecyclerAdapter.setAbandonmentPublicList(it as ArrayList<AbandonmentPublicEntity>)
+            if (it.isNotEmpty()) {
+                dataBinding.searchNoItemTv.visibility = View.GONE
+                abandonmentPublicBookmarkRecyclerAdapter.setAbandonmentPublicList(it as ArrayList<AbandonmentPublicEntity>)
+            } else {
+                dataBinding.searchNoItemTv.visibility = View.VISIBLE
+            }
+
             abandonmentPublicBookmarkRecyclerAdapter.notifyDataSetChanged()
         }
     }
@@ -43,5 +52,14 @@ class AbandonmentPublicBookmarkActivity : BaseActivity<ActivityAbandonmentPublic
 
     override fun initAfterBinding() {
         viewModel.getAll()
+    }
+
+    fun onClick(view: View) {
+        when (view.id) {
+            R.id.back_btn -> {
+                finish()
+                backAnim()
+            }
+        }
     }
 }

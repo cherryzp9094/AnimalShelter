@@ -27,6 +27,7 @@ private const val SIDO_LINE_COUNT = 2
 private const val SIGUNGU_LINE_COUNT = 2
 private const val SHELTER_LINE_COUNT = 1
 
+//TODO 코드 리펙토링 필요
 class SearchFragment : BaseFragment<FragmentSearchBinding, MainViewModel>(), SearchItemSelectListener {
 
     override val layoutResourceId: Int

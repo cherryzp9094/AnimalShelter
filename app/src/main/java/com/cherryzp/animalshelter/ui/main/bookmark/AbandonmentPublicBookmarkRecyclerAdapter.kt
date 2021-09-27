@@ -33,7 +33,6 @@ class AbandonmentPublicBookmarkRecyclerAdapter: RecyclerView.Adapter<RecyclerVie
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as? VH)?.onBind(abandonmentPublicList[position])
-        Log.e("TAG", "bind")
     }
 
     override fun getItemCount(): Int = abandonmentPublicList.size
@@ -86,7 +85,7 @@ class AbandonmentPublicBookmarkRecyclerAdapter: RecyclerView.Adapter<RecyclerVie
         }
 
         //AbandonmentPublic 데이터 인텐트에 넣기
-        fun insertIntentAbandonmentItem(abandonmentPublicItem: AbandonmentPublicEntity, intent: Intent): Intent {
+        private fun insertIntentAbandonmentItem(abandonmentPublicItem: AbandonmentPublicEntity, intent: Intent): Intent {
             intent.putExtra("age", abandonmentPublicItem.age)
             intent.putExtra("careAddr", abandonmentPublicItem.careAddr)
             intent.putExtra("careNm", abandonmentPublicItem.careNm)

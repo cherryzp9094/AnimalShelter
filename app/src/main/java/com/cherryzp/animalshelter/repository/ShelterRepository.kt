@@ -14,8 +14,6 @@ class ShelterRepository(appApplication: AppApplication) {
 
     fun getAll(): List<AbandonmentPublicEntity> {
         animalList = abandonmentPublicDao.getAll()
-        Log.e("TAG", animalList.toString())
-
         return animalList
     }
 
@@ -24,15 +22,11 @@ class ShelterRepository(appApplication: AppApplication) {
     }
 
     fun insert(abandonmentPublicEntity: AbandonmentPublicEntity) {
-        Log.e("TAG", abandonmentPublicEntity.toString())
         abandonmentPublicDao.insert(abandonmentPublicEntity)
-        Log.e("TAG", "success")
     }
 
     fun deleteByDesertionNo(desertionNo: String) {
-        Log.e("TAG", desertionNo)
         abandonmentPublicDao.deleteByDesertionNo(desertionNo)
-        Log.e("TAG", "success")
     }
 
 }
