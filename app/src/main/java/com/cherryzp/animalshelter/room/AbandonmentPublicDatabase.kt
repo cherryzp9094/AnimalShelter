@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 import com.cherryzp.animalshelter.room.dao.AbandonmentPublicDao
 import com.cherryzp.animalshelter.room.entity.AbandonmentPublicEntity
 
-@Database(entities = [AbandonmentPublicEntity::class], version = 1)
+@Database(entities = [AbandonmentPublicEntity::class], version = 2)
 abstract class AbandonmentPublicDatabase : RoomDatabase(){
 
     abstract fun abandonmentPublicDao(): AbandonmentPublicDao
