@@ -22,7 +22,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            insert_img="@{abandonmentPublic.filename}"
+            app:insert_img="@{abandonmentPublic.filename}"
             android:scaleType="centerCrop"
             android:transitionName="profile_image"/>
 
