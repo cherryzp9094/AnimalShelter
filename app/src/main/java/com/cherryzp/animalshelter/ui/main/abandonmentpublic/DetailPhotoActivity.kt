@@ -34,12 +34,14 @@ class DetailPhotoActivity : BaseActivity<ActivityDetailPhotoBinding, MainViewMod
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        scaleGestureDetector.onTouchEvent(event)
+        event?.let {
+            scaleGestureDetector.onTouchEvent(it)
+        }
         return true
     }
 
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScale(detector: ScaleGestureDetector?): Boolean {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
 
             scaleFactor *= scaleGestureDetector.scaleFactor
 
