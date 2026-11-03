@@ -1,6 +1,8 @@
 package com.cherryzp.animalshelter.di
 
+import coil3.disk.DiskCache
 import com.cherryzp.animalshelter.platform.DATASTORE_DIR
+import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import java.util.concurrent.TimeUnit
@@ -14,7 +16,16 @@ actual fun platformModule(): Module = module {
     // DataStore 파일 위치. createPreferencesStorage·createJsonStorage가 읽는다.
     single(named(DATASTORE_DIR)) { androidContext().filesDir.resolve("datastore").toOkioPath() }
     single<HttpClientEngine> { createOkHttpEngine() }
+    // 사진 디스크 캐시 200MB(브리핑 A5). 북마크 사진을 오프라인에서도 보인다(05 5.2).
+    single<ImageDiskCacheProvider> {
+        val directory = androidContext().cacheDir.resolve("image_cache").toOkioPath()
+        ImageDiskCacheProvider {
+            DiskCache.Builder().directory(directory).maxSizeBytes(IMAGE_DISK_CACHE_BYTES).build()
+        }
+    }
 }
+
+private const val IMAGE_DISK_CACHE_BYTES = 200L * 1024 * 1024
 
 /**
  * 공공데이터·중계 호출 엔진. 연결 10초. 읽기·쓰기는 요청 전체 제한(HttpTimeout 20초)과 맞춘다 —

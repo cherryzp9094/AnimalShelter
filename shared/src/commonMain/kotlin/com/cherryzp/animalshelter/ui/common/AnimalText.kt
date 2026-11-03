@@ -1,0 +1,103 @@
+package com.cherryzp.animalshelter.ui.common
+
+import com.cherryzp.animalshelter.model.Animal
+import com.cherryzp.animalshelter.model.Neutered
+import com.cherryzp.animalshelter.model.Sex
+import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.age_under_two_months
+import com.cherryzp.animalshelter.resources.age_year
+import com.cherryzp.animalshelter.resources.neuter_no
+import com.cherryzp.animalshelter.resources.neuter_unknown
+import com.cherryzp.animalshelter.resources.neuter_yes
+import com.cherryzp.animalshelter.resources.sex_female
+import com.cherryzp.animalshelter.resources.sex_male
+import com.cherryzp.animalshelter.resources.sex_unknown
+import com.cherryzp.animalshelter.resources.weight_kg
+import kotlin.math.abs
+import kotlin.math.roundToLong
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
+
+// 동물 문구·숫자 서식(순수 함수, 두 로케일 같음). 문장부호 " · "·", "는 코드에 둔다(브리핑 P12).
+
+/** 부분을 잇는 구분자(제목·보호소 줄·특징). */
+const val PART_SEPARATOR = " · "
+
+/** 세 자리마다 쉼표(7544 → "7,544"). 두 로케일 같다. */
+fun formatCount(value: Int): String {
+    val digits = abs(value.toLong()).toString()
+    val grouped = digits.reversed().chunked(3).joinToString(",").reversed()
+    return if (value < 0) "-$grouped" else grouped
+}
+
+/** 체중 숫자(소수 둘째 자리까지, 끝의 0은 뺀다): 5.0 → "5", 2.90 → "2.9", 0.25 → "0.25". */
+fun formatWeight(kg: Double): String {
+    val hundredths = (kg * 100).roundToLong()
+    val whole = hundredths / 100
+    val fraction = (hundredths % 100).toString().padStart(2, '0').trimEnd('0')
+    return if (fraction.isEmpty()) whole.toString() else "$whole.$fraction"
+}
+
+/** 날짜: 올해면 "MM-dd", 아니면 "yyyy-MM-dd". */
+fun formatShortDate(date: LocalDate, today: LocalDate): String {
+    val monthDay = "${date.month.number.pad2()}-${date.day.pad2()}"
+    return if (date.year == today.year) monthDay else "${date.year}-$monthDay"
+}
+
+private fun Int.pad2(): String = toString().padStart(2, '0')
+
+/** 성별 문구. */
+fun Sex.toUiText(): UiText = when (this) {
+    Sex.MALE -> uiText(Res.string.sex_male)
+    Sex.FEMALE -> uiText(Res.string.sex_female)
+    Sex.UNKNOWN -> uiText(Res.string.sex_unknown)
+}
+
+/** 중성화 문구. */
+fun Neutered.toUiText(): UiText = when (this) {
+    Neutered.YES -> uiText(Res.string.neuter_yes)
+    Neutered.NO -> uiText(Res.string.neuter_no)
+    Neutered.UNKNOWN -> uiText(Res.string.neuter_unknown)
+}
+
+/**
+ * 카드 제목 부분(브리핑 P10): 품종명 · 성별 · `age_year` · (60일 미만이면) `age_under_two_months`.
+ * 있는 것만 — 빈 칸이 생기지 않게 리소스 하나(`card_title`)로 묶지 않는다.
+ */
+fun Animal.titleParts(): List<UiText> = buildList {
+    kindName?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
+    sex?.let { add(it.toUiText()) }
+    birthYear?.let { add(uiText(Res.string.age_year, it)) }
+    if (isUnderTwoMonths) add(uiText(Res.string.age_under_two_months))
+}
+
+/** 특징 부분: 색상 · 체중(`weight_kg`) · 특징. 있는 것만. */
+fun Animal.traitParts(): List<UiText> = buildList {
+    color?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
+    weightKg?.let { add(uiText(Res.string.weight_kg, formatWeight(it))) }
+    specialMark?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
+}
+
+/** 보호소 줄: 관할 기관 · 보호소 이름. 둘 다 없으면 null. */
+fun Animal.shelterLine(): String? = listOfNotNull(
+    shelter.orgName?.trim()?.takeIf { it.isNotEmpty() },
+    shelter.name?.trim()?.takeIf { it.isNotEmpty() }
+).joinToString(PART_SEPARATOR).ifEmpty { null }
+
+/**
+ * 카드 접근성 한 문장(브리핑 P10, 06 6절): 제목 부분 · 보호소 줄 · (1열 카드면) 발견 장소 · 상태 ·
+ * (북마크면) 북마크됨을 ", "로 잇는다. 보호소 줄의 " · "는 띄어쓰기로 읽는다. 빈 것은 뺀다.
+ */
+fun cardA11ySentence(
+    title: List<String>,
+    shelterLine: String?,
+    status: String,
+    bookmarked: String?,
+    happenPlace: String? = null,
+): String = buildList {
+    addAll(title)
+    shelterLine?.let { add(it.replace(PART_SEPARATOR, " ")) }
+    happenPlace?.let { add(it) }
+    add(status)
+    bookmarked?.let { add(it) }
+}.map { it.trim() }.filter { it.isNotEmpty() }.joinToString(", ")
