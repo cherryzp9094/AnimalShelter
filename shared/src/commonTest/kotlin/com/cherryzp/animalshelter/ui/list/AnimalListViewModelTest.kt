@@ -378,4 +378,24 @@ class AnimalListViewModelTest {
         assertNull(first.state.fullScreen)
         assertEquals(ListFooter.END, end.state.footer)
     }
+
+    @Test
+    fun `조건이나 정렬이 바뀌면 queryKey가 바뀐다`() = runVmTest {
+        val env = Env(initial = loaded()).also { subscribe(it) }
+        val first = env.state.queryKey
+
+        env.animals.results.value = loaded(items = testAnimals(5))
+        advanceUntilIdle()
+        assertEquals(first, env.state.queryKey) // 같은 조건의 새로고침·다음 페이지는 그대로
+
+        env.animals.results.value = loaded(filter = SearchFilter(kind = AnimalKind.CAT))
+        advanceUntilIdle()
+        val second = env.state.queryKey
+        assertTrue(first != second)
+
+        env.animals.results.value =
+            loaded(filter = SearchFilter(kind = AnimalKind.CAT), sort = SortOrder.CLOSING_SOON)
+        advanceUntilIdle()
+        assertTrue(second != env.state.queryKey)
+    }
 }

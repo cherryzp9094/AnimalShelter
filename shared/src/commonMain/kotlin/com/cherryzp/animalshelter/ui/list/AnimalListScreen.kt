@@ -29,8 +29,11 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -130,6 +133,13 @@ fun AnimalListScreen(
         onMessageShown = onMessageShown,
         onMessageAction = onMessageAction
     )
+
+    // 조건·정렬이 바뀌면 맨 위로(처음 그릴 때·다른 화면에서 돌아올 때는 위치를 지킨다)
+    var shownQueryKey by rememberSaveable { mutableStateOf(state.queryKey) }
+    if (state.queryKey != shownQueryKey) {
+        shownQueryKey = state.queryKey
+        gridState.requestScrollToItem(0)
+    }
 
     val currentOnNearEnd by rememberUpdatedState(onNearEnd)
     LaunchedEffect(gridState) {

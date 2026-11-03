@@ -298,7 +298,8 @@ class AnimalListViewModel(
 
                 else -> FullScreenState.Empty
             },
-            message = local.message
+            message = local.message,
+            queryKey = "${r.sort.name}|${r.filter}"
         )
     }
 }

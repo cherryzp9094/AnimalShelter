@@ -14,6 +14,8 @@ import com.cherryzp.animalshelter.ui.common.UiText
  * @property header "전체 n마리"/"공고중 n마리". 모르면 null
  * @property fullScreen 결과가 비었을 때만(빈 결과·오류)
  * @property message 스낵바 한 번(보여 준 뒤 `onMessageShown()`)
+ * @property queryKey 보이는 결과의 조건·정렬. 바뀌면 화면이 그리드를 맨 위로 올린다(새 결과가 옛 스크롤 위치에서
+ *   시작해 자동 다음 페이지를 부르지 않게). 프로세스 종료 뒤에도 같도록 `toString()`으로 만든다
  */
 @Immutable
 data class AnimalListUiState(
@@ -28,6 +30,7 @@ data class AnimalListUiState(
     val footer: ListFooter = ListFooter.NONE,
     val fullScreen: FullScreenState? = null,
     val message: UiMessage? = null,
+    val queryKey: String = "",
 )
 
 /** 요약 칩 하나. 누르면 [target]. */
