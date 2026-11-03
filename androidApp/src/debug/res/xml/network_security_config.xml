@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 디버그 빌드 전용: 에뮬레이터에서 호스트의 중계 서버(http://10.0.2.2:8788)만 평문을 허용한다.
+     release에는 이 파일이 없고 기본값(평문 불허)을 쓴다. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

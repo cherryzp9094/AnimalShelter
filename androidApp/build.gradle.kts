@@ -13,7 +13,7 @@ val localProperties: Properties = Properties().apply {
 val serviceKey: String = localProperties.getProperty("SERVICE_KEY").orEmpty()
 
 // 에뮬레이터에서 호스트의 중계 서버(wrangler dev)에 닿는 주소가 기본값이다.
-val relayBaseUrl: String = localProperties.getProperty("RELAY_BASE_URL") ?: "http://10.0.2.2:8787"
+val relayBaseUrl: String = localProperties.getProperty("RELAY_BASE_URL") ?: "http://10.0.2.2:8788"
 
 // 릴리스 서명. 로컬 전용 signing/keystore.properties(git 제외)가 있을 때만 붙는다. 없으면 서명 없는 release.
 val releaseSigning: Properties? = rootDir.resolve("signing/keystore.properties")

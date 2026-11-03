@@ -44,7 +44,7 @@ abstract class GenerateWebConfigTask : DefaultTask() {
     }
 }
 
-// 우선순위: -PrelayBaseUrl(빈 값 허용) → local.properties의 RELAY_BASE_URL → http://localhost:8787
+// 우선순위: -PrelayBaseUrl(빈 값 허용) → local.properties의 RELAY_BASE_URL → http://localhost:8788
 // local.properties에서는 RELAY_BASE_URL 한 줄만 꺼낸다.
 val localRelayBaseUrl: Provider<String> = providers
     .fileContents(rootProject.layout.projectDirectory.file("local.properties"))
@@ -58,7 +58,7 @@ val generateWebConfig = tasks.register<GenerateWebConfigTask>("generateWebConfig
     relayBaseUrl.set(
         providers.gradleProperty("relayBaseUrl")
             .orElse(localRelayBaseUrl)
-            .orElse("http://localhost:8787")
+            .orElse("http://localhost:8788")
     )
     versionName.set(libs.versions.appVersionName)
     outputDir.set(layout.buildDirectory.dir("generated/webConfig/kotlin"))
