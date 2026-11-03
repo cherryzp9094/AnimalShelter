@@ -1,0 +1,2 @@
+# 로컬 wrangler dev용 비밀값. 값은 local.properties에서 sed로 옮긴다(README 참고). 이 파일에는 값을 쓰지 않는다.
+SERVICE_KEY=

@@ -1,0 +1,23 @@
+# AnimalShelter 중계 Worker. 규약: docs/design/02-data.md 7절
+name = "animalshelter-relay"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# 로컬 개발용 허용 Origin(쉼표 구분). 배포(A안)는 웹 앱과 같은 origin이라 CORS가 필요 없다.
+ALLOWED_ORIGINS = "http://localhost:8080,http://127.0.0.1:8080"
+
+[assets]
+directory = "../webApp/build/dist/wasmJs/productionExecutable"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*", "/img/*", "/a/*", "/.well-known/*"]
+
+# 업스트림 URL(serviceKey 포함)이 추적·로그에 남지 않게 끈다.
+[observability]
+enabled = false
+
+[dev]
+# 8787은 이 맥의 다른 프로젝트 서버가 쓴다. 에뮬레이터에서는 http://10.0.2.2:8788
+port = 8788
+ip = "127.0.0.1"

@@ -1,0 +1,215 @@
+// 중계 순수 함수 테스트(node --test, 네트워크 없음). 입력은 인라인 또는 ../docs/api/samples.
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import * as lib from "../lib.js";
+
+const sample = JSON.parse(
+  readFileSync(new URL("../../docs/api/samples/live-2026-11-03/abandonmentPublic_v2_p1.json", import.meta.url), "utf8"),
+);
+const items = lib.itemsOf(sample);
+const FAKE_KEY = "TEST%2BKEY%2FVAL%3D%3D";
+
+test("parseApiPath는 허용한 서비스·오퍼레이션만", () => {
+  assert.deepEqual(lib.parseApiPath("/api/abandonmentPublicService_v2/sido_v2"), {
+    service: "abandonmentPublicService_v2",
+    operation: "sido_v2",
+  });
+  assert.deepEqual(lib.parseApiPath("/api/animalShelterSrvc_v2/shelterInfo_v2/"), {
+    service: "animalShelterSrvc_v2",
+    operation: "shelterInfo_v2",
+  });
+  assert.equal(lib.parseApiPath("/api/nope/sido_v2"), null);
+  assert.equal(lib.parseApiPath("/api/animalShelterSrvc_v2/sido_v2"), null);
+  assert.equal(lib.parseApiPath("/api/abandonmentPublicService_v2/constructor"), null);
+  assert.equal(lib.parseApiPath("/api/abandonmentPublicService_v2"), null);
+});
+
+test("validateQuery: 허용 파라미터를 이름순으로, serviceKey·_type은 버린다", () => {
+  const q = new URLSearchParams("upr_cd=6110000&numOfRows=30&serviceKey=x&_type=xml&pageNo=1");
+  assert.deepEqual(lib.validateQuery("abandonmentPublicService_v2", "abandonmentPublic_v2", q), {
+    params: [["numOfRows", "30"], ["pageNo", "1"], ["upr_cd", "6110000"]],
+  });
+});
+
+test("validateQuery: 모르는 이름·중복·50자 초과·numOfRows 1001은 param 오류", () => {
+  const check = (query, op = "abandonmentPublic_v2") =>
+    lib.validateQuery("abandonmentPublicService_v2", op, new URLSearchParams(query));
+  assert.deepEqual(check("foo=1"), { error: "param" });
+  assert.deepEqual(check("upr_cd=1&upr_cd=2"), { error: "param" });
+  assert.deepEqual(check(`kind=${"1".repeat(51)}`), { error: "param" });
+  assert.deepEqual(check("numOfRows=1001"), { error: "param" });
+  assert.deepEqual(check("numOfRows=0"), { error: "param" });
+  assert.deepEqual(check("pageNo=-1"), { error: "param" });
+  assert.deepEqual(check("upkind=417000", "kind_v2"), { error: "param" }); // 품종은 up_kind_cd
+  assert.deepEqual(check("numOfRows=1000").params, [["numOfRows", "1000"]]);
+});
+
+test("buildUpstreamUrl은 키를 다시 인코딩하지 않고 문자열로 붙인다", () => {
+  const url = lib.buildUpstreamUrl("abandonmentPublicService_v2", "sido_v2", [["numOfRows", "100"]], FAKE_KEY);
+  assert.equal(
+    url,
+    `https://apis.data.go.kr/1543061/abandonmentPublicService_v2/sido_v2?numOfRows=100&_type=json&serviceKey=${FAKE_KEY}`,
+  );
+  assert.ok(!url.includes("%252B"));
+  const bare = lib.buildUpstreamUrl("abandonmentPublicService_v2", "sido_v2", [], FAKE_KEY);
+  assert.ok(bare.endsWith(`sido_v2?_type=json&serviceKey=${FAKE_KEY}`));
+});
+
+test("cacheKeyUrl에는 키가 없다", () => {
+  const key = lib.cacheKeyUrl("http://127.0.0.1:8788", "abandonmentPublicService_v2", "kind_v2", [["up_kind_cd", "417000"]]);
+  assert.equal(key, "http://127.0.0.1:8788/api/abandonmentPublicService_v2/kind_v2?up_kind_cd=417000");
+  assert.ok(!key.includes("serviceKey"));
+});
+
+test("shouldCache: 200 + resultCode 00 + totalCount > 0만", () => {
+  const ok = readFileSync(new URL("../../docs/api/samples/live-2026-11-03/sido_v2.json", import.meta.url), "utf8");
+  const empty = readFileSync(
+    new URL("../../docs/api/samples/live-2026-11-03/abandonmentPublic_v2_empty.json", import.meta.url),
+    "utf8",
+  );
+  const gateway = readFileSync(new URL("../../docs/api/samples/gateway_error_30.json", import.meta.url), "utf8");
+  assert.equal(lib.shouldCache(200, ok), true);
+  assert.equal(lib.shouldCache(500, ok), false);
+  assert.equal(lib.shouldCache(200, empty), false);
+  assert.equal(lib.shouldCache(200, gateway), false);
+  assert.equal(lib.shouldCache(200, '{"response":{"header":{"resultCode":"99"},"body":{"totalCount":3}}}'), false);
+});
+
+test("parseImagePath: 형식 검사·대괄호 허용·확장자 대소문자·경로 이탈 거부", () => {
+  assert.deepEqual(lib.parseImagePath("shelter/2026/10/20261103141175.jpg"), {
+    path: "shelter/2026/10/20261103141175.jpg",
+    contentType: "image/jpeg",
+  });
+  assert.deepEqual(lib.parseImagePath("shelter/2026/10/abc%5B1%5D.PNG"), {
+    path: "shelter/2026/10/abc[1].PNG",
+    contentType: "image/png",
+  });
+  assert.equal(lib.parseImagePath("shelter/2026/10/x.jpeg").contentType, "image/jpeg");
+  assert.equal(lib.parseImagePath("shelter/2026/10/x.gif"), null);
+  assert.equal(lib.parseImagePath("..%2F..%2Fetc%2Fpasswd"), null);
+  assert.equal(lib.parseImagePath("shelter/2026/10/..%2Fx.jpg"), null);
+  assert.equal(lib.parseImagePath("shelter/2026/10/a%2Fb.jpg"), null);
+  assert.equal(lib.parseImagePath("%E0%A4%A"), null);
+});
+
+test("imageUpstreamUrl은 대괄호를 인코딩한다", () => {
+  assert.equal(
+    lib.imageUpstreamUrl("shelter/2026/10/a[1].jpg"),
+    "https://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/a%5B1%5D.jpg",
+  );
+});
+
+test("parseShareId는 15자리 숫자만", () => {
+  assert.equal(lib.parseShareId("/a/450650202602738"), "450650202602738");
+  assert.equal(lib.parseShareId("/a/450650202602738/"), "450650202602738");
+  assert.equal(lib.parseShareId("/a/12345"), null);
+  assert.equal(lib.parseShareId("/a/45065020260273x"), null);
+  assert.equal(lib.parseShareId("/a/450650202602738/x"), null);
+});
+
+test("lookupWindows: 기본 → 그 해 → 전 해, 범위 밖 연도는 기본만", () => {
+  assert.deepEqual(lib.lookupWindows("450650202602738", 2026), [
+    null,
+    ["20260101", "20261231"],
+    ["20250101", "20251231"],
+  ]);
+  assert.deepEqual(lib.lookupWindows("448567199901800", 2026), [null]);
+  assert.deepEqual(lib.lookupWindows("448567203001800", 2026), [null]);
+  assert.deepEqual(lib.lookupWindows("448567200001800", 2026), [null, ["20000101", "20001231"]]);
+});
+
+test("kstToday는 UTC+9 기준", () => {
+  assert.equal(lib.kstToday(new Date("2026-11-03T14:59:59Z")), "2026-11-03");
+  assert.equal(lib.kstToday(new Date("2026-11-03T15:00:00Z")), "2026-11-04");
+});
+
+test("animalStatus 네 갈래(앱과 같은 규칙)", () => {
+  assert.deepEqual(lib.animalStatus("보호중", "20261113", "2026-11-03"), { type: "noticing", daysLeft: 10 });
+  assert.deepEqual(lib.animalStatus("보호중", "20261103", "2026-11-03"), { type: "noticing", daysLeft: 0 });
+  assert.deepEqual(lib.animalStatus("보호중", "20261102", "2026-11-03"), { type: "protecting" });
+  assert.deepEqual(lib.animalStatus("종료(반환)", "20261113", "2026-11-03"), { type: "ended", reason: "반환" });
+  assert.deepEqual(lib.animalStatus("종료", null, "2026-11-03"), { type: "ended", reason: null });
+  assert.deepEqual(lib.animalStatus("", null, "2026-11-03"), { type: "unknown", raw: null });
+});
+
+test("미리보기 제목·설명은 실제 응답으로 05-service 문구를 만든다", () => {
+  const summary = lib.summarize(items[0]);
+  assert.equal(summary.found, true);
+  assert.equal(Object.hasOwn(summary, "careOwnerNm"), false);
+  assert.equal(lib.ogTitle(summary), "한국 고양이 · 수컷 · 2024년생");
+  assert.equal(
+    lib.ogDescription(summary, "2026-11-03"),
+    "제주특별자치도 제2동물보호센터 · 공고 2026-11-03 ~ 11-13(D-10) · 기타(고등어) · 5kg · " +
+      "개체관리번호 26652 - 목에 플라스틱통 끼임 — 최신 정보는 보호소에 확인해 주세요",
+  );
+  assert.ok(lib.statusText(summary, "2026-11-13").endsWith("(오늘 마감)"));
+  assert.equal(lib.statusText(lib.summarize(items[4]), "2026-11-03"), "종료 · 반환");
+  const young = { ...summary, age: "2026(60일미만)(년생)" };
+  assert.equal(lib.ogTitle(young), "한국 고양이 · 수컷 · 2026년생 · 생후 2개월 미만");
+});
+
+test("weightText는 오타를 정리하고 범위 밖은 버린다", () => {
+  assert.equal(lib.weightText("5(Kg)"), "5kg");
+  assert.equal(lib.weightText("0.7(Kg)"), "0.7kg");
+  assert.equal(lib.weightText("2..00(Kg)"), "2kg");
+  assert.equal(lib.weightText("3,5(Kg)"), "3.5kg");
+  assert.equal(lib.weightText("400(Kg)"), null);
+  assert.equal(lib.weightText(null), null);
+});
+
+test("shareMeta: 사진은 중계 /img 절대 주소, 0건·오류는 안내 문구", () => {
+  const meta = lib.shareMeta(lib.summarize(items[0]), {
+    origin: "https://relay.example",
+    desertionNo: "450650202602738",
+    todayIso: "2026-11-03",
+  });
+  assert.equal(meta.image, "https://relay.example/img/shelter/2026/10/20261103141175.jpg");
+  assert.equal(meta.url, "https://relay.example/a/450650202602738");
+  const missing = lib.shareMeta({ found: false }, { origin: "o", desertionNo: "1", todayIso: "2026-11-03" });
+  assert.equal(missing.title, "공고를 찾을 수 없어요");
+  assert.equal(missing.image, null);
+  assert.equal(lib.shareMeta(null, { origin: "o", desertionNo: "1", todayIso: "x" }).title, "애니멀 쉘터");
+});
+
+test("itemsOf는 {}·배열·객체 하나를 모두 목록으로", () => {
+  assert.equal(items.length, 5);
+  assert.deepEqual(lib.itemsOf({ response: { body: { items: {} } } }), []);
+  assert.deepEqual(lib.itemsOf({ response: { body: { items: { item: { a: 1 } } } } }), [{ a: 1 }]);
+  assert.deepEqual(lib.itemsOf(null), []);
+});
+
+test("escapeHtml은 & < > \" '를 바꾼다", () => {
+  assert.equal(lib.escapeHtml(`<a href="x">'&'</a>`), "&lt;a href=&quot;x&quot;&gt;&#39;&amp;&#39;&lt;/a&gt;");
+});
+
+test("injectOg: head 맨 앞 base, OG·title 교체, body 첫 줄 replaceState, 값은 이스케이프", () => {
+  const html = `<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n<title>애니멀 쉘터</title>\n</head>\n<body>\n<div id="root"></div>\n<script src="animalshelter.js"></script>\n</body>\n</html>`;
+  const meta = {
+    title: `<script>alert("x")</script>`,
+    description: "설명 & 'quote'",
+    image: "https://relay.example/img/shelter/2026/10/a.jpg",
+    url: "https://relay.example/a/450650202602738",
+  };
+  const out = lib.injectOg(html, meta, "450650202602738");
+  assert.match(out, /<head>\n<base href="\/">/);
+  assert.equal((out.match(/<base href="\/">/g) ?? []).length, 1);
+  assert.equal((out.match(/history\.replaceState/g) ?? []).length, 1);
+  assert.match(out, /<body>\n<script>history\.replaceState\(null, "", "\/#\/animal\/450650202602738"\)<\/script>/);
+  assert.equal((out.match(/<meta property="og:[a-z_:]*"/g) ?? []).length, 5);
+  assert.equal((out.match(/<title>/g) ?? []).length, 1);
+  assert.ok(!out.includes("<title>애니멀 쉘터</title>"));
+  assert.ok(!out.includes(`<script>alert`));
+  assert.ok(out.includes("&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"));
+  assert.ok(out.includes(`<meta name="robots" content="noindex">`));
+  assert.ok(out.includes(`<meta name="twitter:card" content="summary_large_image">`));
+  assert.ok(out.indexOf("<base") < out.indexOf('<meta charset'));
+});
+
+test("isAllowedOrigin은 목록에 있는 것만", () => {
+  const allowed = "http://localhost:8080, http://127.0.0.1:8080";
+  assert.equal(lib.isAllowedOrigin("http://localhost:8080", allowed), true);
+  assert.equal(lib.isAllowedOrigin("http://127.0.0.1:8080", allowed), true);
+  assert.equal(lib.isAllowedOrigin("https://evil.example", allowed), false);
+  assert.equal(lib.isAllowedOrigin("http://localhost:8080", undefined), false);
+});
