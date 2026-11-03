@@ -22,6 +22,7 @@ import com.cherryzp.animalshelter.ui.photo.PhotoViewerScreen
 import com.cherryzp.animalshelter.ui.placeholder.DetailPlaceholderPane
 import com.cherryzp.animalshelter.ui.placeholder.PlaceholderScreen
 import com.cherryzp.animalshelter.ui.placeholder.SettingsPlaceholderScreen
+import com.cherryzp.animalshelter.ui.shelter.ShelterInfoScreen
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -126,7 +127,13 @@ fun AppNavDisplay() {
                     }
                 )
             }
-            entry<ShelterInfoKey> { PlaceholderScreen(keyName = "ShelterInfoKey") }
+            entry<ShelterInfoKey> { key ->
+                ShelterInfoScreen(
+                    viewModel = koinViewModel { parametersOf(key) },
+                    onBack = { backStack.removeLastOrNull() },
+                    onShowNotices = { backStack.popToList() }
+                )
+            }
         }
     )
 }

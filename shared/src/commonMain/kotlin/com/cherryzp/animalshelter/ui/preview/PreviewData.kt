@@ -6,8 +6,11 @@ import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.Promotion
 import com.cherryzp.animalshelter.model.PromotionType
+import com.cherryzp.animalshelter.model.RoomCounts
 import com.cherryzp.animalshelter.model.Sex
+import com.cherryzp.animalshelter.model.ShelterInfo
 import com.cherryzp.animalshelter.model.ShelterSummary
+import com.cherryzp.animalshelter.model.TimeRange
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.hours_range
 import com.cherryzp.animalshelter.resources.today_closed
@@ -18,6 +21,10 @@ import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailUiState
 import com.cherryzp.animalshelter.ui.detail.MapTarget
 import com.cherryzp.animalshelter.ui.detail.toDetailUi
+import com.cherryzp.animalshelter.ui.shelter.ShelterFallbackUi
+import com.cherryzp.animalshelter.ui.shelter.ShelterInfoUiState
+import com.cherryzp.animalshelter.ui.shelter.toUi
+import com.cherryzp.animalshelter.ui.shelter.todayParts
 import kotlinx.datetime.LocalDate
 
 /**
@@ -118,4 +125,42 @@ object PreviewData {
             },
             map = if (animal.shelter.regNo != null) MapTarget(33.45, 126.4, "제2동물보호센터") else null
         )
+
+    /** 보호소 줄인 화면(목록이 준 요약). */
+    val shelterFallback = ShelterFallbackUi(
+        name = "제2동물보호센터",
+        tel = "064-710-4805",
+        address = "제주특별자치도 제주시 애월읍 어림비로 616-107"
+    )
+
+    /** 보호소 정보 전부(시설·기준일 포함, 대표자 이름은 없다). */
+    private val shelterInfo = ShelterInfo(
+        regNo = "311322200900001",
+        name = "제2동물보호센터",
+        orgName = "제주특별자치도",
+        division = "법인",
+        targetAnimals = "개+고양이",
+        roadAddress = "제주특별자치도 제주시 애월읍 어림비로 616-107",
+        jibunAddress = "제주특별자치도 제주시 애월읍 어음리 1",
+        latitude = 33.45,
+        longitude = 126.4,
+        designatedOn = "2009-01-01",
+        weekdayHours = TimeRange("09:00", "18:00"),
+        weekendHours = TimeRange("10:00", "17:00"),
+        weekdayAdoptionHours = TimeRange("13:00", "15:00"),
+        closedDay = "일요일",
+        vetCount = 1,
+        keeperCount = 4,
+        roomCounts = RoomCounts(medical = 1, breeding = 6),
+        vehicleCount = 2,
+        dataDate = "2023-08-01"
+    )
+
+    fun shelterState(): ShelterInfoUiState = ShelterInfoUiState(
+        title = shelterInfo.name,
+        info = shelterInfo.toUi(fallbackTel = shelterFallback.tel),
+        fallback = shelterFallback,
+        today = shelterInfo.todayParts(today),
+        isDataOld = true
+    )
 }
