@@ -28,6 +28,16 @@ data class SearchResults(
     val error: ApiError? = null,
     /** 지금 목록(첫 페이지)을 받은 시각. 상세 재조회 생략(10분)에 쓴다. */
     val fetchedAt: Instant? = null,
+    /**
+     * 진행 중인 정렬 전환의 목표(R2). 전환 작업이 끝나거나 취소되면 null.
+     * 받는 동안 `sort`는 아직 보이는 정렬이고, 화면은 이것으로 정렬 메뉴의 체크를 보인다.
+     */
+    val pendingSort: SortOrder? = null,
+    /**
+     * 오류 식별(R3). 오류를 실은 결과를 낼 때마다 1씩 늘어난다 — 같은 오류가 두 번 나도 화면이 구별한다.
+     * `error == null`이면 값은 뜻이 없다.
+     */
+    val errorId: Long = 0,
 )
 
 /** 로딩 종류. INITIAL = 빈 목록에서 첫 로딩, MORE = 다음 페이지, REFRESH = 기존 목록을 둔 채 다시 받기. */
@@ -40,11 +50,13 @@ enum class LoadState { IDLE, INITIAL, MORE, REFRESH }
 interface AnimalRepository {
     fun getSearchResultsStream(): StateFlow<SearchResults>
 
-    /** 조건 바꾸기 = 결과 리셋 + 1페이지(LATEST) 또는 전체 수집(CLOSING_SOON). */
+    /** 조건 바꾸기 = 결과 리셋 + 1페이지(LATEST) 또는 전체 수집(CLOSING_SOON). 정렬 전환 중이면 목표 정렬로. */
     suspend fun search(filter: SearchFilter)
 
     /**
-     * 정렬 바꾸기. 다 받은 뒤 바꾸고, 받는 동안은 기존 목록을 둔 채 `loading = REFRESH`.
+     * 정렬 바꾸기. 다 받은 뒤 바꾸고, 받는 동안은 기존 목록을 둔 채 `loading = REFRESH`·`pendingSort = order`.
+     * 목표(`pendingSort ?: sort`)와 같으면 무시한다. 전환 중에 보이는 정렬을 고르면 전환을 취소하고
+     * 지금 결과를 `IDLE`로 되돌린다(호출 0).
      * 마감 임박순은 같은 조건이면 10분 메모리 캐시. 5,000건을 넘으면 기존 목록·LATEST를 그대로 두고
      * `error = TooManyResults`.
      */

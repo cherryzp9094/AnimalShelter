@@ -16,18 +16,24 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 /** 목록 Repository(02-data 9절, D8·D9·D13). MockEngine으로 응답을 정한다. */
 class AnimalRepositoryTest {
@@ -352,5 +358,156 @@ class AnimalRepositoryTest {
         assertEquals("450650202602738", fetched.getOrNull()?.desertionNo)
         assertEquals(2, harness.urls.size)
         assertEquals("450650202602738", harness.urls.last().parameters["desertion_no"])
+    }
+
+    /** 실제 시간으로 기다린다(앱 범위가 Dispatchers.Default라 가상 시간이 흐르지 않는다). */
+    private suspend fun <T> realTimeout(block: suspend () -> T): T =
+        withContext(Dispatchers.Default) { withTimeout(10.seconds) { block() } }
+
+    @Test
+    fun `이전 작업 취소를 기다리는 동안 부른 쪽이 취소돼도 새 검색은 시작된다(R1)`() = runTest {
+        val cancelling = CompletableDeferred<Unit>()
+        val gate = CompletableDeferred<Unit>()
+        val (repo, _) = repository { request ->
+            if (request.url.parameters["upr_cd"] == "1") {
+                // 취소돼도 바로 끝나지 않는 첫 검색: cancelAndJoin이 gate까지 기다린다
+                try {
+                    awaitCancellation()
+                } finally {
+                    withContext(NonCancellable) {
+                        cancelling.complete(Unit)
+                        gate.await()
+                    }
+                }
+            }
+            respond(ApiTestResponses.animals("X${request.url.parameters["upr_cd"]}"))
+        }
+        launch(Dispatchers.Default) { repo.search(SearchFilter(sidoCode = "1")) }
+        realTimeout { repo.getSearchResultsStream().first { it.loading == LoadState.INITIAL } }
+
+        val caller = launch(Dispatchers.Default) { repo.search(SearchFilter(sidoCode = "2")) }
+        realTimeout { cancelling.await() } // caller가 이전 작업의 취소를 기다리는 중
+        caller.cancelAndJoin()
+        gate.complete(Unit)
+        val done = realTimeout {
+            repo.getSearchResultsStream().first {
+                it.filter.sidoCode == "2" && it.fetchedAt != null
+            }
+        }
+
+        assertEquals(listOf("X2"), done.items.map { it.desertionNo })
+        assertEquals(LoadState.IDLE, done.loading)
+    }
+
+    @Test
+    fun `마감 임박순을 받는 중에 최신순을 고르면 전환을 취소하고 호출하지 않는다(R2)`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val reached = CompletableDeferred<Unit>()
+        var closingStarted = 0 // requestHistory는 끝난 요청만 담는다
+        val (repo, harness) = repository { request ->
+            if (request.url.parameters["numOfRows"] == "1000") {
+                closingStarted++
+                reached.complete(Unit)
+                gate.await()
+                respond(ApiTestResponses.animals("C1"))
+            } else {
+                respond(ApiTestResponses.animals("L1", "L2", totalCount = 90))
+            }
+        }
+        repo.search(SearchFilter())
+
+        val switching = launch(Dispatchers.Default) { repo.setSort(SortOrder.CLOSING_SOON) }
+        val during = realTimeout {
+            repo.getSearchResultsStream().first { it.loading == LoadState.REFRESH }
+        }
+        realTimeout { reached.await() } // 마감 임박순 요청이 나간 뒤
+        val cancelling = launch(Dispatchers.Default) { repo.setSort(SortOrder.LATEST) }
+        realTimeout {
+            repo.getSearchResultsStream().first {
+                it.pendingSort == null &&
+                    it.loading == LoadState.IDLE
+            }
+        }
+        gate.complete(Unit) // 받던 결과가 나중에 와도 반영되지 않는다
+        realTimeout {
+            switching.join()
+            cancelling.join()
+        }
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(SortOrder.CLOSING_SOON, during.pendingSort)
+        assertEquals(SortOrder.LATEST, results.sort)
+        assertEquals(listOf("L1", "L2"), results.items.map { it.desertionNo })
+        assertEquals(LoadState.IDLE, results.loading)
+        assertNull(results.pendingSort)
+        assertEquals(1, harness.pageRequests(1)) // 최신순을 다시 받지 않았다
+        assertEquals(1, closingStarted)
+    }
+
+    @Test
+    fun `전환 중에 같은 정렬을 다시 고르면 무시한다(R2)`() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val (repo, harness) = repository { request ->
+            if (request.url.parameters["numOfRows"] == "1000") {
+                gate.await()
+                respond(ApiTestResponses.animals("C1"))
+            } else {
+                respond(ApiTestResponses.animals("L1"))
+            }
+        }
+        repo.search(SearchFilter())
+
+        val switching = launch(Dispatchers.Default) { repo.setSort(SortOrder.CLOSING_SOON) }
+        realTimeout { repo.getSearchResultsStream().first { it.loading == LoadState.REFRESH } }
+        repo.setSort(SortOrder.CLOSING_SOON) // 무시
+        gate.complete(Unit)
+        realTimeout { switching.join() }
+
+        assertEquals(1, harness.closingSoonRequests())
+        assertEquals(SortOrder.CLOSING_SOON, repo.getSearchResultsStream().value.sort)
+        assertEquals(listOf("C1"), repo.getSearchResultsStream().value.items.map { it.desertionNo })
+    }
+
+    @Test
+    fun `전환 중에 search하면 목표 정렬로 검색한다(R2)`() = runTest {
+        val never = CompletableDeferred<Unit>()
+        val reached = CompletableDeferred<Unit>()
+        var closingStarted = 0 // requestHistory는 끝난 요청만 담는다
+        val (repo, _) = repository { request ->
+            val closing = request.url.parameters["numOfRows"] == "1000"
+            if (closing) closingStarted++
+            if (closing && request.url.parameters["upr_cd"] == null) {
+                reached.complete(Unit)
+                never.await()
+            }
+            respond(ApiTestResponses.animals(if (closing) "C" else "L"))
+        }
+        repo.search(SearchFilter())
+        val switching = launch(Dispatchers.Default) { repo.setSort(SortOrder.CLOSING_SOON) }
+        realTimeout { reached.await() } // 전환의 마감 임박순 요청이 나간 뒤
+
+        repo.search(SearchFilter(sidoCode = "6110000"))
+        realTimeout { switching.join() }
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(SortOrder.CLOSING_SOON, results.sort)
+        assertEquals("6110000", results.filter.sidoCode)
+        assertEquals(listOf("C"), results.items.map { it.desertionNo })
+        assertNull(results.pendingSort)
+        assertEquals(2, closingStarted)
+    }
+
+    @Test
+    fun `같은 오류가 두 번 나도 errorId가 다르다(R3)`() = runTest {
+        val (repo, _) = repository { error("연결 실패") }
+
+        repo.search(SearchFilter())
+        val first = repo.getSearchResultsStream().value
+        repo.refresh()
+        val second = repo.getSearchResultsStream().value
+
+        assertEquals(ApiError.Network, first.error)
+        assertEquals(ApiError.Network, second.error)
+        assertNotEquals(first.errorId, second.errorId)
     }
 }
