@@ -1,0 +1,1871 @@
+{
+ "swagger": "2.0",
+ "info": {
+  "description": "국가동물보호정보시스템의 구조동물 정보를 조회할 수 있는 서비스이며, 구조동물정보에 포함되는 부가적인 정보를 조회할 수 있도록 시도 조회 API, 시군구 조회 API, 보호소 조회 API, 품종 조회 API를 함께 제공합니다.\n- 본 데이터는 국가동물보호정보시스템을 통해 제공되는 구조동물 조회 서비스임\n- 전국 시도 및 시군구 단위로 구조동물 정보를 검색할 수 있도록 API 를 제공함\n- 지자체 및 관계 기관은 이를 활용하여 유실·유기 동물 관리, 정책 수립, 자원 배분 등에 근거자료로 활용할 수 있음",
+  "version": "1.0.0",
+  "title": "농림축산식품부 농림축산검역본부_국가동물보호정보시스템 구조동물 조회 서비스"
+ },
+ "host": "apis.data.go.kr/1543061/abandonmentPublicService_v2",
+ "basePath": "",
+ "schemes": [
+  "https",
+  "http"
+ ],
+ "paths": {
+  "/abandonmentPublic_v2": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "성공",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "header": {
+         "type": "object",
+         "description": "header",
+         "properties": {
+          "reqNo": {
+           "type": "string",
+           "description": "요청 고유 번호",
+           "properties": {}
+          },
+          "resultCode": {
+           "type": "string",
+           "description": "결과코드",
+           "properties": {}
+          },
+          "resultMsg": {
+           "type": "string",
+           "description": "결과메세지",
+           "properties": {}
+          },
+          "errorMsg": {
+           "type": "string",
+           "description": "오류 상세 내역",
+           "properties": {}
+          }
+         }
+        },
+        "body": {
+         "type": "object",
+         "description": "body",
+         "properties": {
+          "items": {
+           "type": "object",
+           "description": "items",
+           "properties": {
+            "item": {
+             "type": "object",
+             "description": "item",
+             "properties": {
+              "noticeNo": {
+               "type": "string",
+               "description": "공고번호",
+               "properties": {}
+              },
+              "srvcTxt": {
+               "type": "string",
+               "description": "봉사안내 지원내용 및 신청방법",
+               "properties": {}
+              },
+              "popfile4": {
+               "type": "string",
+               "description": "Image4",
+               "properties": {}
+              },
+              "sprtEDate": {
+               "type": "string",
+               "description": "입양지원 종료일",
+               "properties": {}
+              },
+              "desertionNo": {
+               "type": "string",
+               "description": "구조번호",
+               "properties": {}
+              },
+              "rfidCd": {
+               "type": "string",
+               "description": "동물등록번호(RFID번호)",
+               "properties": {}
+              },
+              "happenDt": {
+               "type": "string",
+               "description": "접수일(YYYYMMDD)",
+               "properties": {}
+              },
+              "happenPlace": {
+               "type": "string",
+               "description": "발견장소",
+               "properties": {}
+              },
+              "kindCd": {
+               "type": "string",
+               "description": "품종코드",
+               "properties": {}
+              },
+              "colorCd": {
+               "type": "string",
+               "description": "색상",
+               "properties": {}
+              },
+              "age": {
+               "type": "string",
+               "description": "나이",
+               "properties": {}
+              },
+              "weight": {
+               "type": "string",
+               "description": "체중",
+               "properties": {}
+              },
+              "evntImg": {
+               "type": "string",
+               "description": "행사안내 이미지",
+               "properties": {}
+              },
+              "updTm": {
+               "type": "string",
+               "description": "수정일(yyyy-mm-dd hh:mm:ss)",
+               "properties": {}
+              },
+              "endReason": {
+               "type": "string",
+               "description": "처분사유",
+               "properties": {}
+              },
+              "careRegNo": {
+               "type": "string",
+               "description": "보호소번호",
+               "properties": {}
+              },
+              "noticeSdt": {
+               "type": "string",
+               "description": "공고시작일(YYYYMMDD)",
+               "properties": {}
+              },
+              "noticeEdt": {
+               "type": "string",
+               "description": "공고종료일(YYYYMMDD)",
+               "properties": {}
+              },
+              "popfile1": {
+               "type": "string",
+               "description": "Image1",
+               "properties": {}
+              },
+              "processState": {
+               "type": "string",
+               "description": "상태",
+               "properties": {}
+              },
+              "sexCd": {
+               "type": "string",
+               "description": "M : 수컷, F : 암컷, Q : 미상",
+               "properties": {}
+              },
+              "neuterYn": {
+               "type": "string",
+               "description": "Y : 예, N : 아니오, U : 미상",
+               "properties": {}
+              },
+              "specialMark": {
+               "type": "string",
+               "description": "특징",
+               "properties": {}
+              },
+              "careNm": {
+               "type": "string",
+               "description": "보호소이름",
+               "properties": {}
+              },
+              "careTel": {
+               "type": "string",
+               "description": "보호소전화번호",
+               "properties": {}
+              },
+              "careAddr": {
+               "type": "string",
+               "description": "보호장소",
+               "properties": {}
+              },
+              "orgNm": {
+               "type": "string",
+               "description": "관할기관",
+               "properties": {}
+              },
+              "sfeSoci": {
+               "type": "string",
+               "description": "특징(사회성)",
+               "properties": {}
+              },
+              "sfeHealth": {
+               "type": "string",
+               "description": "특징(건강)",
+               "properties": {}
+              },
+              "etcBigo": {
+               "type": "string",
+               "description": "특이사항",
+               "properties": {}
+              },
+              "kindFullNm": {
+               "type": "string",
+               "description": "품종",
+               "properties": {}
+              },
+              "upKindCd": {
+               "type": "string",
+               "description": "축종코드개: 417000고양이: 422400기타: 429900",
+               "properties": {}
+              },
+              "upKindNm": {
+               "type": "string",
+               "description": "축종명",
+               "properties": {}
+              },
+              "kindNm": {
+               "type": "string",
+               "description": "품종명",
+               "properties": {}
+              },
+              "popfile2": {
+               "type": "string",
+               "description": "Image2",
+               "properties": {}
+              },
+              "popfile3": {
+               "type": "string",
+               "description": "Image3",
+               "properties": {}
+              },
+              "popfile5": {
+               "type": "string",
+               "description": "Image5",
+               "properties": {}
+              },
+              "popfile6": {
+               "type": "string",
+               "description": "Image6",
+               "properties": {}
+              },
+              "popfile7": {
+               "type": "string",
+               "description": "Image7",
+               "properties": {}
+              },
+              "popfile8": {
+               "type": "string",
+               "description": "Image8",
+               "properties": {}
+              },
+              "careOwnerNm": {
+               "type": "string",
+               "description": "보호소대표자",
+               "properties": {}
+              },
+              "vaccinationChk": {
+               "type": "string",
+               "description": "체크박스(광견병,종합백신,코로나,호흡기 등)",
+               "properties": {}
+              },
+              "healthChk": {
+               "type": "string",
+               "description": "체크박스(사상충,파보,코로나,홍역,원충)",
+               "properties": {}
+              },
+              "adptnTitle": {
+               "type": "string",
+               "description": "입양절차 제목",
+               "properties": {}
+              },
+              "adptnSDate": {
+               "type": "string",
+               "description": "입양절차 시작일",
+               "properties": {}
+              },
+              "adptnEDate": {
+               "type": "string",
+               "description": "입양절차 종료일",
+               "properties": {}
+              },
+              "adptnConditionLimitTxt": {
+               "type": "string",
+               "description": "입양절차 조건 및 제한",
+               "properties": {}
+              },
+              "adptnTxt": {
+               "type": "string",
+               "description": "입양절차 지원내용 및 신청방법",
+               "properties": {}
+              },
+              "adptnImg": {
+               "type": "string",
+               "description": "입양절차 이미지",
+               "properties": {}
+              },
+              "sprtTitle": {
+               "type": "string",
+               "description": "입양지원 제목",
+               "properties": {}
+              },
+              "sprtSDate": {
+               "type": "string",
+               "description": "입양지원 시작일",
+               "properties": {}
+              },
+              "sprtConditionLimitTxt": {
+               "type": "string",
+               "description": "입양지원 조건 및 제한",
+               "properties": {}
+              },
+              "sprtTxt": {
+               "type": "string",
+               "description": "입양지원 지원내용 및 신청방법",
+               "properties": {}
+              },
+              "sprtImg": {
+               "type": "string",
+               "description": "입양지원 이미지",
+               "properties": {}
+              },
+              "srvcTitle": {
+               "type": "string",
+               "description": "봉사안내 제목",
+               "properties": {}
+              },
+              "srvcSDate": {
+               "type": "string",
+               "description": "봉사안내 시작일",
+               "properties": {}
+              },
+              "srvcEDate": {
+               "type": "string",
+               "description": "봉사안내 종료일",
+               "properties": {}
+              },
+              "srvcConditionLimitTxt": {
+               "type": "string",
+               "description": "봉사안내 조건 및 제한",
+               "properties": {}
+              },
+              "srvcImg": {
+               "type": "string",
+               "description": "봉사안내 이미지",
+               "properties": {}
+              },
+              "evntTitle": {
+               "type": "string",
+               "description": "행사안내 제목",
+               "properties": {}
+              },
+              "evntSDate": {
+               "type": "string",
+               "description": "행사안내 시작일",
+               "properties": {}
+              },
+              "evntEDate": {
+               "type": "string",
+               "description": "행사안내 종료일",
+               "properties": {}
+              },
+              "evntConditionLimitTxt": {
+               "type": "string",
+               "description": "행사안내 조건 및 제한",
+               "properties": {}
+              },
+              "evntTxt": {
+               "type": "string",
+               "description": "행사안내 조건 및 제한행사안내 지원내용 및 신청방법",
+               "properties": {}
+              }
+             }
+            }
+           }
+          },
+          "numOfRows": {
+           "type": "string",
+           "description": "한 페이지 결과 수",
+           "properties": {}
+          },
+          "pageNo": {
+           "type": "string",
+           "description": "페이지 번호",
+           "properties": {}
+          },
+          "totalCount": {
+           "type": "string",
+           "description": "전체 결과 수",
+           "properties": {}
+          }
+         }
+        }
+       },
+       "xml": {
+        "name": "response"
+       }
+      }
+     }
+    },
+    "tags": [
+     "API 목록"
+    ],
+    "summary": "구조동물 조회",
+    "description": "End Point 뒤에 abandonmentPublic_v2를 붙여서 실행해야 합니다.(http://apis.data.go.kr/1543061/abandonmentPublicService_v2/abandonmentPublic_v2)",
+    "operationId": "abandonmentPublic_v2",
+    "consumes": [
+     "application/json"
+    ],
+    "produces": [
+     "application/json",
+     "application/xml"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "serviceKey",
+     "description": "공공데이터포털에서 발급받은 인증키",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "bgnde",
+     "description": "구조날짜(검색 시작일)(YYYYMMDD)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "endde",
+     "description": "구조날짜(검색 종료일)(YYYYMMDD)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "upkind",
+     "description": "축종코드 (개 : 417000, 고양이 : 422400, 기타 : 429900)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "kind",
+     "description": "품종코드 (품종 조회 OPEN API 참조)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "upr_cd",
+     "description": "시도코드 (시도 조회 OPEN API 참조)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "org_cd",
+     "description": "시군구코드 (시군구 조회 OPEN API 참조)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "care_reg_no",
+     "description": "보호소번호 (보호소 조회 OPEN API 참조)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "state",
+     "description": "상태(전체 : null(빈값), 공고중 : notice, 보호중 : protect)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "neuter_yn",
+     "description": "상태 (전체 : null(빈값), 예 : Y, 아니오 : N, 미상 : U)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "pageNo",
+     "description": "페이지 번호 (기본값 : 1)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "numOfRows",
+     "description": "페이지당 보여줄 개수 (1,000 이하), 기본값 : 10",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "_type",
+     "description": "xml(기본값) 또는 json",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "bgupd",
+     "description": "수정날짜(검색 시작일)(YYYYMMDD)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "enupd",
+     "description": "수정날짜(검색 종료일)(YYYYMMDD)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "sex_cd",
+     "description": "성별 - 전체 : null(빈값) - 수컷 : M - 암컷 : F - 미상 : Q",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "rfid_cd",
+     "description": "동물등록번호(RFID 번호)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "desertion_no",
+     "description": "유기번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "notice_no",
+     "description": "공고번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    }
+   ]
+  },
+  "/sigungu_v2": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "성공",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "header": {
+         "type": "object",
+         "description": "header",
+         "properties": {
+          "errorMsg": {
+           "type": "string",
+           "description": "오류 상세 내역",
+           "properties": {}
+          },
+          "reqNo": {
+           "type": "string",
+           "description": "요청 고유 번호",
+           "properties": {}
+          },
+          "resultCode": {
+           "type": "string",
+           "description": "결과코드",
+           "properties": {}
+          },
+          "resultMsg": {
+           "type": "string",
+           "description": "결과메세지",
+           "properties": {}
+          }
+         }
+        },
+        "body": {
+         "type": "object",
+         "description": "body",
+         "properties": {
+          "pageNo": {
+           "type": "string",
+           "description": "페이지 번호",
+           "properties": {}
+          },
+          "items": {
+           "type": "object",
+           "description": "items",
+           "properties": {
+            "item": {
+             "type": "object",
+             "description": "item",
+             "properties": {
+              "orgCd": {
+               "type": "string",
+               "description": "시군구코드",
+               "properties": {}
+              },
+              "orgdownNm": {
+               "type": "string",
+               "description": "시군구명",
+               "properties": {}
+              },
+              "uprCd": {
+               "type": "string",
+               "description": "시군구상위코드",
+               "properties": {}
+              }
+             }
+            }
+           }
+          },
+          "totalCount": {
+           "type": "string",
+           "description": "전체 결과 수",
+           "properties": {}
+          },
+          "numOfRows": {
+           "type": "string",
+           "description": "한 페이지 결과 수",
+           "properties": {}
+          }
+         }
+        }
+       },
+       "xml": {
+        "name": "response"
+       }
+      }
+     }
+    },
+    "tags": [
+     "API 목록"
+    ],
+    "summary": "시군구 조회",
+    "description": "http://apis.data.go.kr/1543061/abandonmentPublicService_v2/sigungu_v2 로 실행해야 합니다",
+    "operationId": "sigungu_v2",
+    "consumes": [
+     "application/json"
+    ],
+    "produces": [
+     "application/json",
+     "application/xml"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "serviceKey",
+     "description": "공공데이터포털에서 발급받은 인증키",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "upr_cd",
+     "description": "시군구 상위코드(시도코드) (입력 시 데이터 O, 미입력 시 데이터 X)",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "_type",
+     "description": "xml(기본값) 또는 json",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "numOfRows",
+     "description": "한 페이지 결과 수(1,000 이하)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "pageNo",
+     "description": "페이지 번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    }
+   ]
+  },
+  "/sido_v2": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "성공",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "header": {
+         "type": "object",
+         "description": "header",
+         "properties": {
+          "reqNo": {
+           "type": "string",
+           "description": "요청 고유 번호",
+           "properties": {}
+          },
+          "resultCode": {
+           "type": "string",
+           "description": "결과코드",
+           "properties": {}
+          },
+          "resultMsg": {
+           "type": "string",
+           "description": "결과메세지",
+           "properties": {}
+          },
+          "errorMsg": {
+           "type": "string",
+           "description": "오류 상세 내역",
+           "properties": {}
+          }
+         }
+        },
+        "body": {
+         "type": "object",
+         "description": "body",
+         "properties": {
+          "items": {
+           "type": "object",
+           "description": "items",
+           "properties": {
+            "item": {
+             "type": "object",
+             "description": "item",
+             "properties": {
+              "orgCd": {
+               "type": "string",
+               "description": "시도코드",
+               "properties": {}
+              },
+              "orgdownNm": {
+               "type": "string",
+               "description": "시도명",
+               "properties": {}
+              }
+             }
+            }
+           }
+          },
+          "numOfRows": {
+           "type": "string",
+           "description": "한 페이지 결과 수",
+           "properties": {}
+          },
+          "pageNo": {
+           "type": "string",
+           "description": "페이지 번호",
+           "properties": {}
+          },
+          "totalCount": {
+           "type": "string",
+           "description": "전체 결과 수",
+           "properties": {}
+          }
+         }
+        }
+       },
+       "xml": {
+        "name": "response"
+       }
+      }
+     }
+    },
+    "tags": [
+     "API 목록"
+    ],
+    "summary": "시도 조회",
+    "description": "http://apis.data.go.kr/1543061/abandonmentPublicService_v2/sido_v2 로 실행해야 합니다",
+    "operationId": "sido_v2",
+    "consumes": [
+     "application/json"
+    ],
+    "produces": [
+     "application/json",
+     "application/xml"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "serviceKey",
+     "description": "공공데이터포털에서 발급받은 인증키",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "numOfRows",
+     "description": "한 페이지 결과 수(1,000 이하)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "pageNo",
+     "description": "페이지 번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "_type",
+     "description": "xml(기본값) 또는 json",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    }
+   ]
+  },
+  "/shelter_v2": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "성공",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "header": {
+         "type": "object",
+         "description": "header",
+         "properties": {
+          "errorMsg": {
+           "type": "string",
+           "description": "오류 상세 내역",
+           "properties": {}
+          },
+          "reqNo": {
+           "type": "string",
+           "description": "요청 고유 번호",
+           "properties": {}
+          },
+          "resultCode": {
+           "type": "string",
+           "description": "결과코드",
+           "properties": {}
+          },
+          "resultMsg": {
+           "type": "string",
+           "description": "결과메세지",
+           "properties": {}
+          }
+         }
+        },
+        "body": {
+         "type": "object",
+         "description": "body",
+         "properties": {
+          "pageNo": {
+           "type": "string",
+           "description": "페이지 번호",
+           "properties": {}
+          },
+          "items": {
+           "type": "object",
+           "description": "items",
+           "properties": {
+            "item": {
+             "type": "object",
+             "description": "item",
+             "properties": {
+              "careNm": {
+               "type": "string",
+               "description": "보호소명",
+               "properties": {}
+              },
+              "careRegNo": {
+               "type": "string",
+               "description": "보호소번호",
+               "properties": {}
+              }
+             }
+            }
+           }
+          },
+          "totalCount": {
+           "type": "string",
+           "description": "전체 결과 수",
+           "properties": {}
+          },
+          "numOfRows": {
+           "type": "string",
+           "description": "한 페이지 결과 수",
+           "properties": {}
+          }
+         }
+        }
+       },
+       "xml": {
+        "name": "response"
+       }
+      }
+     }
+    },
+    "tags": [
+     "API 목록"
+    ],
+    "summary": "보호소 조회",
+    "description": "http://apis.data.go.kr/1543061/abandonmentPublicService_v2/shelter_v2 로 실행해야합니다",
+    "operationId": "shelter_v2",
+    "consumes": [
+     "application/json"
+    ],
+    "produces": [
+     "application/json",
+     "application/xml"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "serviceKey",
+     "description": "공공데이터포털에서 발급받은 인증키",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "upr_cd",
+     "description": "시도코드(입력 시 데이터 O, 미입력 시 데이터 X)",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "org_cd",
+     "description": "시군구코드(입력 시 데이터 O, 미입력 시 데이터 X)",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "_type",
+     "description": "xml(기본값) 또는 json",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "numOfRows",
+     "description": "한 페이지 결과 수(1,000 이하)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "pageNo",
+     "description": "페이지 번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    }
+   ]
+  },
+  "/kind_v2": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "성공",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "header": {
+         "type": "object",
+         "description": "header",
+         "properties": {
+          "errorMsg": {
+           "type": "string",
+           "description": "오류 상세 내역",
+           "properties": {}
+          },
+          "reqNo": {
+           "type": "string",
+           "description": "요청 고유 번호",
+           "properties": {}
+          },
+          "resultCode": {
+           "type": "string",
+           "description": "결과코드",
+           "properties": {}
+          },
+          "resultMsg": {
+           "type": "string",
+           "description": "결과메세지",
+           "properties": {}
+          }
+         }
+        },
+        "body": {
+         "type": "object",
+         "description": "body",
+         "properties": {
+          "pageNo": {
+           "type": "string",
+           "description": "페이지 번호",
+           "properties": {}
+          },
+          "items": {
+           "type": "object",
+           "description": "items",
+           "properties": {
+            "item": {
+             "type": "object",
+             "description": "item",
+             "properties": {
+              "kindNm": {
+               "type": "string",
+               "description": "품종명",
+               "properties": {}
+              },
+              "kindCd": {
+               "type": "string",
+               "description": "품종코드",
+               "properties": {}
+              }
+             }
+            }
+           }
+          },
+          "totalCount": {
+           "type": "string",
+           "description": "전체 결과 수",
+           "properties": {}
+          },
+          "numOfRows": {
+           "type": "string",
+           "description": "한 페이지 결과 수",
+           "properties": {}
+          }
+         }
+        }
+       },
+       "xml": {
+        "name": "response"
+       }
+      }
+     }
+    },
+    "tags": [
+     "API 목록"
+    ],
+    "summary": "품종 조회",
+    "description": "http://apis.data.go.kr/1543061/abandonmentPublicService_v2/kind_v2 로 실행해야 합니다",
+    "operationId": "kind_v2",
+    "consumes": [
+     "application/json"
+    ],
+    "produces": [
+     "application/json",
+     "application/xml"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "serviceKey",
+     "description": "공공데이터포털에서 발급받은 인증키",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "up_kind_cd",
+     "description": "축종코드 (개 : 417000, 고양이 : 422400, 기타 : 429900) (입력 시 데이터 O, 미입력 시 데이터 X)",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "_type",
+     "description": "xml(기본값) 또는 json",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "numOfRows",
+     "description": "한 페이지 결과 수 (1,000 이하)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "pageNo",
+     "description": "페이지 번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    }
+   ]
+  }
+ },
+ "definitions": {
+  "sido_v2_response": {
+   "type": "object",
+   "properties": {
+    "header": {
+     "type": "object",
+     "description": "header",
+     "properties": {
+      "reqNo": {
+       "type": "string",
+       "description": "요청 고유 번호"
+      },
+      "resultCode": {
+       "type": "string",
+       "description": "결과코드"
+      },
+      "resultMsg": {
+       "type": "string",
+       "description": "결과메세지"
+      },
+      "errorMsg": {
+       "type": "string",
+       "description": "오류 상세 내역"
+      }
+     }
+    },
+    "body": {
+     "type": "object",
+     "description": "body",
+     "properties": {
+      "items": {
+       "type": "object",
+       "description": "items",
+       "properties": {
+        "item": {
+         "type": "object",
+         "description": "item",
+         "properties": {
+          "orgCd": {
+           "type": "string",
+           "description": "시도코드"
+          },
+          "orgdownNm": {
+           "type": "string",
+           "description": "시도명"
+          }
+         }
+        }
+       }
+      },
+      "numOfRows": {
+       "type": "string",
+       "description": "한 페이지 결과 수"
+      },
+      "pageNo": {
+       "type": "string",
+       "description": "페이지 번호"
+      },
+      "totalCount": {
+       "type": "string",
+       "description": "전체 결과 수"
+      }
+     }
+    }
+   }
+  },
+  "sigungu_v2_response": {
+   "type": "object",
+   "properties": {
+    "header": {
+     "type": "object",
+     "description": "header",
+     "properties": {
+      "errorMsg": {
+       "type": "string",
+       "description": "오류 상세 내역"
+      },
+      "reqNo": {
+       "type": "string",
+       "description": "요청 고유 번호"
+      },
+      "resultCode": {
+       "type": "string",
+       "description": "결과코드"
+      },
+      "resultMsg": {
+       "type": "string",
+       "description": "결과메세지"
+      }
+     }
+    },
+    "body": {
+     "type": "object",
+     "description": "body",
+     "properties": {
+      "pageNo": {
+       "type": "string",
+       "description": "페이지 번호"
+      },
+      "items": {
+       "type": "object",
+       "description": "items",
+       "properties": {
+        "item": {
+         "type": "object",
+         "description": "item",
+         "properties": {
+          "orgCd": {
+           "type": "string",
+           "description": "시군구코드"
+          },
+          "orgdownNm": {
+           "type": "string",
+           "description": "시군구명"
+          },
+          "uprCd": {
+           "type": "string",
+           "description": "시군구상위코드"
+          }
+         }
+        }
+       }
+      },
+      "totalCount": {
+       "type": "string",
+       "description": "전체 결과 수"
+      },
+      "numOfRows": {
+       "type": "string",
+       "description": "한 페이지 결과 수"
+      }
+     }
+    }
+   }
+  },
+  "shelter_v2_response": {
+   "type": "object",
+   "properties": {
+    "header": {
+     "type": "object",
+     "description": "header",
+     "properties": {
+      "errorMsg": {
+       "type": "string",
+       "description": "오류 상세 내역"
+      },
+      "reqNo": {
+       "type": "string",
+       "description": "요청 고유 번호"
+      },
+      "resultCode": {
+       "type": "string",
+       "description": "결과코드"
+      },
+      "resultMsg": {
+       "type": "string",
+       "description": "결과메세지"
+      }
+     }
+    },
+    "body": {
+     "type": "object",
+     "description": "body",
+     "properties": {
+      "pageNo": {
+       "type": "string",
+       "description": "페이지 번호"
+      },
+      "items": {
+       "type": "object",
+       "description": "items",
+       "properties": {
+        "item": {
+         "type": "object",
+         "description": "item",
+         "properties": {
+          "careNm": {
+           "type": "string",
+           "description": "보호소명"
+          },
+          "careRegNo": {
+           "type": "string",
+           "description": "보호소번호"
+          }
+         }
+        }
+       }
+      },
+      "totalCount": {
+       "type": "string",
+       "description": "전체 결과 수"
+      },
+      "numOfRows": {
+       "type": "string",
+       "description": "한 페이지 결과 수"
+      }
+     }
+    }
+   }
+  },
+  "kind_v2_response": {
+   "type": "object",
+   "properties": {
+    "header": {
+     "type": "object",
+     "description": "header",
+     "properties": {
+      "errorMsg": {
+       "type": "string",
+       "description": "오류 상세 내역"
+      },
+      "reqNo": {
+       "type": "string",
+       "description": "요청 고유 번호"
+      },
+      "resultCode": {
+       "type": "string",
+       "description": "결과코드"
+      },
+      "resultMsg": {
+       "type": "string",
+       "description": "결과메세지"
+      }
+     }
+    },
+    "body": {
+     "type": "object",
+     "description": "body",
+     "properties": {
+      "pageNo": {
+       "type": "string",
+       "description": "페이지 번호"
+      },
+      "items": {
+       "type": "object",
+       "description": "items",
+       "properties": {
+        "item": {
+         "type": "object",
+         "description": "item",
+         "properties": {
+          "kindNm": {
+           "type": "string",
+           "description": "품종명"
+          },
+          "kindCd": {
+           "type": "string",
+           "description": "품종코드"
+          }
+         }
+        }
+       }
+      },
+      "totalCount": {
+       "type": "string",
+       "description": "전체 결과 수"
+      },
+      "numOfRows": {
+       "type": "string",
+       "description": "한 페이지 결과 수"
+      }
+     }
+    }
+   }
+  },
+  "abandonmentPublic_v2_response": {
+   "type": "object",
+   "properties": {
+    "header": {
+     "type": "object",
+     "description": "header",
+     "properties": {
+      "reqNo": {
+       "type": "string",
+       "description": "요청 고유 번호"
+      },
+      "resultCode": {
+       "type": "string",
+       "description": "결과코드"
+      },
+      "resultMsg": {
+       "type": "string",
+       "description": "결과메세지"
+      },
+      "errorMsg": {
+       "type": "string",
+       "description": "오류 상세 내역"
+      }
+     }
+    },
+    "body": {
+     "type": "object",
+     "description": "body",
+     "properties": {
+      "items": {
+       "type": "object",
+       "description": "items",
+       "properties": {
+        "item": {
+         "type": "object",
+         "description": "item",
+         "properties": {
+          "noticeNo": {
+           "type": "string",
+           "description": "공고번호"
+          },
+          "srvcTxt": {
+           "type": "string",
+           "description": "봉사안내 지원내용 및 신청방법"
+          },
+          "popfile4": {
+           "type": "string",
+           "description": "Image4"
+          },
+          "sprtEDate": {
+           "type": "string",
+           "description": "입양지원 종료일"
+          },
+          "desertionNo": {
+           "type": "string",
+           "description": "구조번호"
+          },
+          "rfidCd": {
+           "type": "string",
+           "description": "동물등록번호(RFID번호)"
+          },
+          "happenDt": {
+           "type": "string",
+           "description": "접수일(YYYYMMDD)"
+          },
+          "happenPlace": {
+           "type": "string",
+           "description": "발견장소"
+          },
+          "kindCd": {
+           "type": "string",
+           "description": "품종코드"
+          },
+          "colorCd": {
+           "type": "string",
+           "description": "색상"
+          },
+          "age": {
+           "type": "string",
+           "description": "나이"
+          },
+          "weight": {
+           "type": "string",
+           "description": "체중"
+          },
+          "evntImg": {
+           "type": "string",
+           "description": "행사안내 이미지"
+          },
+          "updTm": {
+           "type": "string",
+           "description": "수정일(yyyy-mm-dd hh:mm:ss)"
+          },
+          "endReason": {
+           "type": "string",
+           "description": "처분사유"
+          },
+          "careRegNo": {
+           "type": "string",
+           "description": "보호소번호"
+          },
+          "noticeSdt": {
+           "type": "string",
+           "description": "공고시작일(YYYYMMDD)"
+          },
+          "noticeEdt": {
+           "type": "string",
+           "description": "공고종료일(YYYYMMDD)"
+          },
+          "popfile1": {
+           "type": "string",
+           "description": "Image1"
+          },
+          "processState": {
+           "type": "string",
+           "description": "상태"
+          },
+          "sexCd": {
+           "type": "string",
+           "description": "M : 수컷, F : 암컷, Q : 미상"
+          },
+          "neuterYn": {
+           "type": "string",
+           "description": "Y : 예, N : 아니오, U : 미상"
+          },
+          "specialMark": {
+           "type": "string",
+           "description": "특징"
+          },
+          "careNm": {
+           "type": "string",
+           "description": "보호소이름"
+          },
+          "careTel": {
+           "type": "string",
+           "description": "보호소전화번호"
+          },
+          "careAddr": {
+           "type": "string",
+           "description": "보호장소"
+          },
+          "orgNm": {
+           "type": "string",
+           "description": "관할기관"
+          },
+          "sfeSoci": {
+           "type": "string",
+           "description": "특징(사회성)"
+          },
+          "sfeHealth": {
+           "type": "string",
+           "description": "특징(건강)"
+          },
+          "etcBigo": {
+           "type": "string",
+           "description": "특이사항"
+          },
+          "kindFullNm": {
+           "type": "string",
+           "description": "품종"
+          },
+          "upKindCd": {
+           "type": "string",
+           "description": "축종코드개: 417000고양이: 422400기타: 429900"
+          },
+          "upKindNm": {
+           "type": "string",
+           "description": "축종명"
+          },
+          "kindNm": {
+           "type": "string",
+           "description": "품종명"
+          },
+          "popfile2": {
+           "type": "string",
+           "description": "Image2"
+          },
+          "popfile3": {
+           "type": "string",
+           "description": "Image3"
+          },
+          "popfile5": {
+           "type": "string",
+           "description": "Image5"
+          },
+          "popfile6": {
+           "type": "string",
+           "description": "Image6"
+          },
+          "popfile7": {
+           "type": "string",
+           "description": "Image7"
+          },
+          "popfile8": {
+           "type": "string",
+           "description": "Image8"
+          },
+          "careOwnerNm": {
+           "type": "string",
+           "description": "보호소대표자"
+          },
+          "vaccinationChk": {
+           "type": "string",
+           "description": "체크박스(광견병,종합백신,코로나,호흡기 등)"
+          },
+          "healthChk": {
+           "type": "string",
+           "description": "체크박스(사상충,파보,코로나,홍역,원충)"
+          },
+          "adptnTitle": {
+           "type": "string",
+           "description": "입양절차 제목"
+          },
+          "adptnSDate": {
+           "type": "string",
+           "description": "입양절차 시작일"
+          },
+          "adptnEDate": {
+           "type": "string",
+           "description": "입양절차 종료일"
+          },
+          "adptnConditionLimitTxt": {
+           "type": "string",
+           "description": "입양절차 조건 및 제한"
+          },
+          "adptnTxt": {
+           "type": "string",
+           "description": "입양절차 지원내용 및 신청방법"
+          },
+          "adptnImg": {
+           "type": "string",
+           "description": "입양절차 이미지"
+          },
+          "sprtTitle": {
+           "type": "string",
+           "description": "입양지원 제목"
+          },
+          "sprtSDate": {
+           "type": "string",
+           "description": "입양지원 시작일"
+          },
+          "sprtConditionLimitTxt": {
+           "type": "string",
+           "description": "입양지원 조건 및 제한"
+          },
+          "sprtTxt": {
+           "type": "string",
+           "description": "입양지원 지원내용 및 신청방법"
+          },
+          "sprtImg": {
+           "type": "string",
+           "description": "입양지원 이미지"
+          },
+          "srvcTitle": {
+           "type": "string",
+           "description": "봉사안내 제목"
+          },
+          "srvcSDate": {
+           "type": "string",
+           "description": "봉사안내 시작일"
+          },
+          "srvcEDate": {
+           "type": "string",
+           "description": "봉사안내 종료일"
+          },
+          "srvcConditionLimitTxt": {
+           "type": "string",
+           "description": "봉사안내 조건 및 제한"
+          },
+          "srvcImg": {
+           "type": "string",
+           "description": "봉사안내 이미지"
+          },
+          "evntTitle": {
+           "type": "string",
+           "description": "행사안내 제목"
+          },
+          "evntSDate": {
+           "type": "string",
+           "description": "행사안내 시작일"
+          },
+          "evntEDate": {
+           "type": "string",
+           "description": "행사안내 종료일"
+          },
+          "evntConditionLimitTxt": {
+           "type": "string",
+           "description": "행사안내 조건 및 제한"
+          },
+          "evntTxt": {
+           "type": "string",
+           "description": "행사안내 조건 및 제한행사안내 지원내용 및 신청방법"
+          }
+         }
+        }
+       }
+      },
+      "numOfRows": {
+       "type": "string",
+       "description": "한 페이지 결과 수"
+      },
+      "pageNo": {
+       "type": "string",
+       "description": "페이지 번호"
+      },
+      "totalCount": {
+       "type": "string",
+       "description": "전체 결과 수"
+      }
+     }
+    }
+   }
+  }
+ },
+ "swaggerOprtinVOs": [
+  {
+   "oprtinUrl": "http://openapi.animal.go.kr/openapi/service/rest/abandonmentPublicSrvc/kind",
+   "oprtinNm": "품종 조회",
+   "oprtinDc": "http://apis.data.go.kr/1543061/abandonmentPublicService_v2/kind_v2 로 실행해야 합니다",
+   "gwSvcNm": "kind_v2",
+   "operationId": "kind_v2",
+   "publicDataTyDetailCode": "PRDE02",
+   "reqList": [
+    {
+     "paramtrNm": "serviceKey",
+     "paramtrBassValue": "인증키(URL Encode)",
+     "paramtrDc": "공공데이터포털에서 발급받은 인증키",
+     "paramtrTy": "string",
+     "paramtrDivision": "필수",
+     "ck": true
+    },
+    {
+     "paramtrNm": "up_kind_cd",
+     "paramtrBassValue": "417000",
+     "paramtrDc": "축종코드 (개 : 417000, 고양이 : 422400, 기타 : 429900) (입력 시 데이터 O, 미입력 시 데이터 X)",
+     "paramtrTy": "string",
+     "paramtrDivision": "필수",
+     "ck": true
+    },
+    {
+     "paramtrNm": "_type",
+     "paramtrBassValue": "",
+     "paramtrDc": "xml(기본값) 또는 json",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "numOfRows",
+     "paramtrBassValue": "3",
+     "paramtrDc": "한 페이지 결과 수 (1,000 이하)",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "pageNo",
+     "paramtrBassValue": "1",
+     "paramtrDc": "페이지 번호",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    }
+   ],
+   "resList": [
+    {
+     "paramtrNm": "header",
+     "paramtrDc": "header",
+     "arrayYn": "N",
+     "paramtrDefNm": "#/definitions/oper-4-header",
+     "subDefNm": "oper-4-header",
+     "paramtrTy": "object",
+     "paramtrDivision": "필수",
+     "ck": true,
+     "subParam": [
+      {
+       "paramtrNm": "errorMsg",
+       "paramtrDc": "오류 상세 내역",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "옵션",
+       "ck": true
+      },
+      {
+       "paramtrNm": "reqNo",
+       "paramtrDc": "요청 고유 번호",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "옵션",
+       "ck": true
+      },
+      {
+       "paramtrNm": "resultCode",
+       "paramtrDc": "결과코드",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "resultMsg",
+       "paramtrDc": "결과메세지",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      }
+     ]
+    },
+    {
+     "paramtrNm": "body",
+     "paramtrDc": "body",
+     "arrayYn": "N",
+     "paramtrDefNm": "#/definitions/oper-4-body",
+     "subDefNm": "oper-4-body",
+     "paramtrTy": "object",
+     "paramtrDivision": "필수",
+     "ck": true,
+     "subParam": [
+      {
+       "paramtrNm": "pageNo",
+       "paramtrDc": "페이지 번호",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "items",
+       "paramtrDc": "items",
+       "arrayYn": "N",
+       "paramtrDefNm": "#/definitions/oper-4-items",
+       "subDefNm": "oper-4-items",
+       "paramtrTy": "object",
+       "paramtrDivision": "필수",
+       "ck": true,
+       "subParam": [
+        {
+         "paramtrNm": "item",
+         "paramtrDc": "item",
+         "arrayYn": "N",
+         "paramtrDefNm": "#/definitions/oper-4-item",
+         "subDefNm": "oper-4-item",
+         "paramtrTy": "object",
+         "paramtrDivision": "필수",
+         "ck": true,
+         "subParam": [
+          {
+           "paramtrNm": "kindNm",
+           "paramtrDc": "품종명",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "kindCd",
+           "paramtrDc": "품종코드",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "paramtrNm": "totalCount",
+       "paramtrDc": "전체 결과 수",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "numOfRows",
+       "paramtrDc": "한 페이지 결과 수",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

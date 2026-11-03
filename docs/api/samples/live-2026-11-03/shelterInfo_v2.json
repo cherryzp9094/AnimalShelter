@@ -1,0 +1,89 @@
+{
+  "response" : {
+    "header" : {
+      "reqNo" : 64554595,
+      "resultCode" : "00",
+      "resultMsg" : "NORMAL SERVICE."
+    },
+    "body" : {
+      "items" : {
+        "item" : [ {
+          "careNm" : "(사)대구수의사회",
+          "careRegNo" : "327346201500001",
+          "orgNm" : "대구광역시 수성구",
+          "divisionNm" : "법인",
+          "saveTrgtAnimal" : "개+고양이+기타",
+          "careAddr" : "대구광역시 북구 호국로 229 (서변동) 6층",
+          "jibunAddr" : " 6층",
+          "lat" : 35.922276,
+          "lng" : 128.59904,
+          "dsignationDate" : "2017-01-01",
+          "weekOprStime" : "00:00",
+          "weekOprEtime" : "24:00",
+          "closeDay" : "0",
+          "vetPersonCnt" : 0,
+          "specsPersonCnt" : 0,
+          "careTel" : "053-764-3708",
+          "dataStdDt" : "2025-01-03"
+        }, {
+          "careNm" : "(사)동물보호관리협회",
+          "careRegNo" : "348535202400001",
+          "orgNm" : "경상남도 김해시",
+          "divisionNm" : "법인",
+          "saveTrgtAnimal" : "개+고양이+기타",
+          "careAddr" : "부산광역시 강서구 가락대로1283번길 25-2 (봉림동) ",
+          "jibunAddr" : " ",
+          "lat" : 35.178925,
+          "lng" : 128.89975,
+          "dsignationDate" : "2025-01-01",
+          "weekOprStime" : "09:00",
+          "weekOprEtime" : "17:00",
+          "weekCellStime" : "13:00",
+          "weekCellEtime" : "15:00",
+          "closeDay" : "토요일+일요일",
+          "vetPersonCnt" : 1,
+          "specsPersonCnt" : 6,
+          "medicalCnt" : 1,
+          "breedCnt" : 1,
+          "quarabtineCnt" : 1,
+          "feedCnt" : 1,
+          "transCarCnt" : 3,
+          "careTel" : "051-971-6208",
+          "dataStdDt" : "2026-01-02"
+        }, {
+          "careNm" : "(사)동부동물보호협회",
+          "careRegNo" : "326331201100001",
+          "orgNm" : "부산광역시 남구",
+          "divisionNm" : "법인",
+          "saveTrgtAnimal" : "개+고양이+기타",
+          "careAddr" : "부산광역시 해운대구 송정2로13번길 46 (송정동) ",
+          "jibunAddr" : "부산광역시 해운대구 송정동 85-1 ",
+          "lat" : 35.181606,
+          "lng" : 129.19846,
+          "dsignationDate" : "2025-01-01",
+          "weekOprStime" : "09:00",
+          "weekOprEtime" : "18:00",
+          "weekCellStime" : "14:00",
+          "weekCellEtime" : "16:00",
+          "weekendOprStime" : "10:00",
+          "weekendOprEtime" : "14:00",
+          "weekendCellStime" : "10:00",
+          "weekendCellEtime" : "13:00",
+          "closeDay" : "일요일",
+          "vetPersonCnt" : 2,
+          "specsPersonCnt" : 5,
+          "medicalCnt" : 3,
+          "breedCnt" : 15,
+          "quarabtineCnt" : 3,
+          "feedCnt" : 1,
+          "transCarCnt" : 3,
+          "careTel" : "051-701-7599",
+          "dataStdDt" : "2026-07-18"
+        } ]
+      },
+      "numOfRows" : 3,
+      "pageNo" : 1,
+      "totalCount" : 861
+    }
+  }
+}

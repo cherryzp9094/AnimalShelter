@@ -1,0 +1,47 @@
+{
+  "response" : {
+    "header" : {
+      "reqNo" : 64554590,
+      "resultCode" : "00",
+      "resultMsg" : "NORMAL SERVICE."
+    },
+    "body" : {
+      "items" : {
+        "item" : [ {
+          "kindCd" : "000245",
+          "kindNm" : "고든 세터"
+        }, {
+          "kindCd" : "000054",
+          "kindNm" : "골든 리트리버"
+        }, {
+          "kindCd" : "000056",
+          "kindNm" : "그레이 하운드"
+        }, {
+          "kindCd" : "000055",
+          "kindNm" : "그레이트 덴"
+        }, {
+          "kindCd" : "000118",
+          "kindNm" : "그레이트 피레니즈"
+        }, {
+          "kindCd" : "000249",
+          "kindNm" : "그리펀 벨지언"
+        }, {
+          "kindCd" : "000115",
+          "kindNm" : "기타"
+        }, {
+          "kindCd" : "000037",
+          "kindNm" : "꼬똥 드 뚤레아"
+        }, {
+          "kindCd" : "000081",
+          "kindNm" : "네오폴리탄 마스티프"
+        }, {
+          "kindCd" : "000204",
+          "kindNm" : "노르포크 테리어"
+        } ]
+      },
+      "numOfRows" : 10,
+      "pageNo" : 1,
+      "totalCount" : 206
+    }
+  }
+}

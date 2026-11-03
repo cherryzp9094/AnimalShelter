@@ -1,0 +1,915 @@
+{
+ "swagger": "2.0",
+ "info": {
+  "description": "국가동물보호정보시스템에서 관리하고 있는 구조동물 동물보호센터 등록정보를 제공하는 서비스 입니다.\n‘보호센터등록번호’ 또는 ‘동물보호센터명’으로 조회가능하며, ‘상세 보호시설’ 정보가 등록된 경우에는 보호시설의 상세정보(영업 시간, 위/경도, 휴무일 등)가 함께 제공되며, 등록되지 않았을 경우 보호센터의 기본정보가 제공됩니다.\n\n* API  URL 사용시 주의사항\nEnd Point URL 뒤에 해당되는 상세기능 구분코드(shelterInfo_v2)를 붙여서 사용해야 합니다.\n즉 http://apis.data.go.kr/1543061/animalShelterSrvc_v2/shelterInfo_v2 로 사용해야 합니다.",
+  "version": "1.0.0",
+  "title": "농림축산식품부 농림축산검역본부_동물보호센터 정보 조회서비스"
+ },
+ "host": "apis.data.go.kr/1543061/animalShelterSrvc_v2",
+ "basePath": "",
+ "schemes": [
+  "https",
+  "http"
+ ],
+ "paths": {
+  "/shelterInfo_v2": {
+   "get": {
+    "responses": {
+     "200": {
+      "description": "성공",
+      "schema": {
+       "type": "object",
+       "properties": {
+        "header": {
+         "type": "object",
+         "description": "header",
+         "properties": {
+          "reqNo": {
+           "type": "string",
+           "description": "요청 고유 번호",
+           "properties": {}
+          },
+          "resultCode": {
+           "type": "string",
+           "description": "결과코드",
+           "properties": {}
+          },
+          "resultMsg": {
+           "type": "string",
+           "description": "결과메세지",
+           "properties": {}
+          },
+          "errorMsg": {
+           "type": "string",
+           "description": "오류 상세 내역 (예:보호센터등록번호 요청변수 오류 - 15자리 숫자)",
+           "properties": {}
+          }
+         }
+        },
+        "body": {
+         "type": "object",
+         "description": "body",
+         "properties": {
+          "items": {
+           "type": "object",
+           "description": "items",
+           "properties": {
+            "item": {
+             "type": "object",
+             "description": "item",
+             "properties": {
+              "dataStdDt": {
+               "type": "string",
+               "description": "데이터기준일자",
+               "properties": {}
+              },
+              "careNm": {
+               "type": "string",
+               "description": "동물보호센터명",
+               "properties": {}
+              },
+              "careRegNo": {
+               "type": "string",
+               "description": "보호소번호",
+               "properties": {}
+              },
+              "orgNm": {
+               "type": "string",
+               "description": "관리기관명",
+               "properties": {}
+              },
+              "divisionNm": {
+               "type": "string",
+               "description": "동물보호센터유형",
+               "properties": {}
+              },
+              "saveTrgtAnimal": {
+               "type": "string",
+               "description": "구조대상동물",
+               "properties": {}
+              },
+              "careAddr": {
+               "type": "string",
+               "description": "소재지도로명주소",
+               "properties": {}
+              },
+              "jibunAddr": {
+               "type": "string",
+               "description": "소재지번주소",
+               "properties": {}
+              },
+              "lat": {
+               "type": "string",
+               "description": "위도",
+               "properties": {}
+              },
+              "lng": {
+               "type": "string",
+               "description": "경도",
+               "properties": {}
+              },
+              "dsignationDate": {
+               "type": "string",
+               "description": "동물보호센터지정일자",
+               "properties": {}
+              },
+              "weekOprStime": {
+               "type": "string",
+               "description": "평일운영시작시각",
+               "properties": {}
+              },
+              "weekOprEtime": {
+               "type": "string",
+               "description": "평일운영종료시각",
+               "properties": {}
+              },
+              "weekCellStime": {
+               "type": "string",
+               "description": "평일분양시작시각",
+               "properties": {}
+              },
+              "weekCellEtime": {
+               "type": "string",
+               "description": "평일분양종료시각",
+               "properties": {}
+              },
+              "weekendOprStime": {
+               "type": "string",
+               "description": "주말운영시작시각",
+               "properties": {}
+              },
+              "weekendOprEtime": {
+               "type": "string",
+               "description": "주말운영종료시각",
+               "properties": {}
+              },
+              "weekendCellStime": {
+               "type": "string",
+               "description": "주말분양시작시각",
+               "properties": {}
+              },
+              "weekendCellEtime": {
+               "type": "string",
+               "description": "주말분양종료시각",
+               "properties": {}
+              },
+              "closeDay": {
+               "type": "string",
+               "description": "휴무일",
+               "properties": {}
+              },
+              "vetPersonCnt": {
+               "type": "string",
+               "description": "수의사인원수",
+               "properties": {}
+              },
+              "specsPersonCnt": {
+               "type": "string",
+               "description": "사양관리사인원수",
+               "properties": {}
+              },
+              "medicalCnt": {
+               "type": "string",
+               "description": "진료실수",
+               "properties": {}
+              },
+              "breedCnt": {
+               "type": "string",
+               "description": "사육실수",
+               "properties": {}
+              },
+              "quarabtineCnt": {
+               "type": "string",
+               "description": "격리실수",
+               "properties": {}
+              },
+              "feedCnt": {
+               "type": "string",
+               "description": "사료보관실수",
+               "properties": {}
+              },
+              "transCarCnt": {
+               "type": "string",
+               "description": "구조운반용차량보유대수",
+               "properties": {}
+              },
+              "careTel": {
+               "type": "string",
+               "description": "전화번호",
+               "properties": {}
+              }
+             }
+            }
+           }
+          },
+          "numOfRows": {
+           "type": "string",
+           "description": "한 페이지 결과 수",
+           "properties": {}
+          },
+          "pageNo": {
+           "type": "string",
+           "description": "페이지 번호",
+           "properties": {}
+          },
+          "totalCount": {
+           "type": "string",
+           "description": "전체 결과 수",
+           "properties": {}
+          }
+         }
+        }
+       },
+       "xml": {
+        "name": "response"
+       }
+      }
+     }
+    },
+    "tags": [
+     "API 목록"
+    ],
+    "summary": "동물보호센터 정보조회",
+    "description": "End Point URL 뒤에 해당되는 상세기능 구분코드(shelterInfo_v2)를 붙여서 사용해야 합니다 (즉 http://apis.data.go.kr/1543061/animalShelterSrvc_v2/shelterInfo_v2 로 사용해야 함)",
+    "operationId": "shelterInfo_v2",
+    "consumes": [
+     "application/json"
+    ],
+    "produces": [
+     "application/json",
+     "application/xml"
+    ]
+   },
+   "parameters": [
+    {
+     "name": "serviceKey",
+     "description": "공공데이터포털에서 발급받은 인증키",
+     "type": "string",
+     "required": true,
+     "in": "query"
+    },
+    {
+     "name": "care_reg_no",
+     "description": "보호센터등록번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "care_nm",
+     "description": "동물보호센터명",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "numOfRows",
+     "description": "한 페이지 결과 수 (1,000 이하)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "pageNo",
+     "description": "페이지 번호",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "_type",
+     "description": "xml(기본값) 또는 json",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "upr_cd",
+     "description": "시도코드(시도 조회 OPEN API 참조)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    },
+    {
+     "name": "org_cd",
+     "description": "시군구코드(시군구 조회 OPEN API 참조)",
+     "type": "string",
+     "required": false,
+     "in": "query"
+    }
+   ]
+  }
+ },
+ "definitions": {
+  "shelterInfo_v2_response": {
+   "type": "object",
+   "properties": {
+    "header": {
+     "type": "object",
+     "description": "header",
+     "properties": {
+      "reqNo": {
+       "type": "string",
+       "description": "요청 고유 번호"
+      },
+      "resultCode": {
+       "type": "string",
+       "description": "결과코드"
+      },
+      "resultMsg": {
+       "type": "string",
+       "description": "결과메세지"
+      },
+      "errorMsg": {
+       "type": "string",
+       "description": "오류 상세 내역 (예:보호센터등록번호 요청변수 오류 - 15자리 숫자)"
+      }
+     }
+    },
+    "body": {
+     "type": "object",
+     "description": "body",
+     "properties": {
+      "items": {
+       "type": "object",
+       "description": "items",
+       "properties": {
+        "item": {
+         "type": "object",
+         "description": "item",
+         "properties": {
+          "dataStdDt": {
+           "type": "string",
+           "description": "데이터기준일자"
+          },
+          "careNm": {
+           "type": "string",
+           "description": "동물보호센터명"
+          },
+          "careRegNo": {
+           "type": "string",
+           "description": "보호소번호"
+          },
+          "orgNm": {
+           "type": "string",
+           "description": "관리기관명"
+          },
+          "divisionNm": {
+           "type": "string",
+           "description": "동물보호센터유형"
+          },
+          "saveTrgtAnimal": {
+           "type": "string",
+           "description": "구조대상동물"
+          },
+          "careAddr": {
+           "type": "string",
+           "description": "소재지도로명주소"
+          },
+          "jibunAddr": {
+           "type": "string",
+           "description": "소재지번주소"
+          },
+          "lat": {
+           "type": "string",
+           "description": "위도"
+          },
+          "lng": {
+           "type": "string",
+           "description": "경도"
+          },
+          "dsignationDate": {
+           "type": "string",
+           "description": "동물보호센터지정일자"
+          },
+          "weekOprStime": {
+           "type": "string",
+           "description": "평일운영시작시각"
+          },
+          "weekOprEtime": {
+           "type": "string",
+           "description": "평일운영종료시각"
+          },
+          "weekCellStime": {
+           "type": "string",
+           "description": "평일분양시작시각"
+          },
+          "weekCellEtime": {
+           "type": "string",
+           "description": "평일분양종료시각"
+          },
+          "weekendOprStime": {
+           "type": "string",
+           "description": "주말운영시작시각"
+          },
+          "weekendOprEtime": {
+           "type": "string",
+           "description": "주말운영종료시각"
+          },
+          "weekendCellStime": {
+           "type": "string",
+           "description": "주말분양시작시각"
+          },
+          "weekendCellEtime": {
+           "type": "string",
+           "description": "주말분양종료시각"
+          },
+          "closeDay": {
+           "type": "string",
+           "description": "휴무일"
+          },
+          "vetPersonCnt": {
+           "type": "string",
+           "description": "수의사인원수"
+          },
+          "specsPersonCnt": {
+           "type": "string",
+           "description": "사양관리사인원수"
+          },
+          "medicalCnt": {
+           "type": "string",
+           "description": "진료실수"
+          },
+          "breedCnt": {
+           "type": "string",
+           "description": "사육실수"
+          },
+          "quarabtineCnt": {
+           "type": "string",
+           "description": "격리실수"
+          },
+          "feedCnt": {
+           "type": "string",
+           "description": "사료보관실수"
+          },
+          "transCarCnt": {
+           "type": "string",
+           "description": "구조운반용차량보유대수"
+          },
+          "careTel": {
+           "type": "string",
+           "description": "전화번호"
+          }
+         }
+        }
+       }
+      },
+      "numOfRows": {
+       "type": "string",
+       "description": "한 페이지 결과 수"
+      },
+      "pageNo": {
+       "type": "string",
+       "description": "페이지 번호"
+      },
+      "totalCount": {
+       "type": "string",
+       "description": "전체 결과 수"
+      }
+     }
+    }
+   }
+  }
+ },
+ "swaggerOprtinVOs": [
+  {
+   "oprtinUrl": "http://openapi.animal.go.kr/openapi/service/rest/animalShelterSrvc/shelterInfo",
+   "oprtinNm": "동물보호센터 정보조회",
+   "oprtinDc": "End Point URL 뒤에 해당되는 상세기능 구분코드(shelterInfo_v2)를 붙여서 사용해야 합니다 (즉 http://apis.data.go.kr/1543061/animalShelterSrvc_v2/shelterInfo_v2 로 사용해야 함)",
+   "gwSvcNm": "shelterInfo_v2",
+   "operationId": "shelterInfo_v2",
+   "publicDataTyDetailCode": "PRDE02",
+   "reqList": [
+    {
+     "paramtrNm": "serviceKey",
+     "paramtrBassValue": "인증키(URL Encode)",
+     "paramtrDc": "공공데이터포털에서 발급받은 인증키",
+     "paramtrTy": "string",
+     "paramtrDivision": "필수",
+     "ck": true
+    },
+    {
+     "paramtrNm": "care_reg_no",
+     "paramtrBassValue": "",
+     "paramtrDc": "보호센터등록번호",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "care_nm",
+     "paramtrBassValue": "",
+     "paramtrDc": "동물보호센터명",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "numOfRows",
+     "paramtrBassValue": "3",
+     "paramtrDc": "한 페이지 결과 수 (1,000 이하)",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "pageNo",
+     "paramtrBassValue": "1",
+     "paramtrDc": "페이지 번호",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "_type",
+     "paramtrBassValue": "",
+     "paramtrDc": "xml(기본값) 또는 json",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "upr_cd",
+     "paramtrBassValue": "",
+     "paramtrDc": "시도코드(시도 조회 OPEN API 참조)",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    },
+    {
+     "paramtrNm": "org_cd",
+     "paramtrBassValue": "",
+     "paramtrDc": "시군구코드(시군구 조회 OPEN API 참조)",
+     "paramtrTy": "string",
+     "paramtrDivision": "옵션",
+     "ck": true
+    }
+   ],
+   "resList": [
+    {
+     "paramtrNm": "header",
+     "paramtrDc": "header",
+     "arrayYn": "N",
+     "paramtrDefNm": "#/definitions/oper-1-header",
+     "subDefNm": "oper-1-header",
+     "paramtrTy": "object",
+     "paramtrDivision": "필수",
+     "ck": true,
+     "subParam": [
+      {
+       "paramtrNm": "reqNo",
+       "paramtrDc": "요청 고유 번호",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "옵션",
+       "ck": true
+      },
+      {
+       "paramtrNm": "resultCode",
+       "paramtrDc": "결과코드",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "resultMsg",
+       "paramtrDc": "결과메세지",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "errorMsg",
+       "paramtrDc": "오류 상세 내역 (예:보호센터등록번호 요청변수 오류 - 15자리 숫자)",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "옵션",
+       "ck": true
+      }
+     ]
+    },
+    {
+     "paramtrNm": "body",
+     "paramtrDc": "body",
+     "arrayYn": "N",
+     "paramtrDefNm": "#/definitions/oper-1-body",
+     "subDefNm": "oper-1-body",
+     "paramtrTy": "object",
+     "paramtrDivision": "필수",
+     "ck": true,
+     "subParam": [
+      {
+       "paramtrNm": "items",
+       "paramtrDc": "items",
+       "arrayYn": "N",
+       "paramtrDefNm": "#/definitions/oper-1-items",
+       "subDefNm": "oper-1-items",
+       "paramtrTy": "object",
+       "paramtrDivision": "필수",
+       "ck": true,
+       "subParam": [
+        {
+         "paramtrNm": "item",
+         "paramtrDc": "item",
+         "arrayYn": "N",
+         "paramtrDefNm": "#/definitions/oper-1-item",
+         "subDefNm": "oper-1-item",
+         "paramtrTy": "object",
+         "paramtrDivision": "필수",
+         "ck": true,
+         "subParam": [
+          {
+           "paramtrNm": "dataStdDt",
+           "paramtrDc": "데이터기준일자",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "careNm",
+           "paramtrDc": "동물보호센터명",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "careRegNo",
+           "paramtrDc": "보호소번호",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "orgNm",
+           "paramtrDc": "관리기관명",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "divisionNm",
+           "paramtrDc": "동물보호센터유형",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "saveTrgtAnimal",
+           "paramtrDc": "구조대상동물",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "careAddr",
+           "paramtrDc": "소재지도로명주소",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          },
+          {
+           "paramtrNm": "jibunAddr",
+           "paramtrDc": "소재지번주소",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "lat",
+           "paramtrDc": "위도",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "lng",
+           "paramtrDc": "경도",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "dsignationDate",
+           "paramtrDc": "동물보호센터지정일자",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekOprStime",
+           "paramtrDc": "평일운영시작시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekOprEtime",
+           "paramtrDc": "평일운영종료시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekCellStime",
+           "paramtrDc": "평일분양시작시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekCellEtime",
+           "paramtrDc": "평일분양종료시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekendOprStime",
+           "paramtrDc": "주말운영시작시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekendOprEtime",
+           "paramtrDc": "주말운영종료시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekendCellStime",
+           "paramtrDc": "주말분양시작시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "weekendCellEtime",
+           "paramtrDc": "주말분양종료시각",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "closeDay",
+           "paramtrDc": "휴무일",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "vetPersonCnt",
+           "paramtrDc": "수의사인원수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "specsPersonCnt",
+           "paramtrDc": "사양관리사인원수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "medicalCnt",
+           "paramtrDc": "진료실수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "breedCnt",
+           "paramtrDc": "사육실수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "quarabtineCnt",
+           "paramtrDc": "격리실수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "feedCnt",
+           "paramtrDc": "사료보관실수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "transCarCnt",
+           "paramtrDc": "구조운반용차량보유대수",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "옵션",
+           "ck": true
+          },
+          {
+           "paramtrNm": "careTel",
+           "paramtrDc": "전화번호",
+           "arrayYn": "N",
+           "paramtrDefNm": "",
+           "paramtrTy": "string",
+           "paramtrDivision": "필수",
+           "ck": true
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "paramtrNm": "numOfRows",
+       "paramtrDc": "한 페이지 결과 수",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "pageNo",
+       "paramtrDc": "페이지 번호",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      },
+      {
+       "paramtrNm": "totalCount",
+       "paramtrDc": "전체 결과 수",
+       "arrayYn": "N",
+       "paramtrDefNm": "",
+       "paramtrTy": "string",
+       "paramtrDivision": "필수",
+       "ck": true
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

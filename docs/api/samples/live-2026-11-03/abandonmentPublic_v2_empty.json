@@ -1,0 +1,15 @@
+{
+  "response" : {
+    "header" : {
+      "reqNo" : 64554594,
+      "resultCode" : "00",
+      "resultMsg" : "NORMAL SERVICE."
+    },
+    "body" : {
+      "items" : { },
+      "numOfRows" : 5,
+      "pageNo" : 1,
+      "totalCount" : 0
+    }
+  }
+}

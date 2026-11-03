@@ -1,0 +1,57 @@
+{
+  "response" : {
+    "header" : {
+      "reqNo" : 64554589,
+      "resultCode" : "00",
+      "resultMsg" : "NORMAL SERVICE."
+    },
+    "body" : {
+      "items" : {
+        "item" : [ {
+          "uprCd" : "6110000",
+          "orgCd" : "6119999",
+          "orgdownNm" : "가정보호"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3220000",
+          "orgdownNm" : "강남구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3240000",
+          "orgdownNm" : "강동구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3080000",
+          "orgdownNm" : "강북구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3150000",
+          "orgdownNm" : "강서구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3200000",
+          "orgdownNm" : "관악구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3040000",
+          "orgdownNm" : "광진구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3160000",
+          "orgdownNm" : "구로구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3170000",
+          "orgdownNm" : "금천구"
+        }, {
+          "uprCd" : "6110000",
+          "orgCd" : "3100000",
+          "orgdownNm" : "노원구"
+        } ]
+      },
+      "numOfRows" : 10,
+      "pageNo" : 1,
+      "totalCount" : 28
+    }
+  }
+}

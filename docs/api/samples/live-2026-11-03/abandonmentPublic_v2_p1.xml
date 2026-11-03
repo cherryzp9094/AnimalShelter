@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<response>
+    <header>
+        <reqNo>64554593</reqNo>
+        <resultCode>00</resultCode>
+        <resultMsg>NORMAL SERVICE.</resultMsg>
+    </header>
+    <body>
+        <items>
+            <item>
+                <desertionNo>450650202602738</desertionNo>
+                <happenDt>20261103</happenDt>
+                <happenPlace>제주시 애월읍 하가로2길 32-1</happenPlace>
+                <kindFullNm>[고양이] 한국 고양이</kindFullNm>
+                <upKindCd>422400</upKindCd>
+                <upKindNm>고양이</upKindNm>
+                <kindCd>000200</kindCd>
+                <kindNm>한국 고양이</kindNm>
+                <colorCd>기타(고등어)</colorCd>
+                <age>2024(년생)</age>
+                <weight>5(Kg)</weight>
+                <noticeNo>제주-제주-2026-02647</noticeNo>
+                <noticeSdt>20261103</noticeSdt>
+                <noticeEdt>20261113</noticeEdt>
+                <popfile1>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/20261103141175.jpg</popfile1>
+                <popfile2>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/20261103141190.jpg</popfile2>
+                <processState>보호중</processState>
+                <sexCd>M</sexCd>
+                <neuterYn>Y</neuterYn>
+                <specialMark>개체관리번호 26652 - 목에 플라스틱통 끼임</specialMark>
+                <careRegNo>350650202600001</careRegNo>
+                <careNm>제2동물보호센터</careNm>
+                <careTel>064-710-4805</careTel>
+                <careAddr>제주특별자치도 제주시 애월읍 어림비로 616-107  </careAddr>
+                <careOwnerNm>제주특별자치도</careOwnerNm>
+                <orgNm>제주특별자치도</orgNm>
+                <updTm>2026-11-03 14:09:49.0</updTm>
+            </item>
+            <item>
+                <desertionNo>450650202602737</desertionNo>
+                <happenDt>20261103</happenDt>
+                <happenPlace>서귀포시 안덕면 사계로218</happenPlace>
+                <kindFullNm>[고양이] 한국 고양이</kindFullNm>
+                <upKindCd>422400</upKindCd>
+                <upKindNm>고양이</upKindNm>
+                <kindCd>000200</kindCd>
+                <kindNm>한국 고양이</kindNm>
+                <colorCd>기타(흰갈)</colorCd>
+                <age>2026(년생)</age>
+                <weight>0.7(Kg)</weight>
+                <noticeNo>제주-제주-2026-02646</noticeNo>
+                <noticeSdt>20261103</noticeSdt>
+                <noticeEdt>20261113</noticeEdt>
+                <popfile1>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031411477.jpg</popfile1>
+                <popfile2>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031411491.jpg</popfile2>
+                <processState>보호중</processState>
+                <sexCd>M</sexCd>
+                <neuterYn>N</neuterYn>
+                <specialMark>개체관리번호 26651 - 3개월</specialMark>
+                <careRegNo>350650202600001</careRegNo>
+                <careNm>제2동물보호센터</careNm>
+                <careTel>064-710-4805</careTel>
+                <careAddr>제주특별자치도 제주시 애월읍 어림비로 616-107  </careAddr>
+                <careOwnerNm>제주특별자치도</careOwnerNm>
+                <orgNm>제주특별자치도</orgNm>
+                <updTm>2026-11-03 14:09:49.0</updTm>
+            </item>
+            <item>
+                <desertionNo>450650202602736</desertionNo>
+                <happenDt>20261103</happenDt>
+                <happenPlace>서귀포시 성산읍 수산리4083</happenPlace>
+                <kindFullNm>[고양이] 한국 고양이</kindFullNm>
+                <upKindCd>422400</upKindCd>
+                <upKindNm>고양이</upKindNm>
+                <kindCd>000200</kindCd>
+                <kindNm>한국 고양이</kindNm>
+                <colorCd>기타(치즈)</colorCd>
+                <age>2026(년생)</age>
+                <weight>1(Kg)</weight>
+                <noticeNo>제주-제주-2026-02645</noticeNo>
+                <noticeSdt>20261103</noticeSdt>
+                <noticeEdt>20261113</noticeEdt>
+                <popfile1>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031411996.jpg</popfile1>
+                <popfile2>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/20261103141110.jpg</popfile2>
+                <processState>보호중</processState>
+                <sexCd>F</sexCd>
+                <neuterYn>N</neuterYn>
+                <specialMark>개체관리번호 26650 - 4개월</specialMark>
+                <careRegNo>350650202600001</careRegNo>
+                <careNm>제2동물보호센터</careNm>
+                <careTel>064-710-4805</careTel>
+                <careAddr>제주특별자치도 제주시 애월읍 어림비로 616-107  </careAddr>
+                <careOwnerNm>제주특별자치도</careOwnerNm>
+                <orgNm>제주특별자치도</orgNm>
+                <updTm>2026-11-03 14:09:49.0</updTm>
+            </item>
+            <item>
+                <desertionNo>450650202602735</desertionNo>
+                <happenDt>20261103</happenDt>
+                <happenPlace>제주시 화북일동 진남로10길44</happenPlace>
+                <kindFullNm>[고양이] 믹스묘</kindFullNm>
+                <upKindCd>422400</upKindCd>
+                <upKindNm>고양이</upKindNm>
+                <kindCd>000212</kindCd>
+                <kindNm>믹스묘</kindNm>
+                <colorCd>기타(갈흰)</colorCd>
+                <age>2023(년생)</age>
+                <weight>3(Kg)</weight>
+                <noticeNo>제주-제주-2026-02644</noticeNo>
+                <noticeSdt>20261103</noticeSdt>
+                <noticeEdt>20261113</noticeEdt>
+                <popfile1>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031411286.jpg</popfile1>
+                <popfile2>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031411299.jpg</popfile2>
+                <processState>보호중</processState>
+                <sexCd>M</sexCd>
+                <neuterYn>N</neuterYn>
+                <specialMark>개체관리번호 26649 - 유기묘/칩없음</specialMark>
+                <careRegNo>350650202600001</careRegNo>
+                <careNm>제2동물보호센터</careNm>
+                <careTel>064-710-4805</careTel>
+                <careAddr>제주특별자치도 제주시 애월읍 어림비로 616-107  </careAddr>
+                <careOwnerNm>제주특별자치도</careOwnerNm>
+                <orgNm>제주특별자치도</orgNm>
+                <updTm>2026-11-03 14:28:21.0</updTm>
+            </item>
+            <item>
+                <desertionNo>448567202601800</desertionNo>
+                <happenDt>20261103</happenDt>
+                <happenPlace>의창구 동읍 신방리 칠성그린아파트 내</happenPlace>
+                <kindFullNm>[개] 말티즈</kindFullNm>
+                <upKindCd>417000</upKindCd>
+                <upKindNm>개</upKindNm>
+                <kindCd>000072</kindCd>
+                <kindNm>말티즈</kindNm>
+                <colorCd>흰색</colorCd>
+                <age>2020(년생)</age>
+                <weight>5.6(Kg)</weight>
+                <noticeNo>경남-창원1-2026-00782</noticeNo>
+                <noticeSdt>20261103</noticeSdt>
+                <noticeEdt>20261113</noticeEdt>
+                <popfile1>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031111593.jpg</popfile1>
+                <popfile2>http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031111662.jpg</popfile2>
+                <processState>종료(반환)</processState>
+                <sexCd>F</sexCd>
+                <neuterYn>U</neuterYn>
+                <specialMark>미용되어 있음, 희미한 샴푸 냄새, 체리로 된 땡땡이 옷 착용</specialMark>
+                <careRegNo>348527200900001</careRegNo>
+                <careNm>창원동물보호센터</careNm>
+                <careTel>055-225-5701</careTel>
+                <careAddr>경상남도 창원시 성산구 공단로474번길 117 (상복동) 창원동물보호센터</careAddr>
+                <careOwnerNm>(가림)</careOwnerNm>
+                <orgNm>경상남도 창원시 의창성산구</orgNm>
+                <updTm>2026-11-03 12:30:48.0</updTm>
+            </item>
+        </items>
+        <numOfRows>5</numOfRows>
+        <pageNo>1</pageNo>
+        <totalCount>7544</totalCount>
+    </body>
+</response>
