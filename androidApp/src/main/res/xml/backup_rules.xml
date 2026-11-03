@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 이하용. 백업하지 않는다(allowBackup=false와 같은 뜻). -->
+<full-backup-content>
+    <exclude domain="root" />
+    <exclude domain="file" />
+    <exclude domain="database" />
+    <exclude domain="sharedpref" />
+    <exclude domain="external" />
+</full-backup-content>

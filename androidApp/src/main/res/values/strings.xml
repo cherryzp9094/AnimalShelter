@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 런처 이름. 앱 안 문구는 :shared composeResources에 있다. -->
+<resources>
+    <string name="app_name">애니멀 쉘터</string>
+</resources>

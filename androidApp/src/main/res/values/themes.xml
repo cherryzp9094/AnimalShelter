@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 브랜드 원색 #0A81AB. 스플래시에서만 그대로 쓴다(06-design-direction 2.1). -->
+    <color name="brand_seed">#0A81AB</color>
+
+    <!-- 시작 화면: 파란 배경 + 흰 로고(런처 아이콘의 전경 레이어). -->
+    <style name="Theme.AnimalShelter.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_seed</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_animal_shelter_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.AnimalShelter</item>
+    </style>
+
+    <!-- Compose가 그리기 전까지의 창 테마. 색은 Compose 테마(:shared ui/theme)가 정한다. -->
+    <style name="Theme.AnimalShelter" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
