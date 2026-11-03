@@ -169,4 +169,25 @@ class StoreTest {
             withTestStores(TestStores(writer.suffix)) { it.bookmarks("live.json").data.first() }
         assertEquals(listOf("1"), reopened.order)
     }
+
+    @Test
+    fun `설정을 모으는 중에 보기·테마를 바꾸면 그 구독자에게 보인다(R4)`() = runTest {
+        withTestStores { stores ->
+            val store = stores.settings()
+            store.settings.first()
+            val layoutSeen = async(Dispatchers.Default) {
+                store.settings.first { it.listLayout == ListLayout.LARGE }
+            }
+            val themeSeen = async(Dispatchers.Default) {
+                store.settings.first { it.theme == ThemeMode.DARK }
+            }
+            store.setListLayout(ListLayout.LARGE)
+            store.setTheme(ThemeMode.DARK)
+
+            assertEquals(ListLayout.LARGE, layoutSeen.await().listLayout)
+            assertEquals(ThemeMode.DARK, themeSeen.await().theme)
+            assertEquals(ListLayout.LARGE, store.settings.first().listLayout)
+            assertEquals(ThemeMode.DARK, store.settings.first().theme)
+        }
+    }
 }
