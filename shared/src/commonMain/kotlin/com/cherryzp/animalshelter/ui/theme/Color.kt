@@ -1,6 +1,9 @@
 // 생성 파일: tools/gen_theme.mjs (직접 고치지 않는다)
 // 시드 #0A81AB, 스킴 TonalSpot(스펙 2021, 대비 0), @material/material-color-utilities 0.4.0
 // 명령: npx -y -p @material/material-color-utilities@0.4.0 node tools/gen_theme.mjs
+// 확장 색 closingSoon: 원색 #E8710A, customColor(blend = true → Blend.harmonize(원색, 시드))
+//   라이트 톤 90/10: FFFFDBD1/FF3A0A00, 대비 13.33:1
+//   다크 톤 30/90: FF862300/FFFFDBD1, 대비 7.23:1
 package com.cherryzp.animalshelter.ui.theme
 
 import androidx.compose.material3.ColorScheme
@@ -111,4 +114,16 @@ val DarkColorScheme: ColorScheme = darkColorScheme(
     tertiaryFixedDim = Color(0xFFC9C1EA),
     onTertiaryFixed = Color(0xFF1C1736),
     onTertiaryFixedVariant = Color(0xFF484364)
+)
+
+/** 라이트 확장 색(마감 임박 배지). */
+val LightExtendedColors: ExtendedColors = ExtendedColors(
+    closingSoonContainer = Color(0xFFFFDBD1),
+    onClosingSoonContainer = Color(0xFF3A0A00)
+)
+
+/** 다크 확장 색(마감 임박 배지). */
+val DarkExtendedColors: ExtendedColors = ExtendedColors(
+    closingSoonContainer = Color(0xFF862300),
+    onClosingSoonContainer = Color(0xFFFFDBD1)
 )

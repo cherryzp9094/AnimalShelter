@@ -13,6 +13,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const VERSION = '0.4.0';
 const SEED = '#0A81AB';
+// 마감 임박 확장 색(06 2.3·브리핑 3a A4). Blend.harmonize로 시드 쪽으로 조화한다(blend: true).
+const CLOSING_SOON = '#E8710A';
 const OUT = 'shared/src/commonMain/kotlin/com/cherryzp/animalshelter/ui/theme/Color.kt';
 
 registerHooks({
@@ -67,9 +69,38 @@ const scheme = (isDark) => {
   }).join(',\n'); // 호출부 끝 쉼표는 두지 않는다(.editorconfig)
 };
 
+// customColor(0.4.0, utils/theme_utils): 라이트 colorContainer/onColorContainer = 톤 90/10,
+// 다크 = 톤 30/90.
+if (typeof m.customColor !== 'function') throw new Error('customColor를 내보내지 않는다');
+const closingSoon = m.customColor(m.argbFromHex(SEED), {
+  name: 'closingSoon',
+  value: m.argbFromHex(CLOSING_SOON),
+  blend: true,
+});
+const extended = (group) => `ExtendedColors(
+    closingSoonContainer = Color(0x${hex(group.colorContainer)}),
+    onClosingSoonContainer = Color(0x${hex(group.onColorContainer)})
+)`;
+
+// WCAG 대비(글자/배경). 보고용으로 콘솔에만 찍는다.
+const luminance = (argb) => {
+  const ch = [16, 8, 0].map((sh) => {
+    const c = ((argb >> sh) & 0xff) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+};
+const contrast = (fg, bg) => {
+  const [a, b] = [luminance(fg), luminance(bg)].sort((x, y) => y - x);
+  return ((a + 0.05) / (b + 0.05)).toFixed(2);
+};
+
 const kt = `// 생성 파일: tools/gen_theme.mjs (직접 고치지 않는다)
 // 시드 ${SEED}, 스킴 TonalSpot(스펙 2021, 대비 0), @material/material-color-utilities ${VERSION}
 // 명령: npx -y -p @material/material-color-utilities@${VERSION} node tools/gen_theme.mjs
+// 확장 색 closingSoon: 원색 ${CLOSING_SOON}, customColor(blend = true → Blend.harmonize(원색, 시드))
+//   라이트 톤 90/10: ${hex(closingSoon.light.colorContainer)}/${hex(closingSoon.light.onColorContainer)}, 대비 ${contrast(closingSoon.light.onColorContainer, closingSoon.light.colorContainer)}:1
+//   다크 톤 30/90: ${hex(closingSoon.dark.colorContainer)}/${hex(closingSoon.dark.onColorContainer)}, 대비 ${contrast(closingSoon.dark.onColorContainer, closingSoon.dark.colorContainer)}:1
 package com.cherryzp.animalshelter.ui.theme
 
 import androidx.compose.material3.ColorScheme
@@ -87,8 +118,17 @@ ${scheme(false)}
 val DarkColorScheme: ColorScheme = darkColorScheme(
 ${scheme(true)}
 )
+
+/** 라이트 확장 색(마감 임박 배지). */
+val LightExtendedColors: ExtendedColors = ${extended(closingSoon.light)}
+
+/** 다크 확장 색(마감 임박 배지). */
+val DarkExtendedColors: ExtendedColors = ${extended(closingSoon.dark)}
 `;
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 writeFileSync(join(root, OUT), kt);
 console.log(`썼다: ${OUT}`);
+for (const [name, g] of [['light', closingSoon.light], ['dark', closingSoon.dark]]) {
+  console.log(`closingSoon ${name}: container ${hex(g.colorContainer)} on ${hex(g.onColorContainer)} 대비 ${contrast(g.onColorContainer, g.colorContainer)}:1`);
+}
