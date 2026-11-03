@@ -44,6 +44,7 @@ import com.cherryzp.animalshelter.resources.promo_volunteer
 import com.cherryzp.animalshelter.resources.weight_kg
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.formatWeight
+import com.cherryzp.animalshelter.ui.common.meaningfulText
 import com.cherryzp.animalshelter.ui.common.titleParts
 import com.cherryzp.animalshelter.ui.common.toStatusUi
 import com.cherryzp.animalshelter.ui.common.toUiText
@@ -169,7 +170,7 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
             }
             addRaw(Res.string.label_data_updated, updatedAtText(updatedAt), numeric = true)
         },
-        traits = specialMark.clean(),
+        traits = specialMark.meaningfulText(),
         found = buildList {
             addRaw(Res.string.label_happen_date, happenDate?.isoText(), numeric = true)
             addRaw(Res.string.label_happen_place, happenPlace)

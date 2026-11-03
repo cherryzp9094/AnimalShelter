@@ -75,8 +75,15 @@ fun Animal.titleParts(): List<UiText> = buildList {
 fun Animal.traitParts(): List<UiText> = buildList {
     color?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
     weightKg?.let { add(uiText(Res.string.weight_kg, formatWeight(it))) }
-    specialMark?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
+    specialMark.meaningfulText()?.let { add(UiText.Raw(it)) }
 }
+
+/**
+ * 글자나 숫자가 하나라도 있는 값만(앞뒤 공백 제거). 실측에 특징이 "."처럼 문장부호뿐인 공고가 있다 —
+ * 카드·상세에 빈 점이 보이지 않게 뺀다.
+ */
+fun String?.meaningfulText(): String? =
+    this?.trim()?.takeIf { text -> text.any { it.isLetterOrDigit() } }
 
 /** 보호소 줄: 관할 기관 · 보호소 이름. 둘 다 없으면 null. */
 fun Animal.shelterLine(): String? = listOfNotNull(

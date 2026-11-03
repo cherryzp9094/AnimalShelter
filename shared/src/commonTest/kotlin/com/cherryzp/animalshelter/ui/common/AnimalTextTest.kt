@@ -127,4 +127,13 @@ class AnimalTextTest {
             animal.copy(photos = emptyList()).toCardUi(today, ApiEndpoint.Fixture, false).photoUrl
         )
     }
+
+    @Test
+    fun `문장부호뿐인 특징은 빼고 글자가 있으면 둔다`() {
+        assertEquals(null, ".".meaningfulText())
+        assertEquals(null, " - ".meaningfulText())
+        assertEquals(null, (null as String?).meaningfulText())
+        assertEquals("사람을 잘 따름.", " 사람을 잘 따름. ".meaningfulText())
+        assertEquals("2", "2".meaningfulText())
+    }
 }
