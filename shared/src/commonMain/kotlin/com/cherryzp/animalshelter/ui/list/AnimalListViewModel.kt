@@ -29,6 +29,7 @@ import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
 import com.cherryzp.animalshelter.ui.common.clearIfShown
 import com.cherryzp.animalshelter.ui.common.formatCount
+import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.toCardUi
 import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
@@ -283,12 +284,11 @@ class AnimalListViewModel(
             pendingSort = r.pendingSort,
             layout = layout,
             header = r.totalCount?.let {
-                val id = if (r.sort == SortOrder.CLOSING_SOON) {
-                    Res.string.list_noticing_count
+                if (r.sort == SortOrder.CLOSING_SOON) {
+                    uiText(Res.string.list_noticing_count, formatCount(it))
                 } else {
-                    Res.string.list_total_count
+                    pluralText(Res.plurals.list_total_count, it, formatCount(it))
                 }
-                uiText(id, formatCount(it))
             },
             items = r.items.map { it.toCardUi(today, endpoint, it.desertionNo in bookmarked) },
             isInitialLoading = waitingFirst,

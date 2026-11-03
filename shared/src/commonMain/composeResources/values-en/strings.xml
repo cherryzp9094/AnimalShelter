@@ -19,15 +19,18 @@
     <string name="action_bookmark_add">Add bookmark</string>
     <string name="action_bookmark_remove">Remove bookmark</string>
     <string name="action_view_bookmarks">View bookmarks</string>
-    <string name="action_layout_large">Large photos</string>
-    <string name="action_layout_grid">Grid</string>
+    <string name="action_layout_large">Show large photos</string>
+    <string name="action_layout_grid">Show as grid</string>
     <string name="sort_latest">Newest</string>
     <string name="sort_closing_soon">Closing soon</string>
     <string name="sort_too_many">Too many notices to sort. Narrow by region or species.</string>
     <string name="filter_none">All</string>
     <string name="date_default">Last month</string>
     <string name="date_range">%1$s – %2$s</string>
-    <string name="list_total_count">%1$s animals</string>
+    <plurals name="list_total_count">
+        <item quantity="one">%1$s animal</item>
+        <item quantity="other">%1$s animals</item>
+    </plurals>
     <string name="list_noticing_count">%1$s posted</string>
     <string name="list_end">That’s all</string>
     <string name="list_load_more_failed">Couldn’t load more.</string>
@@ -41,7 +44,10 @@
     <string name="dday">D-%1$d</string>
     <string name="dday_today">Ends today</string>
     <string name="badge_closing_soon">Closing soon · D-%1$d</string>
-    <string name="a11y_days_left">%1$d days left</string>
+    <plurals name="a11y_days_left">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
     <string name="a11y_ends_today">Notice ends today</string>
     <string name="a11y_bookmarked">Bookmarked</string>
     <string name="sex_male">Male</string>
@@ -57,6 +63,8 @@
     <string name="kind_dog">Dogs</string>
     <string name="kind_cat">Cats</string>
     <string name="kind_other">Other</string>
+    <string name="detail_kind_dog">Dog</string>
+    <string name="detail_kind_cat">Cat</string>
     <string name="title_filter">Filters</string>
     <string name="filter_kind">Species</string>
     <string name="filter_breed">Breed</string>
@@ -95,8 +103,8 @@
     <string name="bookmark_removed">Bookmark removed.</string>
     <string name="bookmark_save_failed">Couldn’t save the bookmark.</string>
     <string name="error_quota">Daily quota exceeded. Try again tomorrow.</string>
-    <string name="error_key">Can’t query: service key problem.</string>
-    <string name="error_key_code">Can’t query: service key problem. (code %1$s)</string>
+    <string name="error_key">Can’t load data: service key problem.</string>
+    <string name="error_key_code">Can’t load data: service key problem. (code %1$s)</string>
     <string name="error_server">The server rejected the request. (code %1$s)</string>
     <string name="error_network">No network connection.</string>
     <string name="error_parse">Couldn’t read the response.</string>
@@ -135,7 +143,10 @@
     <string name="label_shelter_tel">Phone</string>
     <string name="label_shelter_address">Address</string>
     <string name="label_org_name">Authority</string>
-    <string name="age_approx">About %1$d years old</string>
+    <plurals name="age_approx">
+        <item quantity="one">About %1$d year old</item>
+        <item quantity="other">About %1$d years old</item>
+    </plurals>
     <string name="age_under_one">Under 1 year</string>
     <string name="promo_adoption_process">Adoption process</string>
     <string name="promo_adoption_support">Adoption support</string>
@@ -171,13 +182,22 @@
     <string name="label_adoption_hours_weekday">Weekday adoption hours</string>
     <string name="label_adoption_hours_weekend">Weekend adoption hours</string>
     <string name="label_closed_day">Closed</string>
-    <string name="staff_vets">%1$d vets</string>
-    <string name="staff_keepers">%1$d keepers</string>
+    <plurals name="staff_vets">
+        <item quantity="one">%1$d vet</item>
+        <item quantity="other">%1$d vets</item>
+    </plurals>
+    <plurals name="staff_keepers">
+        <item quantity="one">%1$d keeper</item>
+        <item quantity="other">%1$d keepers</item>
+    </plurals>
     <string name="room_medical">Clinic %1$d</string>
     <string name="room_breeding">Kennels %1$d</string>
     <string name="room_quarantine">Quarantine %1$d</string>
     <string name="room_feed">Feed storage %1$d</string>
-    <string name="label_vehicles">%1$d rescue vehicles</string>
+    <plurals name="label_vehicles">
+        <item quantity="one">%1$d rescue vehicle</item>
+        <item quantity="other">%1$d rescue vehicles</item>
+    </plurals>
     <string name="label_designated_on">Designated</string>
     <string name="label_data_date">Data as of</string>
     <string name="shelter_limited_info">This shelter has no detailed listing.</string>

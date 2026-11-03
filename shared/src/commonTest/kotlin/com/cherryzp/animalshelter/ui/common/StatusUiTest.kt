@@ -21,7 +21,7 @@ class StatusUiTest {
         val ui = AnimalStatus.Noticing(4).toStatusUi()
         assertEquals(StatusKind.NOTICING, ui.kind)
         assertEquals(uiText(Res.string.dday, 4), ui.label)
-        assertEquals(uiText(Res.string.a11y_days_left, 4), ui.a11y)
+        assertEquals(pluralText(Res.plurals.a11y_days_left, 4), ui.a11y)
     }
 
     @Test
@@ -30,7 +30,7 @@ class StatusUiTest {
             val ui = AnimalStatus.Noticing(days).toStatusUi()
             assertEquals(StatusKind.CLOSING_SOON, ui.kind)
             assertEquals(uiText(Res.string.badge_closing_soon, days), ui.label)
-            assertEquals(uiText(Res.string.a11y_days_left, days), ui.a11y)
+            assertEquals(pluralText(Res.plurals.a11y_days_left, days), ui.a11y)
         }
     }
 

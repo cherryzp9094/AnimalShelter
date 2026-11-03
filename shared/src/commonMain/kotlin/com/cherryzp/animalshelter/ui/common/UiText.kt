@@ -2,7 +2,9 @@ package com.cherryzp.animalshelter.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import org.jetbrains.compose.resources.PluralStringResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -14,10 +16,21 @@ sealed interface UiText {
     data class Res(val id: StringResource, val args: List<Any> = emptyList()) : UiText
 
     data class Raw(val value: String) : UiText
+
+    /** 수에 따라 형태가 바뀌는 문구(en "1 day left" / "2 days left", F8). ko는 `other` 하나. */
+    data class Plural(
+        val id: PluralStringResource,
+        val quantity: Int,
+        val args: List<Any> = emptyList(),
+    ) : UiText
 }
 
 /** 리소스 문구 줄임. */
 fun uiText(id: StringResource, vararg args: Any): UiText = UiText.Res(id, args.toList())
+
+/** 복수 문구 줄임. 인자가 없으면 [quantity] 하나를 넘긴다(`%1$d`). */
+fun pluralText(id: PluralStringResource, quantity: Int, vararg args: Any): UiText =
+    UiText.Plural(id, quantity, if (args.isEmpty()) listOf(quantity) else args.toList())
 
 @Composable
 fun UiText.resolve(): String = when (this) {
@@ -26,6 +39,11 @@ fun UiText.resolve(): String = when (this) {
     is UiText.Res -> {
         val resolved = args.map { if (it is UiText) it.resolve() else it }
         stringResource(id, *resolved.toTypedArray())
+    }
+
+    is UiText.Plural -> {
+        val resolved = args.map { if (it is UiText) it.resolve() else it }
+        pluralStringResource(id, quantity, *resolved.toTypedArray())
     }
 }
 

@@ -38,13 +38,13 @@ fun AnimalStatus.toStatusUi(): StatusUi = when (this) {
         daysLeft <= CLOSING_SOON_DAYS -> StatusUi(
             StatusKind.CLOSING_SOON,
             uiText(Res.string.badge_closing_soon, daysLeft),
-            uiText(Res.string.a11y_days_left, daysLeft)
+            pluralText(Res.plurals.a11y_days_left, daysLeft)
         )
 
         else -> StatusUi(
             StatusKind.NOTICING,
             uiText(Res.string.dday, daysLeft),
-            uiText(Res.string.a11y_days_left, daysLeft)
+            pluralText(Res.plurals.a11y_days_left, daysLeft)
         )
     }
 

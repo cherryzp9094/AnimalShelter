@@ -23,6 +23,7 @@ import com.cherryzp.animalshelter.resources.staff_vets
 import com.cherryzp.animalshelter.testing.FakeClock
 import com.cherryzp.animalshelter.testing.runMainTest
 import com.cherryzp.animalshelter.ui.common.UiText
+import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -104,9 +105,9 @@ class ShelterInfoViewModelTest {
         assertNotNull(info.map)
         assertEquals(
             listOf(
-                listOf(uiText(Res.string.staff_vets, 2)),
+                listOf(pluralText(Res.plurals.staff_vets, 2)),
                 listOf(uiText(Res.string.room_medical, 1)),
-                listOf(uiText(Res.string.label_vehicles, 3))
+                listOf(pluralText(Res.plurals.label_vehicles, 3))
             ),
             info.facilities
         )

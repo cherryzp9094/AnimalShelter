@@ -18,6 +18,7 @@ import com.cherryzp.animalshelter.resources.staff_keepers
 import com.cherryzp.animalshelter.resources.staff_vets
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.collapseSpaces
+import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.plusSeparated
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.detail.DetailRow
@@ -35,8 +36,8 @@ private fun String?.clean(): String? = this?.trim()?.takeIf { it.isNotEmpty() }
 /** 시설 줄(B7 — `label_staff`·`label_rooms`는 만들지 않는다): 있는 수만 부분으로. */
 fun ShelterInfo.facilityLines(): List<List<UiText>> = listOf(
     listOfNotNull(
-        vetCount?.let { uiText(Res.string.staff_vets, it) },
-        keeperCount?.let { uiText(Res.string.staff_keepers, it) }
+        vetCount?.let { pluralText(Res.plurals.staff_vets, it) },
+        keeperCount?.let { pluralText(Res.plurals.staff_keepers, it) }
     ),
     listOfNotNull(
         roomCounts?.medical?.let { uiText(Res.string.room_medical, it) },
@@ -44,7 +45,7 @@ fun ShelterInfo.facilityLines(): List<List<UiText>> = listOf(
         roomCounts?.quarantine?.let { uiText(Res.string.room_quarantine, it) },
         roomCounts?.feedStorage?.let { uiText(Res.string.room_feed, it) }
     ),
-    listOfNotNull(vehicleCount?.let { uiText(Res.string.label_vehicles, it) })
+    listOfNotNull(vehicleCount?.let { pluralText(Res.plurals.label_vehicles, it) })
 ).filter { it.isNotEmpty() }
 
 /** 데이터 기준일(`yyyy-mm-dd`)이 [STALE_YEARS]년 넘게 지났는가. 읽지 못하면 false. */

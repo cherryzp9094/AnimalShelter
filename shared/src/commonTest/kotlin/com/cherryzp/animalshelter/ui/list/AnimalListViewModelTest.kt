@@ -36,6 +36,7 @@ import com.cherryzp.animalshelter.testing.content
 import com.cherryzp.animalshelter.testing.runMainTest
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.UiMessage
+import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -365,7 +366,7 @@ class AnimalListViewModelTest {
             .also { subscribe(it) }
         val unknown = Env(initial = loaded(totalCount = null)).also { subscribe(it) }
 
-        assertEquals(uiText(Res.string.list_total_count, "7,544"), latest.state.header)
+        assertEquals(pluralText(Res.plurals.list_total_count, 7544, "7,544"), latest.state.header)
         assertEquals(uiText(Res.string.list_noticing_count, "1,234"), closing.state.header)
         assertNull(unknown.state.header)
     }

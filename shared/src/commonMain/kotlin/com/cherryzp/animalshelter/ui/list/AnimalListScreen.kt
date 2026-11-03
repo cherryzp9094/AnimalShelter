@@ -56,6 +56,7 @@ import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
+import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.preview.PreviewData
@@ -327,7 +328,7 @@ private fun AnimalListDataPreview() {
                 SortOrder.LATEST,
                 PreviewData.today
             ),
-            header = uiText(Res.string.list_total_count, "7,544"),
+            header = pluralText(Res.plurals.list_total_count, 7544, "7,544"),
             items = PreviewData.cards,
             footer = ListFooter.End
         )

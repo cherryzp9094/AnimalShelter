@@ -19,11 +19,11 @@ import com.cherryzp.animalshelter.resources.choice_no
 import com.cherryzp.animalshelter.resources.choice_unknown
 import com.cherryzp.animalshelter.resources.choice_yes
 import com.cherryzp.animalshelter.resources.date_range
+import com.cherryzp.animalshelter.resources.detail_kind_cat
+import com.cherryzp.animalshelter.resources.detail_kind_dog
 import com.cherryzp.animalshelter.resources.detail_status_ended_hint
 import com.cherryzp.animalshelter.resources.detail_status_noticing_hint
 import com.cherryzp.animalshelter.resources.detail_status_protecting_hint
-import com.cherryzp.animalshelter.resources.kind_cat
-import com.cherryzp.animalshelter.resources.kind_dog
 import com.cherryzp.animalshelter.resources.kind_other
 import com.cherryzp.animalshelter.resources.label_age
 import com.cherryzp.animalshelter.resources.label_color
@@ -53,6 +53,7 @@ import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.collapseSpaces
 import com.cherryzp.animalshelter.ui.common.formatWeight
 import com.cherryzp.animalshelter.ui.common.meaningfulText
+import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.titleParts
 import com.cherryzp.animalshelter.ui.common.toStatusUi
 import com.cherryzp.animalshelter.ui.common.uiText
@@ -111,7 +112,7 @@ fun Animal.ageValues(today: LocalDate): List<UiText> {
     val approx = when {
         isUnderTwoMonths -> uiText(Res.string.age_under_two_months)
         today.year - year <= 0 -> uiText(Res.string.age_under_one)
-        else -> uiText(Res.string.age_approx, today.year - year)
+        else -> pluralText(Res.plurals.age_approx, today.year - year)
     }
     return listOf(uiText(Res.string.age_year, year), approx)
 }
@@ -133,10 +134,10 @@ fun Neutered.detailValue(): UiText = when (this) {
     Neutered.UNKNOWN -> uiText(Res.string.choice_unknown)
 }
 
-/** 축종 보조 제목. */
+/** 축종 보조 제목(단수 — 필터 선택지 `kind_*`의 en 복수형 "Dogs"를 쓰지 않는다, F8). */
 fun AnimalKind.toUiText(): UiText = when (this) {
-    AnimalKind.DOG -> uiText(Res.string.kind_dog)
-    AnimalKind.CAT -> uiText(Res.string.kind_cat)
+    AnimalKind.DOG -> uiText(Res.string.detail_kind_dog)
+    AnimalKind.CAT -> uiText(Res.string.detail_kind_cat)
     AnimalKind.OTHER -> uiText(Res.string.kind_other)
 }
 
