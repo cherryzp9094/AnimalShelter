@@ -66,7 +66,8 @@ private val ShelterPaneWidth = 360.dp
 
 /**
  * 앱 탐색(03 0.3·0.4, 브리핑 B14). 지시는 `calculatePaneScaffoldDirective`(expanded 2칸, large 이상 3칸).
- * - 목록·북마크 목록 = `listPane`(창 폭 클래스마다 400·440·480dp) + 상세 자리표시
+ * - 목록·북마크 목록 = `listPane` + 상세 자리표시. 폭(창 폭 클래스마다 400·440·480dp)은 지시의
+ *   `defaultPanePreferredWidth`로 — 창 크기가 바뀌면 바로 따라간다
  * - 상세 = `detailPane`, 보호소 정보 = `extraPane`(360dp — large 이상에서 세 번째 칸)
  * - 필터·설정·사진 뷰어는 칸 메타데이터 없이 전체 화면
  * ViewModel은 entry 안에서 `koinViewModel()`(`rememberViewModelStoreNavEntryDecorator`가 entry별 범위를 준다).
@@ -77,12 +78,14 @@ private val ShelterPaneWidth = 360.dp
 fun AppNavDisplay() {
     val backStack = rememberNavBackStack(AppNavSavedStateConfiguration, AnimalListKey)
     val adaptiveInfo = currentWindowAdaptiveInfoV2()
-    val directive = calculatePaneScaffoldDirective(adaptiveInfo)
-    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
+    // 목록 칸 폭은 지시의 기본 폭으로 준다 — entry 메타데이터는 entry가 처음 만들어질 때 고정돼
+    // 웹에서 창 크기만 바꾸면(재생성 없음) 예전 폭이 남는다. 상세는 남는 폭, 보호소는 메타데이터 360dp.
     val listPaneWidth = listPaneWidthDp(adaptiveInfo.windowSizeClass.minWidthDp)
-    val listPaneMetadata = remember(listPaneWidth) {
-        ListDetailSceneStrategy.listPane(detailPlaceholder = { DetailPlaceholder() }) +
-            ListDetailSceneStrategy.preferredPaneSize(width = listPaneWidth.dp)
+    val directive = calculatePaneScaffoldDirective(adaptiveInfo)
+        .copy(defaultPanePreferredWidth = listPaneWidth.dp)
+    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
+    val listPaneMetadata = remember {
+        ListDetailSceneStrategy.listPane(detailPlaceholder = { DetailPlaceholder() })
     }
 
     Box(
