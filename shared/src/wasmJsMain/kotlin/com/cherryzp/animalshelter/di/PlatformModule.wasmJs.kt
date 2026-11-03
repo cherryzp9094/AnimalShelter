@@ -1,6 +1,7 @@
 package com.cherryzp.animalshelter.di
 
 import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
+import com.cherryzp.animalshelter.ui.common.ImageUrlResolver
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.js.Js
 import org.koin.core.module.Module
@@ -11,4 +12,9 @@ actual fun platformModule(): Module = module {
     single<HttpClientEngine> { Js.create() }
     // 사진은 메모리 캐시만(브라우저 HTTP 캐시가 뒤에 있다).
     single { ImageDiskCacheProvider { null } }
+    // 같은 origin 중계면 사진 주소가 `/img/…` — 지금 페이지의 origin을 붙인다
+    single { ImageUrlResolver { url -> if (url.startsWith("/")) pageOrigin() + url else url } }
 }
+
+@JsFun("() => window.location.origin")
+private external fun pageOrigin(): String

@@ -11,12 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
+import coil3.map.Mapper
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.crossfade
 import com.cherryzp.animalshelter.data.repository.SettingsRepository
 import com.cherryzp.animalshelter.model.ThemeMode
 import com.cherryzp.animalshelter.navigation.AppNavDisplay
 import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
+import com.cherryzp.animalshelter.ui.common.ImageUrlResolver
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import com.cherryzp.animalshelter.ui.theme.isDarkTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -35,9 +37,14 @@ private const val PHOTO_CROSSFADE_MILLIS = 150
 @Composable
 fun App() {
     val diskCacheProvider = koinInject<ImageDiskCacheProvider>()
+    val urlResolver = koinInject<ImageUrlResolver>()
     setSingletonImageLoaderFactory { context ->
         ImageLoader.Builder(context)
-            .components { add(KtorNetworkFetcherFactory()) }
+            .components {
+                // 상대 주소(웹 같은 origin 중계 `/img/…`)를 절대 주소로 — 기본 String 매퍼보다 먼저 돈다
+                add(Mapper<String, String> { data, _ -> urlResolver.resolve(data) })
+                add(KtorNetworkFetcherFactory())
+            }
             .crossfade(PHOTO_CROSSFADE_MILLIS)
             .diskCache { diskCacheProvider.diskCache() }
             .build()
