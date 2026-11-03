@@ -21,23 +21,14 @@ data class BookmarkListUiState(
 )
 
 /**
- * 되살린 카드([restoredKey])가 화면 밖이면 스크롤할 위치(F4). `LazyVerticalGrid`는 첫 보이는 항목의 key로 위치를
- * 지키므로 그보다 앞에 끼운 카드는 화면 위로 숨는다. [firstVisibleKey]·[lastVisibleKey]는 마지막 배치의 보이는 처음·끝
- * 항목 key. 되살린 카드가 그 사이(새 목록 기준)면 null — 이미 보인다. 목록에 아직 없으면 null.
+ * 되살린 카드([restoredKey])가 보이게 스크롤할 위치(F4). `LazyVerticalGrid`는 첫 보이는 항목의 key로 위치를 지키므로
+ * 그보다 앞에 끼운 카드는 화면 위로 숨는다(1열 첫 카드면 늘). [visibleTops]는 마지막 배치에서 보이는 항목 key → 위쪽
+ * 오프셋(px, 0 = 위 여백 바로 아래). 위 여백(8dp) 안에 걸친 항목도 "보이는" 목록에 들어오므로 위쪽이 0보다 위면 숨은 것으로
+ * 본다. 목록에 없거나 보이는 목록에 없거나 위가 잘렸으면 그 위치, 이미 보이면 null.
  */
-fun restoreScrollTarget(
-    keys: List<String>,
-    restoredKey: String,
-    firstVisibleKey: Any?,
-    lastVisibleKey: Any?,
-): Int? {
+fun restoreScrollTarget(keys: List<String>, restoredKey: String, visibleTops: Map<Any, Int>): Int? {
     val index = keys.indexOf(restoredKey)
     if (index < 0) return null
-    val first = keys.indexOf(firstVisibleKey)
-    val last = keys.indexOf(lastVisibleKey)
-    return when {
-        first < 0 || last < 0 -> index
-        index < first || index > last -> index
-        else -> null
-    }
+    val top = visibleTops[restoredKey] ?: return index
+    return index.takeIf { top < 0 }
 }

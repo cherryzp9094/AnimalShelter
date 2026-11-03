@@ -103,12 +103,10 @@ fun BookmarkListScreen(
     LaunchedEffect(restoredKey, state.items) {
         if (restoredKey == null) return@LaunchedEffect
         if (state.items.none { it.desertionNo == restoredKey }) return@LaunchedEffect
-        val visible = gridState.layoutInfo.visibleItemsInfo
         restoreScrollTarget(
             keys = state.items.map { it.desertionNo },
             restoredKey = restoredKey,
-            firstVisibleKey = visible.firstOrNull()?.key,
-            lastVisibleKey = visible.lastOrNull()?.key
+            visibleTops = gridState.layoutInfo.visibleItemsInfo.associate { it.key to it.offset.y }
         )?.let { gridState.requestScrollToItem(it) }
         currentRestoreShown()
     }

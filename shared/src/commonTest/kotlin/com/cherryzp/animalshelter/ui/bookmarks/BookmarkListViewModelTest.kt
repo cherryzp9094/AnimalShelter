@@ -169,17 +169,17 @@ class BookmarkListViewModelTest {
     }
 
     @Test
-    fun `되살린 카드가 보이는 범위 밖일 때만 스크롤 위치(F4)`() {
+    fun `되살린 카드가 숨었을 때만 스크롤 위치(F4)`() {
         val keys = listOf("A", "B", "C", "D", "E")
-        // 1열: 첫 카드를 되살렸는데 첫 보이는 것이 B → 0으로
-        assertEquals(0, restoreScrollTarget(keys, "A", firstVisibleKey = "B", lastVisibleKey = "C"))
-        // 보이는 범위 안이면 그대로
-        assertNull(restoreScrollTarget(keys, "C", "B", "D"))
-        // 아래로 벗어나도 보이게
-        assertEquals(4, restoreScrollTarget(keys, "E", "A", "C"))
-        // 배치 정보가 없으면 그 자리로, 목록에 아직 없으면 null
-        assertEquals(1, restoreScrollTarget(keys, "B", null, null))
-        assertNull(restoreScrollTarget(keys, "Z", "A", "C"))
+        // 1열: 첫 카드를 되살렸는데 위 여백에 걸쳐 위가 잘렸다(실측 -515px) → 0으로
+        assertEquals(0, restoreScrollTarget(keys, "A", mapOf("A" to -515, "B" to 8, "C" to 531)))
+        // 위가 보이면 그대로
+        assertNull(restoreScrollTarget(keys, "C", mapOf("B" to 0, "C" to 0, "D" to 300)))
+        // 보이는 목록에 없으면(위·아래로 벗어남, 배치 전) 그 자리로
+        assertEquals(4, restoreScrollTarget(keys, "E", mapOf("A" to 0, "B" to 0)))
+        assertEquals(1, restoreScrollTarget(keys, "B", emptyMap()))
+        // 목록에 아직 없으면 null
+        assertNull(restoreScrollTarget(keys, "Z", mapOf("A" to 0)))
     }
 
     @Test
