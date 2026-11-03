@@ -1,27 +1,37 @@
 package com.cherryzp.animalshelter.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.cherryzp.animalshelter.data.api.toBasicString
 import com.cherryzp.animalshelter.ui.bookmarks.BookmarkListScreen
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailScreen
+import com.cherryzp.animalshelter.ui.detail.DetailPlaceholder
 import com.cherryzp.animalshelter.ui.filter.FilterScreen
 import com.cherryzp.animalshelter.ui.list.AnimalListScreen
 import com.cherryzp.animalshelter.ui.photo.PhotoViewerScreen
-import com.cherryzp.animalshelter.ui.placeholder.DetailPlaceholderPane
-import com.cherryzp.animalshelter.ui.placeholder.PlaceholderScreen
-import com.cherryzp.animalshelter.ui.placeholder.SettingsPlaceholderScreen
 import com.cherryzp.animalshelter.ui.settings.SettingsScreen
 import com.cherryzp.animalshelter.ui.shelter.ShelterInfoScreen
 import kotlinx.serialization.modules.SerializersModule
@@ -48,19 +58,50 @@ internal val AppNavSavedStateConfiguration = SavedStateConfiguration {
     }
 }
 
+/** 앱 전체 최대 폭. 넘치면 가운데, 바깥은 `background`(03 0.4 extra-large). */
+private val AppMaxWidth = 1600.dp
+
+/** 보호소 정보(extraPane) 칸 폭. */
+private val ShelterPaneWidth = 360.dp
+
 /**
- * 앱 탐색. 두 칸(목록 + 상세)은 창 폭 ≥ 840dp(expanded)부터, 그 아래는 한 칸(03-screens 0.4).
- * 목록·필터는 실제 화면(Phase 3a), 상세·사진·북마크·보호소·설정은 자리표시(3b가 바꾼다).
+ * 앱 탐색(03 0.3·0.4, 브리핑 B14). 지시는 `calculatePaneScaffoldDirective`(expanded 2칸, large 이상 3칸).
+ * - 목록·북마크 목록 = `listPane`(창 폭 클래스마다 400·440·480dp) + 상세 자리표시
+ * - 상세 = `detailPane`, 보호소 정보 = `extraPane`(360dp — large 이상에서 세 번째 칸)
+ * - 필터·설정·사진 뷰어는 칸 메타데이터 없이 전체 화면
  * ViewModel은 entry 안에서 `koinViewModel()`(`rememberViewModelStoreNavEntryDecorator`가 entry별 범위를 준다).
+ * 칸이 바뀌어도 그리드·페이저·스크롤 상태는 entry 안의 `remember…State`/`rememberSaveable`이 지킨다.
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun AppNavDisplay() {
     val backStack = rememberNavBackStack(AppNavSavedStateConfiguration, AnimalListKey)
-    val directive = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())
+    val adaptiveInfo = currentWindowAdaptiveInfoV2()
+    val directive = calculatePaneScaffoldDirective(adaptiveInfo)
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
+    val listPaneWidth = listPaneWidthDp(adaptiveInfo.windowSizeClass.minWidthDp)
+    val listPaneMetadata = remember(listPaneWidth) {
+        ListDetailSceneStrategy.listPane(detailPlaceholder = { DetailPlaceholder() }) +
+            ListDetailSceneStrategy.preferredPaneSize(width = listPaneWidth.dp)
+    }
 
+    Box(
+        contentAlignment = Alignment.TopCenter,
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+    ) {
+        AppNavDisplay(backStack, listDetailStrategy, listPaneMetadata)
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun AppNavDisplay(
+    backStack: NavBackStack<NavKey>,
+    listDetailStrategy: SceneStrategy<NavKey>,
+    listPaneMetadata: Map<String, Any>,
+) {
     NavDisplay(
+        modifier = Modifier.widthIn(max = AppMaxWidth).fillMaxHeight(),
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryDecorators = listOf(
@@ -69,11 +110,7 @@ fun AppNavDisplay() {
         ),
         sceneStrategies = listOf(listDetailStrategy),
         entryProvider = entryProvider {
-            entry<AnimalListKey>(
-                metadata = ListDetailSceneStrategy.listPane(
-                    detailPlaceholder = { DetailPlaceholderPane() }
-                )
-            ) {
+            entry<AnimalListKey>(metadata = listPaneMetadata) {
                 AnimalListScreen(
                     viewModel = koinViewModel(),
                     onOpenFilter = { backStack.add(FilterKey) },
@@ -111,11 +148,7 @@ fun AppNavDisplay() {
                     onClose = { backStack.removeLastOrNull() }
                 )
             }
-            entry<BookmarkListKey>(
-                metadata = ListDetailSceneStrategy.listPane(
-                    detailPlaceholder = { DetailPlaceholderPane() }
-                )
-            ) {
+            entry<BookmarkListKey>(metadata = listPaneMetadata) {
                 BookmarkListScreen(
                     viewModel = koinViewModel(),
                     onBack = { backStack.removeLastOrNull() },
@@ -130,7 +163,10 @@ fun AppNavDisplay() {
                     }
                 )
             }
-            entry<ShelterInfoKey> { key ->
+            entry<ShelterInfoKey>(
+                metadata = ListDetailSceneStrategy.extraPane() +
+                    ListDetailSceneStrategy.preferredPaneSize(width = ShelterPaneWidth)
+            ) { key ->
                 ShelterInfoScreen(
                     viewModel = koinViewModel { parametersOf(key) },
                     onBack = { backStack.removeLastOrNull() },
