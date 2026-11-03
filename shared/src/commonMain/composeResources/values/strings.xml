@@ -183,4 +183,19 @@
     <string name="shelter_limited_info">자세한 정보가 등록되지 않은 보호소예요.</string>
     <string name="shelter_stale_notice">오래된 정보일 수 있어요(기준일 %1$s).</string>
     <string name="shelter_not_found">보호소 정보를 찾지 못했어요.</string>
+    <string name="setting_list_layout">목록 보기</string>
+    <string name="layout_grid">2열 · 사진 그리드</string>
+    <string name="layout_large">1열 · 큰 사진</string>
+    <string name="layout_large_text_hint">글자 크기가 크면 1열로 보여요.</string>
+    <string name="setting_theme">테마</string>
+    <string name="theme_system">시스템</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+    <string name="setting_about">정보</string>
+    <string name="about_version">버전 %1$s</string>
+    <string name="setting_endpoint">API 연결(디버그)</string>
+    <string name="endpoint_direct">공공데이터 API 직접</string>
+    <string name="endpoint_relay">중계 서버 %1$s</string>
+    <string name="endpoint_fixture">픽스처(실호출 없음)</string>
+    <string name="setting_endpoint_hint">다음 요청부터 바뀌어요.</string>
 </resources>
