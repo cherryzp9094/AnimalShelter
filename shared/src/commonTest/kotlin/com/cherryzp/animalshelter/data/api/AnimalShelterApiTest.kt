@@ -117,6 +117,31 @@ class AnimalShelterApiTest {
     }
 
     @Test
+    fun `표시 이름은 조회 파라미터에 붙지 않는다`() = runTest {
+        val harness = ApiTestHarness(handler = jsonOk(ApiFixtures.abandonmentPublicV2P1))
+        val codes = SearchFilter(
+            kind = AnimalKind.DOG,
+            kindCode = "000054",
+            sidoCode = "6110000",
+            sigunguCode = "3220000",
+            shelterRegNo = "311322200900001"
+        )
+        val named = codes.copy(
+            kindName = "골든 리트리버",
+            sidoName = "서울특별시",
+            sigunguName = "강남구",
+            shelterName = "보호소"
+        )
+
+        harness.api.searchAnimals(codes, pageNo = 1)
+        harness.api.searchAnimals(named, pageNo = 1)
+
+        val (withoutNames, withNames) = harness.urls.map { it.parameters }
+        assertEquals(withoutNames.names(), withNames.names())
+        withoutNames.names().forEach { assertEquals(withoutNames[it], withNames[it]) }
+    }
+
+    @Test
     fun `품종 조회는 up_kind_cd`() = runTest {
         val harness = ApiTestHarness(handler = jsonOk(ApiFixtures.kindV2Dog))
 

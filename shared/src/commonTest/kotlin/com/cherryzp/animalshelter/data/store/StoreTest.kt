@@ -95,6 +95,37 @@ class StoreTest {
     }
 
     @Test
+    fun `표시 이름이 없는 옛 저장 조건도 읽고 이름은 null`() {
+        val old = preferencesOf(
+            SettingsStore.LAST_FILTER to
+                """{"kind":"CAT","sidoCode":"6110000","sigunguCode":"3220000","state":"NOTICE"}"""
+        ).toSettings().lastFilter
+
+        assertEquals(
+            SearchFilter(
+                kind = AnimalKind.CAT,
+                sidoCode = "6110000",
+                sigunguCode = "3220000",
+                state = NoticeState.NOTICE
+            ),
+            old
+        )
+        assertNull(old?.sidoName)
+        assertNull(old?.kindName)
+    }
+
+    @Test
+    fun `표시 이름도 저장했다가 그대로 읽는다`() = runTest {
+        withTestStores { stores ->
+            val store = stores.settings()
+            val filter = SearchFilter(sidoCode = "6110000", sidoName = "서울특별시", shelterName = "보호소")
+            store.saveLastFilter(filter)
+
+            assertEquals(filter, store.settings.first().lastFilter)
+        }
+    }
+
+    @Test
     fun `저장된 조건에 모르는 필드가 있어도 읽는다`() {
         val settings = preferencesOf(
             SettingsStore.LAST_FILTER to """{"sidoCode":"6110000","futureField":1}"""
