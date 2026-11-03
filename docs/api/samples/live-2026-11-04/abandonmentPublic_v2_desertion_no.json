@@ -1,0 +1,47 @@
+{
+  "response": {
+    "header": {
+      "reqNo": 64596834,
+      "resultCode": "00",
+      "resultMsg": "NORMAL SERVICE."
+    },
+    "body": {
+      "items": {
+        "item": [
+          {
+            "desertionNo": "413587202600490",
+            "happenDt": "20261103",
+            "happenPlace": "해남읍 호천리, 해진철물수도사 부근",
+            "kindFullNm": "[개] 믹스견",
+            "upKindCd": "417000",
+            "upKindNm": "개",
+            "kindCd": "000114",
+            "kindNm": "믹스견",
+            "colorCd": "갈색",
+            "age": "2026(년생)",
+            "weight": "8.25(Kg)",
+            "noticeNo": "광주-해남-2026-00114",
+            "noticeSdt": "20261104",
+            "noticeEdt": "20261116",
+            "popfile1": "http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031911808.jpg",
+            "popfile2": "http://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/10/202611031911821.jpg",
+            "processState": "보호중",
+            "sexCd": "M",
+            "neuterYn": "U",
+            "specialMark": "작지만 의젓하고 듬직함. 목걸이(붉은계열) 및 목줄착용.",
+            "careRegNo": "346493200900001",
+            "careNm": "해남유기동물보호센터",
+            "careTel": "061-531-3916",
+            "careAddr": "전라남도 해남군 해남읍 용머리길 14-37  ",
+            "careOwnerNm": "(가림)",
+            "orgNm": "전남광주통합특별시 해남군",
+            "updTm": "2026-11-03 19:01:04.0"
+          }
+        ]
+      },
+      "numOfRows": 1,
+      "pageNo": 1,
+      "totalCount": 1
+    }
+  }
+}
