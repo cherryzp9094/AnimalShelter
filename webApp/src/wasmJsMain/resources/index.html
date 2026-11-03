@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>애니멀 쉘터</title>
+    <style>
+        html, body { height: 100%; margin: 0; }
+        body { background: #f6fafe; color: #171c1f; font-family: system-ui, sans-serif; }
+        @media (prefers-color-scheme: dark) { body { background: #0f1417; color: #dee3e7; } }
+        #root { position: relative; z-index: 1; width: 100%; height: 100%; }
+        #loading { position: fixed; inset: 0; display: grid; place-items: center; }
+    </style>
+</head>
+<body>
+<!-- 로딩 문구는 Compose가 #root를 채우면 가려진다. 꾸밈은 Phase 4. -->
+<div id="loading">애니멀 쉘터를 불러오는 중…</div>
+<div id="root"></div>
+<script src="animalshelter.js"></script>
+</body>
+</html>
