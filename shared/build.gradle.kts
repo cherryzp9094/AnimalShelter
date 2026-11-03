@@ -87,6 +87,8 @@ kotlin {
             implementation(libs.androidx.datastore.core.okio)
             implementation(libs.androidx.datastore.preferences.core)
             implementation(libs.okio)
+            // Fixture 엔드포인트(키 없는 빌드·디버그 강제 픽스처)가 런타임에 MockEngine을 쓴다.
+            implementation(libs.ktor.client.mock)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
@@ -99,7 +101,6 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
-            implementation(libs.ktor.client.mock)
             implementation(libs.koin.test)
         }
         getByName("androidDeviceTest").dependencies {

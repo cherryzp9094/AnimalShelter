@@ -1,7 +1,7 @@
 package com.cherryzp.animalshelter.data.api.dto
 
 import com.cherryzp.animalshelter.data.api.ApiJson
-import com.cherryzp.animalshelter.fixtures.ApiFixtures
+import com.cherryzp.animalshelter.data.api.fixture.ApiFixtures
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

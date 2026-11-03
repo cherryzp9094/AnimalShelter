@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""docs/api/samples의 실제 응답 JSON을 commonTest용 Kotlin 문자열 상수로 만든다.
+"""docs/api/samples의 실제 응답 JSON을 Kotlin 문자열 상수로 만든다.
 
 실행(저장소 루트): python3 -I tools/gen_fixtures.py
-출력: shared/src/commonTest/kotlin/com/cherryzp/animalshelter/fixtures/ApiFixtures.kt
+출력: shared/src/commonMain/kotlin/com/cherryzp/animalshelter/data/api/fixture/ApiFixtures.kt
+입력: docs/api/samples/live-*/*.json(정렬) + docs/api/samples/gateway_error_30.json
 
-commonTest 리소스 파일 읽기는 wasmJs에서 불안정하므로 문자열 상수로 넣는다(02-data 11절).
+Fixture 엔드포인트(키 없는 빌드·디버그 강제 픽스처)와 테스트가 같이 쓰므로 commonMain에 둔다.
+리소스 파일 읽기는 wasmJs에서 불안정하므로 문자열 상수로 넣는다(02-data 11절).
+상수 이름이 겹치면 실패한다.
 Kotlin raw string(\"\"\"...\"\"\")에 넣으므로 `$`와 `\"\"\"`가 있으면 실패한다.
 """
 
@@ -15,8 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLES = ROOT / "docs" / "api" / "samples"
-SOURCES = sorted((SAMPLES / "live-2026-11-03").glob("*.json")) + [SAMPLES / "gateway_error_30.json"]
-OUT = ROOT / "shared/src/commonTest/kotlin/com/cherryzp/animalshelter/fixtures/ApiFixtures.kt"
+SOURCES = sorted(SAMPLES.glob("live-*/*.json")) + [SAMPLES / "gateway_error_30.json"]
+OUT = ROOT / "shared/src/commonMain/kotlin/com/cherryzp/animalshelter/data/api/fixture/ApiFixtures.kt"
 
 
 def kotlin_name(path: Path) -> str:
@@ -34,16 +37,20 @@ def main() -> int:
         if "$" in text or '"""' in text:
             print(f"gen_fixtures: {src.relative_to(ROOT)}에 $ 또는 \"\"\"가 있어 raw string에 넣을 수 없다", file=sys.stderr)
             return 1
-        entries.append((kotlin_name(src), src.relative_to(ROOT).as_posix(), text.rstrip("\n")))
+        name = kotlin_name(src)
+        if any(name == e[0] for e in entries):
+            print(f"gen_fixtures: 상수 이름 {name}이(가) 겹친다({src.relative_to(ROOT)})", file=sys.stderr)
+            return 1
+        entries.append((name, src.relative_to(ROOT).as_posix(), text.rstrip("\n")))
 
     lines = [
         "// 생성 파일: python3 -I tools/gen_fixtures.py (직접 고치지 않는다)",
-        "// 원본: docs/api/samples (2026-11-03 실제 응답, 인증키 없음)",
+        "// 원본: docs/api/samples (실제 응답, 인증키 없음). Fixture 엔드포인트와 테스트가 같이 쓴다.",
         "@file:Suppress(\"ktlint\")",
         "",
-        "package com.cherryzp.animalshelter.fixtures",
+        "package com.cherryzp.animalshelter.data.api.fixture",
         "",
-        "object ApiFixtures {",
+        "internal object ApiFixtures {",
     ]
     for name, rel, text in entries:
         lines.append(f"    /** {rel} */")

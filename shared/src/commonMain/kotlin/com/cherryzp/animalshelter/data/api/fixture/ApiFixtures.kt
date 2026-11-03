@@ -1,10 +1,10 @@
 // 생성 파일: python3 -I tools/gen_fixtures.py (직접 고치지 않는다)
-// 원본: docs/api/samples (2026-11-03 실제 응답, 인증키 없음)
+// 원본: docs/api/samples (실제 응답, 인증키 없음). Fixture 엔드포인트와 테스트가 같이 쓴다.
 @file:Suppress("ktlint")
 
-package com.cherryzp.animalshelter.fixtures
+package com.cherryzp.animalshelter.data.api.fixture
 
-object ApiFixtures {
+internal object ApiFixtures {
     /** docs/api/samples/live-2026-11-03/abandonmentPublic_v2_empty.json */
     val abandonmentPublicV2Empty: String = """
 {
