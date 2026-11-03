@@ -1,0 +1,13 @@
+#!/bin/sh
+# 키 재유출 방지 훅. 설정: git config core.hooksPath .githooks (클론마다)
+set -e
+root=$(git rev-parse --show-toplevel)
+
+GITLEAKS=$(command -v gitleaks || echo /usr/local/bin/gitleaks)
+if [ ! -x "$GITLEAKS" ]; then
+    echo "pre-commit: gitleaks가 없다(/usr/local/bin/gitleaks 8.30.1 필요). 커밋을 막는다." >&2
+    exit 1
+fi
+
+"$GITLEAKS" protect --staged --redact --no-banner --config "$root/.gitleaks.toml"
+sh "$root/tools/check_secrets.sh"

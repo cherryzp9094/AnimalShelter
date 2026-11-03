@@ -1,0 +1,12 @@
+# gitleaks 설정: 기본 규칙 + 공공데이터포털 인증키 모양.
+# local.properties·relay/.dev.vars는 git 제외 파일이라 staged 검사 대상이 아니다(allowlist 불필요).
+title = "AnimalShelter gitleaks"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "data-go-kr-service-key"
+description = "공공데이터포털 인증키(serviceKey / SERVICE_KEY 대입)"
+regex = '''(?i)(serviceKey|SERVICE_KEY)\s*[=:]\s*["']?[A-Za-z0-9%+/=]{40,}'''
+keywords = ["servicekey", "service_key"]
