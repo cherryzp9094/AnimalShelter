@@ -10,7 +10,10 @@ plugins {
 val localProperties: Properties = Properties().apply {
     rootProject.file("local.properties").takeIf { it.isFile }?.inputStream()?.use(::load)
 }
-val serviceKey: String = localProperties.getProperty("SERVICE_KEY").orEmpty()
+// -Pfixture=true면 키가 있어도 빈 문자열을 넣는다 → 앱이 Fixture 엔드포인트로 뜬다(캡처·수동 확인용).
+val forceFixture: Boolean = providers.gradleProperty("fixture").orNull == "true"
+val serviceKey: String =
+    if (forceFixture) "" else localProperties.getProperty("SERVICE_KEY").orEmpty()
 
 // 에뮬레이터에서 호스트의 중계 서버(wrangler dev)에 닿는 주소가 기본값이다.
 val relayBaseUrl: String = localProperties.getProperty("RELAY_BASE_URL") ?: "http://10.0.2.2:8788"
