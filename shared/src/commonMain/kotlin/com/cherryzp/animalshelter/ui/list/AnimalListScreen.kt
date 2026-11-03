@@ -115,8 +115,8 @@ fun AnimalListScreen(
     onSortChipClicked: () -> Unit,
     onToggleLayout: () -> Unit,
     onToggleBookmark: (desertionNo: String) -> Unit,
-    onMessageShown: () -> Unit,
-    onMessageAction: (MessageAction) -> Unit,
+    onMessageShown: (id: Long) -> Unit,
+    onMessageAction: (action: MessageAction, id: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -127,8 +127,8 @@ fun AnimalListScreen(
         message = state.message,
         snackbarHostState = snackbarHostState,
         onShown = onMessageShown,
-        onAction = { action ->
-            onMessageAction(action)
+        onAction = { action, id ->
+            onMessageAction(action, id)
             if (action == MessageAction.VIEW_BOOKMARKS) onOpenBookmarks()
         }
     )
@@ -309,7 +309,7 @@ private fun PreviewList(state: AnimalListUiState) {
             onToggleLayout = {},
             onToggleBookmark = {},
             onMessageShown = {},
-            onMessageAction = {}
+            onMessageAction = { _, _ -> }
         )
     }
 }

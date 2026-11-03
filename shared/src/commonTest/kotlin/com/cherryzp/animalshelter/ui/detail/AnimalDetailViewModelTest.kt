@@ -29,6 +29,7 @@ import com.cherryzp.animalshelter.resources.external_open_failed
 import com.cherryzp.animalshelter.resources.hours_range
 import com.cherryzp.animalshelter.resources.today_hours
 import com.cherryzp.animalshelter.testing.FakeClock
+import com.cherryzp.animalshelter.testing.content
 import com.cherryzp.animalshelter.testing.runMainTest
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.UiMessage
@@ -36,6 +37,7 @@ import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -173,7 +175,7 @@ class AnimalDetailViewModelTest {
         assertNull(env.state.error)
         assertEquals(
             UiMessage(uiText(Res.string.error_network), MessageAction.RETRY),
-            env.state.message
+            env.state.message.content()
         )
     }
 
@@ -202,13 +204,13 @@ class AnimalDetailViewModelTest {
         env.vm.onToggleBookmark()
         advanceUntilIdle()
         assertTrue(env.state.isBookmarked)
-        assertEquals(UiMessage(uiText(Res.string.bookmark_added)), env.state.message)
+        assertEquals(UiMessage(uiText(Res.string.bookmark_added)), env.state.message.content())
 
-        env.vm.onMessageShown()
+        env.vm.onMessageShown(env.state.message!!.id)
         env.vm.onToggleBookmark()
         advanceUntilIdle()
         assertFalse(env.state.isBookmarked)
-        assertEquals(UiMessage(uiText(Res.string.bookmark_removed)), env.state.message)
+        assertEquals(UiMessage(uiText(Res.string.bookmark_removed)), env.state.message.content())
         assertEquals(listOf(no), env.bookmarkFake.removeCalls)
     }
 
@@ -224,7 +226,10 @@ class AnimalDetailViewModelTest {
         advanceUntilIdle()
 
         assertFalse(env.state.isBookmarked)
-        assertEquals(UiMessage(uiText(Res.string.bookmark_save_failed)), env.state.message)
+        assertEquals(
+            UiMessage(uiText(Res.string.bookmark_save_failed)),
+            env.state.message.content()
+        )
     }
 
     @Test
@@ -261,15 +266,40 @@ class AnimalDetailViewModelTest {
         assertNull(env.state.message)
         env.vm.onExternalActionResult(opened = false)
         advanceUntilIdle()
-        assertEquals(UiMessage(uiText(Res.string.external_open_failed)), env.state.message)
+        assertEquals(
+            UiMessage(uiText(Res.string.external_open_failed)),
+            env.state.message.content()
+        )
 
-        env.vm.onMessageShown()
+        env.vm.onMessageShown(env.state.message!!.id)
         env.vm.onCopyResult(CopyFeedback.SHOWN_BY_SYSTEM)
         advanceUntilIdle()
         assertNull(env.state.message) // Android 13 이상은 시스템이 알린다
         env.vm.onCopyResult(CopyFeedback.NEEDS_APP_MESSAGE)
         advanceUntilIdle()
-        assertEquals(UiMessage(uiText(Res.string.address_copied)), env.state.message)
+        assertEquals(UiMessage(uiText(Res.string.address_copied)), env.state.message.content())
+    }
+
+    @Test
+    fun `같은 안내가 연달아 와도 id가 달라 다시 보이고, 지난 안내를 보였다고 해도 새 것은 남는다(F3)`() = runVmTest {
+        val env = start(Env())
+        env.vm.onExternalActionResult(opened = false)
+        advanceUntilIdle()
+        val first = env.state.message!!
+        env.vm.onExternalActionResult(opened = false)
+        advanceUntilIdle()
+        val second = env.state.message!!
+
+        assertEquals(first.content(), second.content())
+        assertNotEquals(first.id, second.id)
+        assertNotEquals(first, second)
+
+        env.vm.onMessageShown(first.id)
+        advanceUntilIdle()
+        assertEquals(second, env.state.message)
+        env.vm.onMessageShown(second.id)
+        advanceUntilIdle()
+        assertNull(env.state.message)
     }
 
     @Test

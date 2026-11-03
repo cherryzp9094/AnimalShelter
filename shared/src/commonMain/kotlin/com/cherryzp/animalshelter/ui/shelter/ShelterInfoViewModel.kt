@@ -11,8 +11,10 @@ import com.cherryzp.animalshelter.platform.CopyFeedback
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.address_copied
 import com.cherryzp.animalshelter.resources.external_open_failed
+import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
+import com.cherryzp.animalshelter.ui.common.clearIfShown
 import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.time.Clock
@@ -38,6 +40,7 @@ class ShelterInfoViewModel(
     private val config: AppConfig,
 ) : ViewModel() {
     private val message = MutableStateFlow<UiMessage?>(null)
+    private val messages = MessageIds()
 
     private val fallback = ShelterFallbackUi(
         name = key.fallbackName?.trim()?.ifEmpty { null },
@@ -97,18 +100,19 @@ class ShelterInfoViewModel(
     }
 
     fun onExternalActionResult(opened: Boolean) {
-        if (!opened) message.value = UiMessage(uiText(Res.string.external_open_failed))
+        if (!opened) message.value = messages.create(uiText(Res.string.external_open_failed))
     }
 
     fun onCopyResult(feedback: CopyFeedback) {
         message.value = when (feedback) {
             CopyFeedback.SHOWN_BY_SYSTEM -> return
-            CopyFeedback.NEEDS_APP_MESSAGE -> UiMessage(uiText(Res.string.address_copied))
-            CopyFeedback.FAILED -> UiMessage(uiText(Res.string.external_open_failed))
+            CopyFeedback.NEEDS_APP_MESSAGE -> messages.create(uiText(Res.string.address_copied))
+            CopyFeedback.FAILED -> messages.create(uiText(Res.string.external_open_failed))
         }
     }
 
-    fun onMessageShown() {
-        message.update { null }
+    /** 보여 준 안내([id])가 지금 것일 때만 지운다(F3). */
+    fun onMessageShown(id: Long) {
+        message.update { it.clearIfShown(id) }
     }
 }

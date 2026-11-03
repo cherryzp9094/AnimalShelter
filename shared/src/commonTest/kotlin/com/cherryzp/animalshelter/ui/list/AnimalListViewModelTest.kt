@@ -30,6 +30,7 @@ import com.cherryzp.animalshelter.resources.list_noticing_count
 import com.cherryzp.animalshelter.resources.list_total_count
 import com.cherryzp.animalshelter.resources.sort_too_many
 import com.cherryzp.animalshelter.testing.FakeClock
+import com.cherryzp.animalshelter.testing.content
 import com.cherryzp.animalshelter.testing.runMainTest
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.UiMessage
@@ -211,10 +212,10 @@ class AnimalListViewModelTest {
         advanceUntilIdle()
         assertEquals(
             UiMessage(uiText(Res.string.error_network), MessageAction.RETRY),
-            env.state.message
+            env.state.message.content()
         )
 
-        env.vm.onMessageShown()
+        env.vm.onMessageShown(env.state.message!!.id)
         env.animals.results.value =
             loaded(items = testAnimals(4)).copy(error = ApiError.Network, errorId = 1)
         advanceUntilIdle()
@@ -250,7 +251,7 @@ class AnimalListViewModelTest {
 
         env.vm.onRefresh(byPull = true)
         advanceUntilIdle()
-        env.vm.onMessageAction(MessageAction.RETRY)
+        env.vm.onMessageAction(MessageAction.RETRY, id = 0)
         advanceUntilIdle()
         assertEquals(2, env.animals.refreshCalls)
     }
@@ -266,7 +267,10 @@ class AnimalListViewModelTest {
             loaded().copy(error = ApiError.TooManyResults(7544), errorId = 1)
         advanceUntilIdle()
 
-        assertEquals(UiMessage(uiText(Res.string.sort_too_many), action = null), env.state.message)
+        assertEquals(
+            UiMessage(uiText(Res.string.sort_too_many), action = null),
+            env.state.message.content()
+        )
         assertEquals(SortOrder.LATEST, env.state.sort)
         assertNull(env.state.fullScreen)
     }

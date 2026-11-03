@@ -130,7 +130,7 @@ fun ShelterInfoScreen(
     onDial: (String) -> Unit,
     onOpenMap: (MapTarget) -> Unit,
     onCopyAddress: (String) -> Unit,
-    onMessageShown: () -> Unit,
+    onMessageShown: (id: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -139,7 +139,7 @@ fun ShelterInfoScreen(
         message = state.message,
         snackbarHostState = snackbarHostState,
         onShown = onMessageShown,
-        onAction = { onMessageShown() }
+        onAction = { _, id -> onMessageShown(id) }
     )
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),

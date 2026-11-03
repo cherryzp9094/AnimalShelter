@@ -147,8 +147,8 @@ fun AnimalDetailScreen(
     onDial: (String) -> Unit,
     onOpenMap: (MapTarget) -> Unit,
     onCopyAddress: (String) -> Unit,
-    onMessageShown: () -> Unit,
-    onMessageAction: (MessageAction) -> Unit,
+    onMessageShown: (id: Long) -> Unit,
+    onMessageAction: (action: MessageAction, id: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -354,7 +354,7 @@ private fun PreviewDetail(
             onOpenMap = {},
             onCopyAddress = {},
             onMessageShown = {},
-            onMessageAction = {},
+            onMessageAction = { _, _ -> },
             modifier = modifier
         )
     }

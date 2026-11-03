@@ -13,7 +13,9 @@ import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.resources.bookmark_save_failed
 import com.cherryzp.animalshelter.resources.bookmarks_recovered
 import com.cherryzp.animalshelter.ui.common.MessageAction
+import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
+import com.cherryzp.animalshelter.ui.common.clearIfShown
 import com.cherryzp.animalshelter.ui.common.toCardUi
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.time.Clock
@@ -32,8 +34,6 @@ import kotlinx.coroutines.launch
 /** 북마크 복구 안내(B11). 목록·북마크 화면이 같은 문구로 한 번 낸다. */
 val RecoveryNotice: UiMessage = UiMessage(uiText(Res.string.bookmarks_recovered))
 
-private val SaveFailed = UiMessage(uiText(Res.string.bookmark_save_failed))
-
 /**
  * 북마크 목록(03 2.5, 브리핑 B10·B11). 카드는 목록과 같은 [toCardUi](오늘 기준 배지, 지금 엔드포인트의 사진).
  * 카드의 북마크를 누르면 바로 지우고 "되돌리기"를 단다 — 되돌리기는 지운 스냅샷으로 다시 `add`.
@@ -48,6 +48,7 @@ class BookmarkListViewModel(
     private data class Local(val message: UiMessage? = null, val lastRemoved: Animal? = null)
 
     private val local = MutableStateFlow(Local())
+    private val messages = MessageIds()
 
     private val layout = settings.getSettingsStream().map { it.listLayout }.distinctUntilChanged()
     private val endpoint = settings.getSettingsStream().map { endpoints.current() }
@@ -89,7 +90,7 @@ class BookmarkListViewModel(
                 bookmarks.remove(desertionNo)
                 local.update {
                     it.copy(
-                        message = UiMessage(
+                        message = messages.create(
                             uiText(Res.string.bookmark_removed),
                             MessageAction.UNDO
                         ),
@@ -99,7 +100,7 @@ class BookmarkListViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                local.update { it.copy(message = SaveFailed) }
+                local.update { it.copy(message = saveFailed()) }
             }
         }
     }
@@ -112,15 +113,19 @@ class BookmarkListViewModel(
         }
     }
 
-    fun onMessageShown() {
-        if (local.value.message == RecoveryNotice) bookmarks.dismissRecoveryNotice()
-        local.update { it.copy(message = null) }
+    /** 보여 준 안내([id])가 지금 것일 때만 지운다(F3). */
+    fun onMessageShown(id: Long) {
+        val current = local.value.message
+        if (current?.id != id) return
+        if (current == RecoveryNotice) bookmarks.dismissRecoveryNotice()
+        local.update { it.copy(message = it.message.clearIfShown(id)) }
     }
 
     /** 되돌리기 = 지운 스냅샷으로 다시 추가(맨 앞에 온다). */
-    fun onMessageAction(action: MessageAction) {
+    fun onMessageAction(action: MessageAction, id: Long) {
+        if (local.value.message?.id != id) return
         val restore = local.value.lastRemoved
-        onMessageShown()
+        onMessageShown(id)
         if (action != MessageAction.UNDO || restore == null) return
         local.update { it.copy(lastRemoved = null) }
         viewModelScope.launch {
@@ -129,8 +134,10 @@ class BookmarkListViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                local.update { it.copy(message = SaveFailed) }
+                local.update { it.copy(message = saveFailed()) }
             }
         }
     }
+
+    private fun saveFailed(): UiMessage = messages.create(uiText(Res.string.bookmark_save_failed))
 }

@@ -13,6 +13,7 @@ import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.testing.FakeClock
+import com.cherryzp.animalshelter.testing.content
 import com.cherryzp.animalshelter.testing.runMainTest
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.StatusKind
@@ -22,6 +23,7 @@ import com.cherryzp.animalshelter.ui.list.AnimalListViewModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
@@ -89,14 +91,36 @@ class BookmarkListViewModelTest {
         assertTrue(env.state.isEmpty)
         assertEquals(
             UiMessage(uiText(Res.string.bookmark_removed), MessageAction.UNDO),
-            env.state.message
+            env.state.message.content()
         )
 
-        env.vm.onMessageAction(MessageAction.UNDO)
+        env.vm.onMessageAction(MessageAction.UNDO, env.state.message!!.id)
         advanceUntilIdle()
         assertNull(env.state.message)
         assertEquals(listOf("A"), env.state.items.map { it.desertionNo })
         assertEquals(animal, bookmarks.addCalls.last())
+    }
+
+    @Test
+    fun `둘을 연달아 지우면 두 번째 안내는 새 id(F3)`() = runVmTest {
+        val bookmarks = FakeBookmarkRepository()
+        bookmarks.add(testAnimal(desertionNo = "A"))
+        bookmarks.add(testAnimal(desertionNo = "B"))
+        val env = start(Env(bookmarks))
+
+        env.vm.onToggleBookmark("A")
+        advanceUntilIdle()
+        val first = env.state.message!!
+        env.vm.onToggleBookmark("B")
+        advanceUntilIdle()
+        val second = env.state.message!!
+        assertEquals(first.content(), second.content())
+        assertNotEquals(first.id, second.id)
+
+        // 첫 스낵바가 늦게 닫혀도 두 번째 안내는 남는다
+        env.vm.onMessageShown(first.id)
+        advanceUntilIdle()
+        assertEquals(second, env.state.message)
     }
 
     @Test
@@ -114,7 +138,7 @@ class BookmarkListViewModelTest {
         val env = start(Env(bookmarks))
         assertEquals(RecoveryNotice, env.state.message)
 
-        env.vm.onMessageShown()
+        env.vm.onMessageShown(RecoveryNotice.id)
         advanceUntilIdle()
         assertFalse(bookmarks.recovered.value)
         assertNull(env.state.message)
@@ -136,7 +160,7 @@ class BookmarkListViewModelTest {
         advanceUntilIdle()
         assertEquals(RecoveryNotice, vm.uiState.value.message)
 
-        vm.onMessageShown()
+        vm.onMessageShown(RecoveryNotice.id)
         advanceUntilIdle()
         assertFalse(bookmarks.recovered.value)
         assertNull(vm.uiState.value.message)

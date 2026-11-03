@@ -23,8 +23,10 @@ import com.cherryzp.animalshelter.resources.list_noticing_count
 import com.cherryzp.animalshelter.resources.list_total_count
 import com.cherryzp.animalshelter.ui.bookmarks.RecoveryNotice
 import com.cherryzp.animalshelter.ui.common.MessageAction
+import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
+import com.cherryzp.animalshelter.ui.common.clearIfShown
 import com.cherryzp.animalshelter.ui.common.formatCount
 import com.cherryzp.animalshelter.ui.common.toCardUi
 import com.cherryzp.animalshelter.ui.common.toUiText
@@ -68,6 +70,7 @@ class AnimalListViewModel(
     )
 
     private val local = MutableStateFlow(Local())
+    private val messages = MessageIds()
     private val results: StateFlow<SearchResults> = animals.getSearchResultsStream()
 
     /** 이미 안내한(또는 안내하지 않기로 한) 오류. 만들 때 남아 있던 오류는 다시 알리지 않는다. */
@@ -171,27 +174,30 @@ class AnimalListViewModel(
             try {
                 if (bookmarked) {
                     bookmarks.remove(desertionNo)
-                    showMessage(UiMessage(uiText(Res.string.bookmark_removed)))
+                    showMessage(messages.create(uiText(Res.string.bookmark_removed)))
                 } else if (animal != null) {
                     bookmarks.add(animal)
-                    showMessage(UiMessage(uiText(Res.string.bookmark_added)))
+                    showMessage(messages.create(uiText(Res.string.bookmark_added)))
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                showMessage(UiMessage(uiText(Res.string.bookmark_save_failed)))
+                showMessage(messages.create(uiText(Res.string.bookmark_save_failed)))
             }
         }
     }
 
-    fun onMessageShown() {
-        if (local.value.message == RecoveryNotice) bookmarks.dismissRecoveryNotice()
-        local.update { it.copy(message = null) }
+    /** 보여 준 안내([id])가 지금 것일 때만 지운다(F3). */
+    fun onMessageShown(id: Long) {
+        val current = local.value.message
+        if (current?.id != id) return
+        if (current == RecoveryNotice) bookmarks.dismissRecoveryNotice()
+        local.update { it.copy(message = it.message.clearIfShown(id)) }
     }
 
     /** 스낵바 버튼. 다시 시도는 여기서, 북마크 보기는 화면이 탐색한다. */
-    fun onMessageAction(action: MessageAction) {
-        onMessageShown()
+    fun onMessageAction(action: MessageAction, id: Long) {
+        onMessageShown(id)
         if (action == MessageAction.RETRY) onRetry()
     }
 
@@ -244,12 +250,12 @@ class AnimalListViewModel(
             if (r.errorId == handledErrorId) return@collect
             handledErrorId = r.errorId
             val message = when {
-                error is ApiError.TooManyResults -> UiMessage(error.toUiText(config.isDebug))
+                error is ApiError.TooManyResults -> messages.create(error.toUiText(config.isDebug))
 
                 // 결과가 비었으면 한 화면 오류가, 다음 페이지 실패는 끝 행이 알린다
                 r.items.isEmpty() || local.value.lastAction == LastAction.LOAD_MORE -> null
 
-                else -> UiMessage(
+                else -> messages.create(
                     text = error.toUiText(config.isDebug),
                     action = MessageAction.RETRY.takeIf { error.canRetry() }
                 )

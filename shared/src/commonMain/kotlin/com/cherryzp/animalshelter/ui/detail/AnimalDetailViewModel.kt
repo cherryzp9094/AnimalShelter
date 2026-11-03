@@ -22,8 +22,10 @@ import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.resources.bookmark_save_failed
 import com.cherryzp.animalshelter.resources.external_open_failed
 import com.cherryzp.animalshelter.ui.common.MessageAction
+import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
+import com.cherryzp.animalshelter.ui.common.clearIfShown
 import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.shelter.todayParts
@@ -76,6 +78,7 @@ class AnimalDetailViewModel(
     )
 
     private val local = MutableStateFlow(Local())
+    private val messages = MessageIds()
     private var loadJob: Job? = null
 
     private val endpoint = settings.getSettingsStream().map { endpoints.current() }
@@ -134,22 +137,22 @@ class AnimalDetailViewModel(
             try {
                 if (bookmarks.isBookmarkedStream(animal.desertionNo).first()) {
                     bookmarks.remove(animal.desertionNo)
-                    showMessage(UiMessage(uiText(Res.string.bookmark_removed)))
+                    showMessage(messages.create(uiText(Res.string.bookmark_removed)))
                 } else {
                     bookmarks.add(animal)
-                    showMessage(UiMessage(uiText(Res.string.bookmark_added)))
+                    showMessage(messages.create(uiText(Res.string.bookmark_added)))
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                showMessage(UiMessage(uiText(Res.string.bookmark_save_failed)))
+                showMessage(messages.create(uiText(Res.string.bookmark_save_failed)))
             }
         }
     }
 
     /** 전화·지도를 열지 못했으면 안내(R7). */
     fun onExternalActionResult(opened: Boolean) {
-        if (!opened) showMessage(UiMessage(uiText(Res.string.external_open_failed)))
+        if (!opened) showMessage(messages.create(uiText(Res.string.external_open_failed)))
     }
 
     /** 주소 복사 결과. Android 13 이상은 시스템이 알리므로 앱은 조용히 있는다(B3). */
@@ -158,19 +161,22 @@ class AnimalDetailViewModel(
             CopyFeedback.SHOWN_BY_SYSTEM -> Unit
 
             CopyFeedback.NEEDS_APP_MESSAGE -> showMessage(
-                UiMessage(uiText(Res.string.address_copied))
+                messages.create(uiText(Res.string.address_copied))
             )
 
-            CopyFeedback.FAILED -> showMessage(UiMessage(uiText(Res.string.external_open_failed)))
+            CopyFeedback.FAILED -> showMessage(
+                messages.create(uiText(Res.string.external_open_failed))
+            )
         }
     }
 
-    fun onMessageShown() {
-        local.update { it.copy(message = null) }
+    /** 보여 준 안내([id])가 지금 것일 때만 지운다(F3). */
+    fun onMessageShown(id: Long) {
+        local.update { it.copy(message = it.message.clearIfShown(id)) }
     }
 
-    fun onMessageAction(action: MessageAction) {
-        onMessageShown()
+    fun onMessageAction(action: MessageAction, id: Long) {
+        onMessageShown(id)
         if (action == MessageAction.RETRY) onRetry()
     }
 
@@ -222,7 +228,7 @@ class AnimalDetailViewModel(
                             it.copy(
                                 animal = shown,
                                 isLoading = false,
-                                message = UiMessage(
+                                message = messages.create(
                                     text = error.toUiText(config.isDebug),
                                     action = MessageAction.RETRY.takeIf { error.canRetry() }
                                 )
