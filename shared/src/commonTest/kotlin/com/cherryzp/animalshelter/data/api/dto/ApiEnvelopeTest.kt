@@ -2,9 +2,17 @@ package com.cherryzp.animalshelter.data.api.dto
 
 import com.cherryzp.animalshelter.data.api.ApiJson
 import com.cherryzp.animalshelter.data.api.fixture.ApiFixtures
+import com.cherryzp.animalshelter.data.repository.toAnimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /** 실제 응답 픽스처로 봉투·items 처리를 확인한다. */
 class ApiEnvelopeTest {
@@ -102,5 +110,31 @@ class ApiEnvelopeTest {
         assertEquals(SigunguDto("6110000", "6119999", "가정보호"), sigungu.first())
         assertTrue(kinds.isNotEmpty())
         assertTrue(kinds.all { !it.kindCd.isNullOrEmpty() && !it.kindNm.isNullOrEmpty() })
+    }
+
+    @Test
+    fun `단건 실측 표본 둘은 item이 배열 1건이고 대표자 이름은 모델에 없다(R5)`() {
+        for (raw in listOf(
+            ApiFixtures.abandonmentPublicV2Single,
+            ApiFixtures.abandonmentPublicV2DesertionNo
+        )) {
+            // 원문: 1건이어도 item은 배열이다(2026-11-04 실측)
+            val items = ApiJson.parseToJsonElement(
+                raw
+            ).jsonObject["response"]!!.jsonObject["body"]!!
+                .jsonObject["items"]!!.jsonObject["item"]
+            assertIs<JsonArray>(items)
+            assertEquals(1, items.size)
+            val owner = (items.single() as JsonObject)["careOwnerNm"]?.jsonPrimitive?.content
+            assertNotNull(owner)
+
+            val body = ApiJson.decodeFromString<ApiEnvelope<AbandonmentItemDto>>(
+                raw
+            ).response.body!!
+            assertEquals(1, body.items.size)
+            val animal = assertNotNull(body.items.single().toAnimal())
+            assertEquals("413587202600490", animal.desertionNo)
+            assertFalse(owner in animal.toString(), "Animal에 careOwnerNm 값이 들어갔다")
+        }
     }
 }

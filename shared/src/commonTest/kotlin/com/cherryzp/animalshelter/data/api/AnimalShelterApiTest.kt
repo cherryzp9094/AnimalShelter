@@ -275,6 +275,16 @@ class AnimalShelterApiTest {
     }
 
     @Test
+    fun `getAnimal은 desertion_no 실측 응답(item 배열 1건)을 한 마리로 읽는다(R5)`() = runTest {
+        val harness = ApiTestHarness(handler = jsonOk(ApiFixtures.abandonmentPublicV2DesertionNo))
+
+        val animal = harness.api.getAnimal("413587202600490", LocalDate(2026, 11, 3)).getOrNull()
+
+        assertEquals("413587202600490", animal?.desertionNo)
+        assertEquals(1, harness.urls.size)
+    }
+
+    @Test
     fun `getAnimal은 날짜가 없으면 기본 창 → 그 해 → 전 해, 최대 3회`() = runTest {
         val harness = ApiTestHarness(handler = jsonOk(ApiTestResponses.empty))
 
