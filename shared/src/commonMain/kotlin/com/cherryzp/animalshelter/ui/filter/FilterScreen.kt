@@ -32,6 +32,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -152,7 +154,8 @@ fun FilterScreen(
                     Text(
                         stringResource(Res.string.title_filter),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.semantics { heading() }
                     )
                 },
                 navigationIcon = {
@@ -305,7 +308,11 @@ fun FilterScreen(
 @Composable
 private fun Section(title: StringResource, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(title), style = MaterialTheme.typography.titleSmall)
+        Text(
+            stringResource(title),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.semantics { heading() }
+        )
         content()
     }
 }
@@ -319,7 +326,7 @@ private fun Hint(text: String) {
     )
 }
 
-/** 하나만 고르는 세그먼트 버튼 줄. */
+/** 하나만 고르는 세그먼트 버튼 줄(M3가 라디오 역할·`selectableGroup`을 준다). */
 @Composable
 private fun <T> ChoiceRow(
     options: List<Pair<T, StringResource>>,
@@ -333,7 +340,8 @@ private fun <T> ChoiceRow(
                 onClick = { onSelected(value) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                 label = {
-                    Text(stringResource(label), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    // 2줄까지(영어 "Unknown"·큰 글자에서 잘리지 않게, C2⑦) — 줄 높이는 같게 늘어난다
+                    Text(stringResource(label), maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
             )
         }

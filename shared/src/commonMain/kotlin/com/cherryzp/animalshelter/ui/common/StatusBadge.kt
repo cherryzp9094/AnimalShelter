@@ -8,6 +8,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,7 +37,7 @@ fun StatusKind.badgeColors(): Pair<Color, Color> {
 
 /**
  * 상태 배지: 불투명 배경, 모서리 8dp, 글자 필수(색만으로 구분하지 않는다), 애니메이션 없음.
- * 사진 위에 얹는다(06 2.3 — 사진 위에는 배지만).
+ * 사진 위에 얹는다(06 2.3 — 사진 위에는 배지만). 스크린 리더에는 "D-4" 대신 상태 문장(`a11y_days_left` 등, C2②).
  */
 @Composable
 fun StatusBadge(
@@ -44,8 +46,9 @@ fun StatusBadge(
     textStyle: TextStyle = MaterialTheme.typography.labelSmall,
 ) {
     val (container, content) = status.kind.badgeColors()
+    val a11y = status.a11y.resolve()
     Surface(
-        modifier = modifier,
+        modifier = modifier.clearAndSetSemantics { contentDescription = a11y },
         shape = RoundedCornerShape(8.dp),
         color = container,
         contentColor = content

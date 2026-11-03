@@ -1,9 +1,7 @@
 package com.cherryzp.animalshelter.ui.detail
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -51,6 +49,7 @@ import com.cherryzp.animalshelter.resources.section_traits
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
 import com.cherryzp.animalshelter.ui.common.StatusBadge
 import com.cherryzp.animalshelter.ui.common.UiText
+import com.cherryzp.animalshelter.ui.common.copyOnLongPress
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.theme.TABULAR_NUMBERS
 import org.jetbrains.compose.resources.stringResource
@@ -243,7 +242,6 @@ fun SourceText(modifier: Modifier = Modifier) {
  * 섹션 6 보호소 카드: 이름, 전화(탭 → 다이얼, 목록 값), 주소(길게 눌러 복사), 관할 기관, 오늘 운영시간(B7),
  * 버튼 지도(좌표 있을 때)·보호소 정보(등록번호 있을 때).
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ShelterCard(
     shelter: DetailShelterUi,
@@ -295,9 +293,7 @@ private fun ShelterCard(
             shelter.address?.let { address ->
                 LabeledValue(
                     label = stringResource(Res.string.label_shelter_address),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .combinedClickable(onClick = {}, onLongClick = { onCopyAddress(address) })
+                    modifier = Modifier.copyOnLongPress { onCopyAddress(address) }
                 ) {
                     Text(text = address, style = MaterialTheme.typography.bodyLarge)
                 }

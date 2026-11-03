@@ -1,8 +1,6 @@
 package com.cherryzp.animalshelter.ui.shelter
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +70,7 @@ import com.cherryzp.animalshelter.resources.title_shelter
 import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
+import com.cherryzp.animalshelter.ui.common.copyOnLongPress
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.detail.DetailRowView
@@ -149,7 +150,8 @@ fun ShelterInfoScreen(
                     Text(
                         text = state.title ?: stringResource(Res.string.title_shelter),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.semantics { heading() }
                     )
                 },
                 navigationIcon = {
@@ -263,7 +265,6 @@ private fun ShelterBody(
 }
 
 /** 연락·위치: 전화(탭 → 다이얼), 도로명 주소(길게 눌러 복사), 지번(있을 때), 버튼 전화하기·지도에서 보기. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ContactSection(
     tel: String?,
@@ -295,9 +296,7 @@ private fun ContactSection(
         roadAddress?.let {
             LabeledValue(
                 label = stringResource(Res.string.label_road_address),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .combinedClickable(onClick = {}, onLongClick = { onCopyAddress(it) })
+                modifier = Modifier.copyOnLongPress { onCopyAddress(it) }
             ) {
                 Text(text = it, style = MaterialTheme.typography.bodyLarge)
             }
@@ -305,9 +304,7 @@ private fun ContactSection(
         jibunAddress?.let {
             LabeledValue(
                 label = stringResource(Res.string.label_jibun_address),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .combinedClickable(onClick = {}, onLongClick = { onCopyAddress(it) })
+                modifier = Modifier.copyOnLongPress { onCopyAddress(it) }
             ) {
                 Text(text = it, style = MaterialTheme.typography.bodyLarge)
             }
@@ -340,6 +337,14 @@ private fun FacilitiesSection(lines: List<List<com.cherryzp.animalshelter.ui.com
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .clickable(role = Role.Button) { expanded = !expanded }
+                .semantics {
+                    // 펼침·접힘을 동작으로 알린다(스크린 리더가 상태를 읽는다)
+                    if (expanded) {
+                        collapse { true.also { expanded = false } }
+                    } else {
+                        expand { true.also { expanded = true } }
+                    }
+                }
         ) {
             Text(
                 text = stringResource(Res.string.section_facilities),
