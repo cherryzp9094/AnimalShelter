@@ -7,7 +7,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
-/** 공통 모듈(시작 설정). 데이터는 [dataModule], ViewModel 모듈은 Phase 3에서 더한다. */
+/** 공통 모듈(시작 설정). 데이터는 [dataModule], 화면 ViewModel은 [viewModelModule]. */
 fun appModule(config: AppConfig): Module = module {
     single { config }
     single { config.endpoint }
@@ -23,5 +23,5 @@ expect fun platformModule(): Module
  */
 fun initKoin(config: AppConfig, extra: KoinAppDeclaration = {}): KoinApplication = startKoin {
     extra()
-    modules(appModule(config), dataModule, platformModule())
+    modules(appModule(config), dataModule, viewModelModule, platformModule())
 }

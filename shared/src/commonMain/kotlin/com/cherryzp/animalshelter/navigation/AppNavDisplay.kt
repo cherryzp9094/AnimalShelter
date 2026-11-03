@@ -13,13 +13,15 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.cherryzp.animalshelter.data.api.toBasicString
+import com.cherryzp.animalshelter.ui.list.AnimalListScreen
 import com.cherryzp.animalshelter.ui.placeholder.DetailPlaceholderPane
-import com.cherryzp.animalshelter.ui.placeholder.ListPlaceholderScreen
 import com.cherryzp.animalshelter.ui.placeholder.PlaceholderScreen
 import com.cherryzp.animalshelter.ui.placeholder.SettingsPlaceholderScreen
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * back stack 저장 설정. 비JVM(wasmJs)은 리플렉션 직렬화가 없어서 키를 전부 등록한다(CMP Nav3 문서).
@@ -41,7 +43,8 @@ internal val AppNavSavedStateConfiguration = SavedStateConfiguration {
 
 /**
  * 앱 탐색. 두 칸(목록 + 상세)은 창 폭 ≥ 840dp(expanded)부터, 그 아래는 한 칸(03-screens 0.4).
- * Phase 1은 목록·설정 자리표시만 등록하고 나머지 키는 [PlaceholderScreen]으로 묶는다.
+ * 목록·필터는 실제 화면(Phase 3a), 상세·사진·북마크·보호소·설정은 자리표시(3b가 바꾼다).
+ * ViewModel은 entry 안에서 `koinViewModel()`(`rememberViewModelStoreNavEntryDecorator`가 entry별 범위를 준다).
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -64,7 +67,17 @@ fun AppNavDisplay() {
                     detailPlaceholder = { DetailPlaceholderPane() }
                 )
             ) {
-                ListPlaceholderScreen(onOpenSettings = { backStack.add(SettingsKey) })
+                AnimalListScreen(
+                    viewModel = koinViewModel(),
+                    onOpenFilter = { backStack.add(FilterKey) },
+                    onOpenAnimal = { card ->
+                        backStack.addDetail(
+                            AnimalDetailKey(card.desertionNo, card.happenDate?.toBasicString())
+                        )
+                    },
+                    onOpenBookmarks = { backStack.add(BookmarkListKey) },
+                    onOpenSettings = { backStack.add(SettingsKey) }
+                )
             }
             entry<AnimalDetailKey>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
                 PlaceholderScreen(keyName = "AnimalDetailKey(${key.desertionNo})")
