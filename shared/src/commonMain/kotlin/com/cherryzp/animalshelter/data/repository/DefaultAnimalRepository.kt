@@ -239,7 +239,12 @@ internal class DefaultAnimalRepository(
                 val known = current.items.mapTo(HashSet()) { it.desertionNo }
                 current.copy(
                     items = current.items + page.value.items.filter { it.desertionNo !in known },
-                    totalCount = page.value.totalCount,
+                    // 빈 페이지(끝)는 totalCount를 0으로 주기도 한다(Fixture 2페이지) — 그때는 앞의 값을 둔다
+                    totalCount = if (page.value.items.isEmpty()) {
+                        current.totalCount
+                    } else {
+                        page.value.totalCount
+                    },
                     pageNo = page.value.pageNo,
                     hasMore = page.value.hasMore,
                     loading = LoadState.IDLE

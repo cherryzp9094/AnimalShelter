@@ -112,6 +112,25 @@ class AnimalRepositoryTest {
     }
 
     @Test
+    fun `빈 끝 페이지의 totalCount 0은 앞의 전체 수를 지우지 않는다`() = runTest {
+        val (repo, _) = repository { request ->
+            val body = if (request.url.parameters["pageNo"] == "1") {
+                ApiTestResponses.animals("A", totalCount = 7544)
+            } else {
+                ApiTestResponses.empty
+            }
+            respond(body, HttpStatusCode.OK)
+        }
+
+        repo.search(SearchFilter())
+        repo.loadMore()
+
+        val ended = repo.getSearchResultsStream().value
+        assertFalse(ended.hasMore)
+        assertEquals(7544, ended.totalCount)
+    }
+
+    @Test
     fun `loadMore는 로딩 중이면 무시한다`() = runTest {
         val gate = CompletableDeferred<Unit>()
         val (repo, harness) = repository { request ->
