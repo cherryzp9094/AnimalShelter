@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">AnimalShelter</string>
-    <string name="service_key"></string>
 
     <string name="sido_file">_sido.xml</string>
     <string name="sigungu_file">_sigungu.xml</string>
