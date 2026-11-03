@@ -16,7 +16,9 @@ fun main() {
         AppConfig(
             endpoint = ApiEndpoint.Relay(WebConfig.RELAY_BASE_URL),
             isDebug = false,
-            versionName = WebConfig.VERSION_NAME
+            versionName = WebConfig.VERSION_NAME,
+            // 웹은 디버그 항목이 없어 화면에 나오지 않는다(브리핑 B2)
+            relayBaseUrl = WebConfig.RELAY_BASE_URL
         )
     )
     ComposeViewport(viewportContainerId = "root") {

@@ -22,14 +22,31 @@ data class AnimalDetailKey(
     val fromBookmarks: Boolean = false,
 ) : AppKey
 
+/**
+ * 사진 뷰어(브리핑 B1). `photos`는 정규화한 **원본** URL(화면용 URL은 뷰어 ViewModel이 만든다).
+ * 비어 있으면(Phase 4 주소 진입) 뷰어가 `getAnimal(desertionNo, null)`로 찾는다. `title`은 카드 제목(접근성 문구).
+ */
 @Serializable
-data class PhotoViewerKey(val desertionNo: String, val index: Int = 0) : AppKey
+data class PhotoViewerKey(
+    val desertionNo: String,
+    val index: Int = 0,
+    val photos: List<String> = emptyList(),
+    val title: String? = null,
+) : AppKey
 
 @Serializable
 data object BookmarkListKey : AppKey
 
+/**
+ * 보호소 정보(브리핑 B1). `fallback*`은 목록이 준 요약 — 보호소 정보가 없을 때 줄인 화면에 쓴다.
+ */
 @Serializable
-data class ShelterInfoKey(val regNo: String, val fallbackName: String? = null) : AppKey
+data class ShelterInfoKey(
+    val regNo: String,
+    val fallbackName: String? = null,
+    val fallbackTel: String? = null,
+    val fallbackAddress: String? = null,
+) : AppKey
 
 @Serializable
 data object SettingsKey : AppKey
