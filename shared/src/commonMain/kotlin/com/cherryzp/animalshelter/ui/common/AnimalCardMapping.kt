@@ -17,9 +17,11 @@ fun Animal.toCardUi(today: LocalDate, endpoint: ApiEndpoint, isBookmarked: Boole
         photoUrl = photos.firstOrNull()?.let { ImageUrlPolicy.displayUrl(it, endpoint) },
         kind = kind,
         status = statusOn(today).toStatusUi(),
-        title = titleParts(),
+        breed = breedText(),
+        facts = cardFactParts(),
         shelterLine = shelterLine(),
-        traits = traitParts(),
+        appearance = appearanceParts(),
         happenPlace = happenPlace?.trim()?.takeIf { it.isNotEmpty() },
+        titleParts = titleParts(),
         isBookmarked = isBookmarked
     )

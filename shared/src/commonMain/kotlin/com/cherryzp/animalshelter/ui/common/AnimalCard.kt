@@ -44,12 +44,14 @@ import org.jetbrains.compose.resources.stringResource
 /** 1열 카드 사진의 최대 높이(03 2.1). */
 private val LargePhotoMaxHeight = 480.dp
 
-/** 이 글자 배율부터 2열 카드 제목을 2줄까지(03 0.4). */
-private const val TWO_LINE_TITLE_FONT_SCALE = 1.3f
+/** 이 글자 배율부터 2열 카드의 1·2행(품종·성별 나이 체중)을 2줄까지(03 0.4, 중간 검토 F1). */
+private const val TWO_LINE_FONT_SCALE = 1.3f
 
 /**
- * 카드 하나가 두 형태를 그린다(03 2.1 표, 브리핑 A10): [ListLayout.GRID] 2열 / [ListLayout.LARGE] 1열(확대형 +
- * 특징 2줄 + 발견 장소). 카드 전체가 접근성 한 문장(P10), 북마크 버튼은 따로 초점을 받는다.
+ * 카드 하나가 두 형태를 그린다(03 2.1 표, 브리핑 A10, 중간 검토 F1). 글자는 두 형태 모두 1행 품종 / 2행 성별 · 나이 ·
+ * 체중 / 3행 보호소 줄. [ListLayout.LARGE] 1열(확대형)만 4행 색상 · 특징(2줄)과 5행 발견 장소를 더한다 — 2열은
+ * 글자 폭이 136~160dp라 그 문장을 넣지 않는다(상세에서 본다). 카드 전체가 접근성 한 문장(P10), 북마크 버튼은 따로
+ * 초점을 받는다.
  */
 @Composable
 fun AnimalCard(
@@ -61,16 +63,16 @@ fun AnimalCard(
 ) {
     val large = layout == ListLayout.LARGE
     val typography = MaterialTheme.typography
-    val title = ui.title.map { it.resolve() }
-    val traits = ui.traits.map { it.resolve() }
+    val facts = ui.facts.map { it.resolve() }
+    val appearance = ui.appearance.map { it.resolve() }
     val a11y = cardA11ySentence(
-        title = title,
+        title = ui.titleParts.map { it.resolve() },
         shelterLine = ui.shelterLine,
         status = ui.status.a11y.resolve(),
         bookmarked = if (ui.isBookmarked) stringResource(Res.string.a11y_bookmarked) else null,
         happenPlace = if (large) ui.happenPlace else null
     )
-    val fontScale = LocalDensity.current.fontScale
+    val twoLines = !large && LocalDensity.current.fontScale >= TWO_LINE_FONT_SCALE
 
     Card(
         onClick = onClick,
@@ -105,51 +107,56 @@ fun AnimalCard(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier.padding(if (large) 16.dp else 12.dp).clearAndSetSemantics {}
         ) {
-            if (title.isNotEmpty()) {
-                Text(
-                    text = title.joinToString(PART_SEPARATOR),
-                    style = (if (large) typography.titleLarge else typography.titleMedium)
-                        .copy(fontFeatureSettings = TABULAR_NUMBERS),
-                    maxLines = if (!large && fontScale >= TWO_LINE_TITLE_FONT_SCALE) 2 else 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            ui.shelterLine?.let {
-                Text(
-                    text = it,
-                    style = if (large) typography.bodyMedium else typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (traits.isNotEmpty()) {
-                Text(
-                    text = traits.joinToString(PART_SEPARATOR),
-                    style = (if (large) typography.bodyMedium else typography.bodySmall)
-                        .copy(fontFeatureSettings = TABULAR_NUMBERS),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = if (large) 2 else 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            if (large && ui.happenPlace != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Place,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(16.dp)
+            ui.visibleRows(layout).forEach { row ->
+                when (row) {
+                    CardRow.BREED -> Text(
+                        text = ui.breed.orEmpty(),
+                        style = if (large) typography.titleLarge else typography.titleMedium,
+                        maxLines = if (twoLines) 2 else 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = ui.happenPlace,
-                        style = typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                    CardRow.FACTS -> Text(
+                        text = facts.joinToString(PART_SEPARATOR),
+                        style = (if (large) typography.bodyMedium else typography.bodySmall)
+                            .copy(fontFeatureSettings = TABULAR_NUMBERS),
+                        maxLines = if (twoLines) 2 else 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    CardRow.SHELTER -> Text(
+                        text = ui.shelterLine.orEmpty(),
+                        style = if (large) typography.bodyMedium else typography.bodySmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+
+                    CardRow.APPEARANCE -> Text(
+                        text = appearance.joinToString(PART_SEPARATOR),
+                        style = typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    CardRow.HAPPEN_PLACE -> Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Place,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = ui.happenPlace.orEmpty(),
+                            style = typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }

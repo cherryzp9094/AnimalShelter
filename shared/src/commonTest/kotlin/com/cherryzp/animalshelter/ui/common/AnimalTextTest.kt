@@ -33,11 +33,7 @@ class AnimalTextTest {
         assertEquals("12.5", formatWeight(12.50))
         assertEquals(
             uiText(Res.string.weight_kg, "2.9"),
-            testAnimal().copy(
-                weightKg = 2.9,
-                color = null,
-                specialMark = null
-            ).traitParts().single()
+            testAnimal(sex = null, birthYear = null).copy(weightKg = 2.9).cardFactParts().single()
         )
     }
 
@@ -82,9 +78,13 @@ class AnimalTextTest {
     }
 
     @Test
-    fun `특징은 색상·체중·특징 중 있는 것만`() {
+    fun `카드 4행은 색상·특징 중 있는 것만`() {
         val animal = testAnimal().copy(color = "흰색", weightKg = null, specialMark = "  ")
-        assertEquals(listOf(UiText.Raw("흰색")), animal.traitParts())
+        assertEquals(listOf(UiText.Raw("흰색")), animal.appearanceParts())
+        assertEquals(
+            listOf(UiText.Raw("기타(고등어)"), UiText.Raw("목에 플라스틱통 끼임")),
+            testAnimal().appearanceParts()
+        )
     }
 
     @Test

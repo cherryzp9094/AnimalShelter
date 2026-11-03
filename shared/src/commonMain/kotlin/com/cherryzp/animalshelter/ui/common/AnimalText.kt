@@ -61,20 +61,34 @@ fun Neutered.toUiText(): UiText = when (this) {
 }
 
 /**
- * 카드 제목 부분(브리핑 P10): 품종명 · 성별 · `age_year` · (60일 미만이면) `age_under_two_months`.
- * 있는 것만 — 빈 칸이 생기지 않게 리소스 하나(`card_title`)로 묶지 않는다.
+ * 제목 부분(브리핑 P10): 품종명 · 성별 · `age_year` · (60일 미만이면) `age_under_two_months`.
+ * 있는 것만 — 빈 칸이 생기지 않게 리소스 하나(`card_title`)로 묶지 않는다. 카드 접근성 문장·사진 뷰어 제목·
+ * (Phase 4) 공유 제목이 쓴다. 카드 글자는 [breedText]·[cardFactParts]로 나눠 보인다(F1).
  */
 fun Animal.titleParts(): List<UiText> = buildList {
-    kindName?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
+    breedText()?.let { add(UiText.Raw(it)) }
     sex?.let { add(it.toUiText()) }
     birthYear?.let { add(uiText(Res.string.age_year, it)) }
     if (isUnderTwoMonths) add(uiText(Res.string.age_under_two_months))
 }
 
-/** 특징 부분: 색상 · 체중(`weight_kg`) · 특징. 있는 것만. */
-fun Animal.traitParts(): List<UiText> = buildList {
-    color?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
+/** 카드 1행: 품종명(앞뒤 공백 제거). 없으면 null(행을 뺀다). */
+fun Animal.breedText(): String? = kindName?.trim()?.takeIf { it.isNotEmpty() }
+
+/**
+ * 카드 2행(중간 검토 F1): 성별 · `age_year` · (60일 미만이면) `age_under_two_months` · 체중(`weight_kg`).
+ * 있는 것만. 사진이 보여 주지 못하는 성별·나이를 품종과 다른 줄에 두어 2열에서도 잘리지 않게 한다.
+ */
+fun Animal.cardFactParts(): List<UiText> = buildList {
+    sex?.let { add(it.toUiText()) }
+    birthYear?.let { add(uiText(Res.string.age_year, it)) }
+    if (isUnderTwoMonths) add(uiText(Res.string.age_under_two_months))
     weightKg?.let { add(uiText(Res.string.weight_kg, formatWeight(it))) }
+}
+
+/** 카드 4행(1열만): 색상 · 특징. 있는 것만. */
+fun Animal.appearanceParts(): List<UiText> = buildList {
+    color?.trim()?.takeIf { it.isNotEmpty() }?.let { add(UiText.Raw(it)) }
     specialMark.meaningfulText()?.let { add(UiText.Raw(it)) }
 }
 
