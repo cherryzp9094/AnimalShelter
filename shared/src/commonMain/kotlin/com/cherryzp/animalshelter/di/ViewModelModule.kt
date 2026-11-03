@@ -1,9 +1,11 @@
 package com.cherryzp.animalshelter.di
 
 import com.cherryzp.animalshelter.navigation.AnimalDetailKey
+import com.cherryzp.animalshelter.navigation.PhotoViewerKey
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailViewModel
 import com.cherryzp.animalshelter.ui.filter.FilterViewModel
 import com.cherryzp.animalshelter.ui.list.AnimalListViewModel
+import com.cherryzp.animalshelter.ui.photo.PhotoViewerViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -19,4 +21,5 @@ val viewModelModule: Module = module {
     viewModel { (key: AnimalDetailKey) ->
         AnimalDetailViewModel(key, get(), get(), get(), get(), get(), get(), get())
     }
+    viewModel { (key: PhotoViewerKey) -> PhotoViewerViewModel(key, get(), get(), get(), get()) }
 }

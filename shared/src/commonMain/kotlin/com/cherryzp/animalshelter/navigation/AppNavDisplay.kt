@@ -17,6 +17,7 @@ import com.cherryzp.animalshelter.data.api.toBasicString
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailScreen
 import com.cherryzp.animalshelter.ui.filter.FilterScreen
 import com.cherryzp.animalshelter.ui.list.AnimalListScreen
+import com.cherryzp.animalshelter.ui.photo.PhotoViewerScreen
 import com.cherryzp.animalshelter.ui.placeholder.DetailPlaceholderPane
 import com.cherryzp.animalshelter.ui.placeholder.PlaceholderScreen
 import com.cherryzp.animalshelter.ui.placeholder.SettingsPlaceholderScreen
@@ -98,7 +99,13 @@ fun AppNavDisplay() {
             entry<FilterKey> {
                 FilterScreen(viewModel = koinViewModel(), onBack = { backStack.removeLastOrNull() })
             }
-            entry<PhotoViewerKey> { PlaceholderScreen(keyName = "PhotoViewerKey") }
+            entry<PhotoViewerKey> { key ->
+                PhotoViewerScreen(
+                    viewModel = koinViewModel { parametersOf(key) },
+                    initialIndex = key.index,
+                    onClose = { backStack.removeLastOrNull() }
+                )
+            }
             entry<BookmarkListKey> { PlaceholderScreen(keyName = "BookmarkListKey") }
             entry<ShelterInfoKey> { PlaceholderScreen(keyName = "ShelterInfoKey") }
         }
