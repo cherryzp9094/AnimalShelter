@@ -21,6 +21,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
@@ -147,5 +149,24 @@ class StoreTest {
             }
             assertEquals(listOf("1"), store.data.first().order)
         }
+    }
+
+    @Test
+    fun `모으는 중인 구독자에게도 쓴 값이 보이고 다시 열어도 남는다`() = runTest {
+        val writer = TestStores()
+        withTestStores(writer) { stores ->
+            val store = stores.bookmarks("live.json")
+            store.data.first()
+            val seen = async(Dispatchers.Default) { store.data.first { it.order.isNotEmpty() } }
+            store.update {
+                BookmarkData(mapOf("1" to StoredBookmark(Animal("1"), 5L)), listOf("1"))
+            }
+            assertEquals(listOf("1"), seen.await().order)
+            assertEquals(listOf("1"), store.data.first().order)
+        }
+
+        val reopened =
+            withTestStores(TestStores(writer.suffix)) { it.bookmarks("live.json").data.first() }
+        assertEquals(listOf("1"), reopened.order)
     }
 }

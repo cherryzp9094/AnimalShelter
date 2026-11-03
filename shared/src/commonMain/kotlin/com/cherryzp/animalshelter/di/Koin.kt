@@ -7,14 +7,14 @@ import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
-/** 공통 모듈. 데이터·ViewModel 모듈은 Phase 2·3에서 더한다. */
+/** 공통 모듈(시작 설정). 데이터는 [dataModule], ViewModel 모듈은 Phase 3에서 더한다. */
 fun appModule(config: AppConfig): Module = module {
     single { config }
     single { config.endpoint }
     single { PlatformInfo(versionName = config.versionName) }
 }
 
-/** 플랫폼 모듈(Android: 저장소 경로 등, 웹: 비어 있음). */
+/** 플랫폼 모듈(Android: 저장소 경로·OkHttp 엔진, 웹: Js 엔진). */
 expect fun platformModule(): Module
 
 /**
@@ -23,5 +23,5 @@ expect fun platformModule(): Module
  */
 fun initKoin(config: AppConfig, extra: KoinAppDeclaration = {}): KoinApplication = startKoin {
     extra()
-    modules(appModule(config), platformModule())
+    modules(appModule(config), dataModule, platformModule())
 }

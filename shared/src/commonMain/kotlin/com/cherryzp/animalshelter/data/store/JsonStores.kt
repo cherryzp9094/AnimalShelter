@@ -6,18 +6,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 
 // JSON 파일 저장소 3개(02-data 8절). 저장소마다 DataStore 하나(Koin single). 같은 파일에 두 개를 만들지 않는다.
+// 구독은 메모리 사본([MirroredDataStore])으로 한다 — 웹 OPFS 저장소의 제약 때문.
 
 /** 코드표 캐시(`code_tables.json`). 깨지면 빈 캐시로 복구한다. */
 internal class CodeTableStore(storage: Storage<CodeTableCache>, scope: CoroutineScope? = null) {
-    private val dataStore = createJsonDataStore(storage, CodeTableCache(), scope)
+    private val store =
+        MirroredDataStore(createJsonDataStore(storage, CodeTableCache(), scope), CodeTableCache())
 
-    val data: Flow<CodeTableCache> = dataStore.data.catch { emit(CodeTableCache()) }
+    val data: Flow<CodeTableCache> = store.data
 
     suspend fun update(transform: (CodeTableCache) -> CodeTableCache) {
-        dataStore.updateData { transform(it) }
+        store.update(transform)
     }
 
     companion object {
@@ -28,12 +29,13 @@ internal class CodeTableStore(storage: Storage<CodeTableCache>, scope: Coroutine
 
 /** 보호소 전체 캐시(`shelters.json`). 깨지면 빈 캐시로 복구한다. */
 internal class ShelterStore(storage: Storage<ShelterCache>, scope: CoroutineScope? = null) {
-    private val dataStore = createJsonDataStore(storage, ShelterCache(), scope)
+    private val store =
+        MirroredDataStore(createJsonDataStore(storage, ShelterCache(), scope), ShelterCache())
 
-    val data: Flow<ShelterCache> = dataStore.data.catch { emit(ShelterCache()) }
+    val data: Flow<ShelterCache> = store.data
 
     suspend fun update(transform: (ShelterCache) -> ShelterCache) {
-        dataStore.updateData { transform(it) }
+        store.update(transform)
     }
 
     companion object {
@@ -48,13 +50,13 @@ internal class ShelterStore(storage: Storage<ShelterCache>, scope: CoroutineScop
  */
 internal class BookmarkStore(storage: Storage<BookmarkData>, scope: CoroutineScope? = null) {
     private val recovered = MutableStateFlow(false)
-    private val dataStore = createJsonDataStore(storage, BookmarkData(), scope) {
-        recovered.value =
-            true
-    }
+    private val store = MirroredDataStore(
+        createJsonDataStore(storage, BookmarkData(), scope) { recovered.value = true },
+        BookmarkData()
+    )
 
     // 읽기 실패(손상 말고 I/O 오류)는 빈 목록으로 보여 준다. 쓰기는 그대로 실패한다.
-    val data: Flow<BookmarkData> = dataStore.data.catch { emit(BookmarkData()) }
+    val data: Flow<BookmarkData> = store.data
 
     val recoveredFromCorruption: StateFlow<Boolean> = recovered.asStateFlow()
 
@@ -63,7 +65,7 @@ internal class BookmarkStore(storage: Storage<BookmarkData>, scope: CoroutineSco
     }
 
     suspend fun update(transform: (BookmarkData) -> BookmarkData) {
-        dataStore.updateData { transform(it) }
+        store.update(transform)
     }
 
     companion object {
