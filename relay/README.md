@@ -36,7 +36,8 @@ npx wrangler dev        # http://127.0.0.1:8788 (에뮬레이터에서는 http:/
 - 8787은 이 맥의 다른 프로젝트 서버가 쓴다 — 그대로 둔다.
 - 로그인 없이 뜬다. `login`·`whoami`·`deploy`·`secret`·`--remote` 같은 계정 명령은 쓰지 않는다(배포는 아래 절차로 사용자가).
 - `/cdn-cgi/local/explorer`(관측 API)와 `relay/.wrangler/`에는 업스트림 URL(=키)이 남을 수 있으니 열어 보지 않는다.
-- 끝낼 때: `kill -INT $(pgrep -f 'wrangler-dist/cli.js dev')`. 지울 때: `rm relay/.dev.vars`.
+- 끝낼 때: `wrangler dev`를 띄운 그 작업을 멈춘다 — 터미널 앞에서 띄웠으면 그 창에서 `Ctrl+C`, 에이전트가 백그라운드 작업으로 띄웠으면 그 작업을 멈춘다. **프로세스 이름 패턴으로 kill하지 않는다**(`pkill`·`pgrep -f …` 금지 — 이 맥의 8787 python 서버 같은 다른 프로세스를 건드릴 수 있다). 멈춘 뒤 `lsof -nP -iTCP:8788 -sTCP:LISTEN`이 비었는지 확인한다(남아 있으면 PID를 확인해 사람에게 알린다). 지울 때: `rm relay/.dev.vars`.
+- 에뮬레이터(Android 17)에서 `http://10.0.2.2:8788`을 쓰려면 앱을 설치할 때마다 `adb shell pm grant com.cherryzp.animalshelter android.permission.ACCESS_LOCAL_NETWORK`(debug 빌드만 이 권한을 선언한다).
 
 ## 경로 규약
 
