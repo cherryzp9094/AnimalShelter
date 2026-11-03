@@ -6,6 +6,7 @@ import com.cherryzp.animalshelter.data.repository.SearchResults
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
@@ -39,6 +40,9 @@ class FakeAnimalRepository(initial: SearchResults = SearchResults()) : AnimalRep
         ApiResult.Success(results.value.items.firstOrNull { it.desertionNo == no })
     }
 
+    /** 있으면 `getAnimal`이 이것이 끝날 때까지 기다린다(조회 중 상태를 보려고). */
+    var getAnimalGate: CompletableDeferred<Unit>? = null
+
     override fun getSearchResultsStream(): StateFlow<SearchResults> = results
 
     override suspend fun search(filter: SearchFilter) {
@@ -66,6 +70,7 @@ class FakeAnimalRepository(initial: SearchResults = SearchResults()) : AnimalRep
         happenDate: LocalDate?,
     ): ApiResult<Animal?> {
         getAnimalCalls += desertionNo to happenDate
+        getAnimalGate?.await()
         return animalResult(desertionNo)
     }
 }

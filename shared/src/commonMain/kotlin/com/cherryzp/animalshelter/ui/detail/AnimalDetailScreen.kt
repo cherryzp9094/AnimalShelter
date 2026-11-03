@@ -1,0 +1,412 @@
+package com.cherryzp.animalshelter.ui.detail
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowSizeClass
+import com.cherryzp.animalshelter.navigation.PhotoViewerKey
+import com.cherryzp.animalshelter.navigation.ShelterInfoKey
+import com.cherryzp.animalshelter.platform.ExternalActions
+import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.action_back
+import com.cherryzp.animalshelter.resources.action_call_shelter
+import com.cherryzp.animalshelter.resources.action_go_to_list
+import com.cherryzp.animalshelter.resources.action_retry
+import com.cherryzp.animalshelter.resources.detail_not_found
+import com.cherryzp.animalshelter.resources.detail_notice_gone
+import com.cherryzp.animalshelter.resources.error_network
+import com.cherryzp.animalshelter.ui.common.BookmarkToggleButton
+import com.cherryzp.animalshelter.ui.common.CenteredLoading
+import com.cherryzp.animalshelter.ui.common.FullScreenMessage
+import com.cherryzp.animalshelter.ui.common.MessageAction
+import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
+import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
+import com.cherryzp.animalshelter.ui.common.resolve
+import com.cherryzp.animalshelter.ui.common.uiText
+import com.cherryzp.animalshelter.ui.preview.PreviewData
+import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
+import org.jetbrains.compose.resources.stringResource
+
+/** 이 폭부터 2단(브리핑 B4 — 칸이 받은 폭). */
+private val TwoColumnMinWidth = 600.dp
+
+/** 본문 최대 폭(06 4.2). */
+private val ContentMaxWidth = 840.dp
+
+/** 사진 틀 최대 한 변. 창 높이가 compact(폰 가로)면 칸 높이의 55%. */
+private val PhotoMaxSide = 480.dp
+private const val COMPACT_HEIGHT_PHOTO_FRACTION = 0.55f
+
+/** 2단 왼쪽 열: 40%, 280~420dp. */
+private const val LEFT_COLUMN_FRACTION = 0.4f
+private val LeftColumnMin = 280.dp
+private val LeftColumnMax = 420.dp
+
+/**
+ * 상세 화면(ViewModel을 받아 상태를 모은다, P2). 전화·지도·복사는 여기서 부르고 결과만 ViewModel에 알린다(B3).
+ * @param showBack 목록 칸이 같이 보이면 false(B5 — 두 칸에서 뒤로 화살표 금지)
+ */
+@Composable
+fun AnimalDetailScreen(
+    viewModel: AnimalDetailViewModel,
+    showBack: Boolean,
+    onBack: () -> Unit,
+    onOpenPhoto: (PhotoViewerKey) -> Unit,
+    onOpenShelter: (ShelterInfoKey) -> Unit,
+    onGoToList: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val detail = state.detail
+    val title = detail?.titleParts?.map { it.resolve() }?.joinToString(PART_SEPARATOR)
+    AnimalDetailScreen(
+        state = state,
+        showBack = showBack,
+        onBack = onBack,
+        onToggleBookmark = viewModel::onToggleBookmark,
+        onRetry = viewModel::onRetry,
+        onGoToList = onGoToList,
+        onOpenPhoto = { index ->
+            if (detail != null) {
+                onOpenPhoto(PhotoViewerKey(detail.desertionNo, index, detail.photoOriginals, title))
+            }
+        },
+        onOpenShelter = {
+            val shelter = detail?.shelter
+            val regNo = shelter?.regNo
+            if (regNo != null) {
+                onOpenShelter(ShelterInfoKey(regNo, shelter.name, shelter.tel, shelter.address))
+            }
+        },
+        onDial = { viewModel.onExternalActionResult(ExternalActions.dial(it)) },
+        onOpenMap = {
+            viewModel.onExternalActionResult(ExternalActions.openMap(it.lat, it.lng, it.label))
+        },
+        onCopyAddress = { viewModel.onCopyResult(ExternalActions.copyText(it)) },
+        onMessageShown = viewModel::onMessageShown,
+        onMessageAction = viewModel::onMessageAction,
+        modifier = modifier
+    )
+}
+
+/** 상세 화면(상태만 — `@Preview`·UI 테스트). 03 2.3, 브리핑 B4~B6. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AnimalDetailScreen(
+    state: AnimalDetailUiState,
+    showBack: Boolean,
+    onBack: () -> Unit,
+    onToggleBookmark: () -> Unit,
+    onRetry: () -> Unit,
+    onGoToList: () -> Unit,
+    onOpenPhoto: (index: Int) -> Unit,
+    onOpenShelter: () -> Unit,
+    onDial: (String) -> Unit,
+    onOpenMap: (MapTarget) -> Unit,
+    onCopyAddress: (String) -> Unit,
+    onMessageShown: () -> Unit,
+    onMessageAction: (MessageAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    MessageSnackbarEffect(
+        message = state.message,
+        snackbarHostState = snackbarHostState,
+        onShown = onMessageShown,
+        onAction = onMessageAction
+    )
+    val detail = state.detail
+    val tel = detail?.shelter?.tel
+
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    if (showBack) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(Res.string.action_back)
+                            )
+                        }
+                    }
+                },
+                actions = {
+                    if (detail != null) {
+                        BookmarkToggleButton(
+                            bookmarked = state.isBookmarked,
+                            onClick = onToggleBookmark
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+        bottomBar = {
+            if (tel != null) CallBar(onClick = { onDial(tel) })
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        Box(Modifier.fillMaxSize().padding(innerPadding)) {
+            val error = state.error
+            when {
+                detail != null -> DetailContent(
+                    state = state,
+                    detail = detail,
+                    onOpenPhoto = onOpenPhoto,
+                    onOpenShelter = onOpenShelter,
+                    onDial = onDial,
+                    onOpenMap = onOpenMap,
+                    onCopyAddress = onCopyAddress
+                )
+
+                state.notFound -> FullScreenMessage(
+                    text = stringResource(Res.string.detail_not_found),
+                    primaryLabel = stringResource(Res.string.action_go_to_list),
+                    onPrimary = onGoToList
+                )
+
+                error != null -> FullScreenMessage(
+                    text = error.resolve(),
+                    primaryLabel = stringResource(Res.string.action_retry)
+                        .takeIf { state.canRetry },
+                    onPrimary = onRetry
+                )
+
+                else -> CenteredLoading()
+            }
+            if (state.isLoading && detail != null) {
+                LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter))
+            }
+        }
+    }
+}
+
+/** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체). 공유는 Phase 4. */
+@Composable
+private fun CallBar(onClick: () -> Unit) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            Modifier
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            Button(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(
+                    text = stringResource(Res.string.action_call_shelter),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 본문(B4): 칸이 받은 폭 < 600dp → 1단(사진 → 섹션), ≥ 600dp → 2단(왼쪽 40%·280~420dp에 사진 + 요약,
+ * 오른쪽에 섹션 2~8). 전체가 한 `verticalScroll`, 본문 최대 840dp 가운데.
+ */
+@Composable
+private fun DetailContent(
+    state: AnimalDetailUiState,
+    detail: AnimalDetailUi,
+    onOpenPhoto: (Int) -> Unit,
+    onOpenShelter: () -> Unit,
+    onDial: (String) -> Unit,
+    onOpenMap: (MapTarget) -> Unit,
+    onCopyAddress: (String) -> Unit,
+) {
+    val heightCompact = !currentWindowAdaptiveInfoV2().windowSizeClass
+        .isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+    val photoTitle = detail.titleParts.map { it.resolve() }.joinToString(PART_SEPARATOR)
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val photoMax: Dp =
+            if (heightCompact) maxHeight * COMPACT_HEIGHT_PHOTO_FRACTION else PhotoMaxSide
+        val paneWidth = maxWidth
+        val twoColumn = paneWidth >= TwoColumnMinWidth
+        val edge = if (twoColumn) 24.dp else 16.dp
+        val body: @Composable (Modifier) -> Unit = { mod ->
+            DetailSectionsBody(
+                detail = detail,
+                shelterToday = state.shelterToday,
+                hasMap = state.map != null,
+                onDial = onDial,
+                onCopyAddress = onCopyAddress,
+                onOpenMap = { state.map?.let(onOpenMap) },
+                onOpenShelter = onOpenShelter,
+                modifier = mod
+            )
+        }
+        val banner: @Composable () -> Unit = {
+            if (state.isStale) NoticeBanner(stringResource(Res.string.detail_notice_gone))
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        ) {
+            if (twoColumn) {
+                val contentWidth = min(paneWidth, ContentMaxWidth) - edge * 2
+                val leftWidth = (contentWidth * LEFT_COLUMN_FRACTION)
+                    .coerceIn(LeftColumnMin, LeftColumnMax)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()
+                        .padding(horizontal = edge, vertical = 16.dp)
+                ) {
+                    banner()
+                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.width(leftWidth)
+                        ) {
+                            PhotoPager(detail.photoUrls, photoTitle, photoMax, onOpenPhoto)
+                            SummarySection(detail)
+                        }
+                        body(Modifier.weight(1f))
+                    }
+                }
+            } else {
+                PhotoPager(detail.photoUrls, photoTitle, photoMax, onOpenPhoto)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    modifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()
+                        .padding(horizontal = edge, vertical = 16.dp)
+                ) {
+                    banner()
+                    SummarySection(detail)
+                    body(Modifier)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PreviewDetail(
+    state: AnimalDetailUiState,
+    modifier: Modifier = Modifier,
+    showBack: Boolean = true,
+) {
+    AnimalShelterTheme {
+        AnimalDetailScreen(
+            state = state,
+            showBack = showBack,
+            onBack = {},
+            onToggleBookmark = {},
+            onRetry = {},
+            onGoToList = {},
+            onOpenPhoto = {},
+            onOpenShelter = {},
+            onDial = {},
+            onOpenMap = {},
+            onCopyAddress = {},
+            onMessageShown = {},
+            onMessageAction = {},
+            modifier = modifier
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun DetailOneColumnRichPreview() {
+    PreviewDetail(PreviewData.detailState(PreviewData.richAnimal, bookmarked = true))
+}
+
+@Preview
+@Composable
+private fun DetailOneColumnSparsePreview() {
+    PreviewDetail(PreviewData.detailState(PreviewData.sparseAnimal))
+}
+
+@Preview
+@Composable
+private fun DetailTwoColumnPreview() {
+    PreviewDetail(
+        PreviewData.detailState(PreviewData.richAnimal),
+        modifier = Modifier.width(760.dp),
+        showBack = false
+    )
+}
+
+@Preview
+@Composable
+private fun DetailTwoColumnSparsePreview() {
+    PreviewDetail(
+        PreviewData.detailState(PreviewData.sparseAnimal),
+        modifier = Modifier.width(760.dp)
+    )
+}
+
+@Preview
+@Composable
+private fun DetailStalePreview() {
+    PreviewDetail(
+        PreviewData.detailState(PreviewData.richAnimal, bookmarked = true).copy(isStale = true)
+    )
+}
+
+@Preview
+@Composable
+private fun DetailNotFoundPreview() {
+    PreviewDetail(AnimalDetailUiState(notFound = true))
+}
+
+@Preview
+@Composable
+private fun DetailErrorPreview() {
+    PreviewDetail(AnimalDetailUiState(error = uiText(Res.string.error_network), canRetry = true))
+}

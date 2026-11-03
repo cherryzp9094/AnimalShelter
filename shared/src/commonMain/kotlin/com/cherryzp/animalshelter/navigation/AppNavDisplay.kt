@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.cherryzp.animalshelter.data.api.toBasicString
+import com.cherryzp.animalshelter.ui.detail.AnimalDetailScreen
 import com.cherryzp.animalshelter.ui.filter.FilterScreen
 import com.cherryzp.animalshelter.ui.list.AnimalListScreen
 import com.cherryzp.animalshelter.ui.placeholder.DetailPlaceholderPane
@@ -23,6 +24,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * back stack 저장 설정. 비JVM(wasmJs)은 리플렉션 직렬화가 없어서 키를 전부 등록한다(CMP Nav3 문서).
@@ -81,7 +83,14 @@ fun AppNavDisplay() {
                 )
             }
             entry<AnimalDetailKey>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
-                PlaceholderScreen(keyName = "AnimalDetailKey(${key.desertionNo})")
+                AnimalDetailScreen(
+                    viewModel = koinViewModel { parametersOf(key) },
+                    showBack = !isListPaneExpanded(),
+                    onBack = { backStack.removeLastOrNull() },
+                    onOpenPhoto = { backStack.add(it) },
+                    onOpenShelter = { backStack.add(it) },
+                    onGoToList = { backStack.popToList() }
+                )
             }
             entry<SettingsKey> {
                 SettingsPlaceholderScreen(onBack = { backStack.removeLastOrNull() })

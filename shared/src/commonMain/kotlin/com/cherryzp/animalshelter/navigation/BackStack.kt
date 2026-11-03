@@ -10,3 +10,14 @@ fun MutableList<NavKey>.addDetail(key: AnimalDetailKey) {
     removeAll { it is AnimalDetailKey }
     add(key)
 }
+
+/** 목록까지 되돌린다: 맨 아래 [AnimalListKey]보다 뒤의 키를 모두 뺀다(목록이 없으면 목록만 남긴다). */
+fun MutableList<NavKey>.popToList() {
+    val index = indexOfFirst { it is AnimalListKey }
+    if (index < 0) {
+        clear()
+        add(AnimalListKey)
+        return
+    }
+    while (size > index + 1) removeAt(lastIndex)
+}

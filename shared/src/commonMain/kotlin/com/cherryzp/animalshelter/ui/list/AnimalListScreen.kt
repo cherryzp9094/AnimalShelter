@@ -18,10 +18,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -46,7 +44,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.action_retry
-import com.cherryzp.animalshelter.resources.action_undo
 import com.cherryzp.animalshelter.resources.action_view_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
 import com.cherryzp.animalshelter.resources.empty_results
@@ -59,6 +56,7 @@ import com.cherryzp.animalshelter.ui.common.AnimalGrid
 import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
 import com.cherryzp.animalshelter.ui.common.MessageAction
+import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.preview.PreviewData
@@ -66,7 +64,6 @@ import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import com.cherryzp.animalshelter.ui.theme.TABULAR_NUMBERS
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 /** 마지막에서 이 번째 항목이 보이면 다음 페이지(브리핑 A12). */
@@ -126,12 +123,14 @@ fun AnimalListScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val gridState = rememberLazyGridState()
 
-    MessageEffect(
-        state = state,
+    MessageSnackbarEffect(
+        message = state.message,
         snackbarHostState = snackbarHostState,
-        onOpenBookmarks = onOpenBookmarks,
-        onMessageShown = onMessageShown,
-        onMessageAction = onMessageAction
+        onShown = onMessageShown,
+        onAction = { action ->
+            onMessageAction(action)
+            if (action == MessageAction.VIEW_BOOKMARKS) onOpenBookmarks()
+        }
     )
 
     // 조건·정렬이 바뀌면 맨 위로(처음 그릴 때·다른 화면에서 돌아올 때는 위치를 지킨다)
@@ -234,44 +233,6 @@ fun AnimalListScreen(
             }
         }
     }
-}
-
-/** 스낵바 한 번: 보여 준 뒤(또는 버튼을 누른 뒤) ViewModel에 알린다. */
-@Composable
-private fun MessageEffect(
-    state: AnimalListUiState,
-    snackbarHostState: SnackbarHostState,
-    onOpenBookmarks: () -> Unit,
-    onMessageShown: () -> Unit,
-    onMessageAction: (MessageAction) -> Unit,
-) {
-    val message = state.message ?: return
-    val text = message.text.resolve()
-    val actionLabel = message.action?.let { stringResource(it.labelRes()) }
-    val currentShown by rememberUpdatedState(onMessageShown)
-    val currentAction by rememberUpdatedState(onMessageAction)
-    val currentOpenBookmarks by rememberUpdatedState(onOpenBookmarks)
-    LaunchedEffect(message) {
-        val result = snackbarHostState.showSnackbar(
-            message = text,
-            actionLabel = actionLabel,
-            duration = if (actionLabel != null) SnackbarDuration.Long else SnackbarDuration.Short
-        )
-        val action = message.action
-        if (result == SnackbarResult.ActionPerformed && action != null) {
-            currentAction(action)
-            if (action == MessageAction.VIEW_BOOKMARKS) currentOpenBookmarks()
-        } else {
-            currentShown()
-        }
-    }
-}
-
-/** 스낵바 버튼 문구. */
-fun MessageAction.labelRes(): StringResource = when (this) {
-    MessageAction.RETRY -> Res.string.action_retry
-    MessageAction.UNDO -> Res.string.action_undo
-    MessageAction.VIEW_BOOKMARKS -> Res.string.action_view_bookmarks
 }
 
 /** 그리드 머리: 요약 칩(목록과 함께 스크롤, A7) + 결과 헤더(A8). 둘 다 전체 폭. */
