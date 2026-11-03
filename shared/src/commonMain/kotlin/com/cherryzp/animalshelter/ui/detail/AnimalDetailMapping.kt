@@ -50,6 +50,7 @@ import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
 import com.cherryzp.animalshelter.resources.weight_kg
 import com.cherryzp.animalshelter.ui.common.UiText
+import com.cherryzp.animalshelter.ui.common.collapseSpaces
 import com.cherryzp.animalshelter.ui.common.formatWeight
 import com.cherryzp.animalshelter.ui.common.meaningfulText
 import com.cherryzp.animalshelter.ui.common.titleParts
@@ -196,7 +197,7 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
         traits = specialMark.meaningfulText(),
         found = buildList {
             addRaw(Res.string.label_happen_date, happenDate?.isoText(), numeric = true)
-            addRaw(Res.string.label_happen_place, happenPlace)
+            addRaw(Res.string.label_happen_place, happenPlace.collapseSpaces())
         },
         health = buildList {
             vaccinationChecks.mapNotNull { it.clean() }.takeIf { it.isNotEmpty() }?.let {
@@ -213,7 +214,7 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
             regNo = shelter.regNo.clean(),
             name = shelter.name.clean(),
             tel = shelter.tel.clean(),
-            address = shelter.address.clean(),
+            address = shelter.address.collapseSpaces(),
             orgName = shelter.orgName.clean()
         ).takeIf { it.name != null || it.tel != null || it.address != null || it.regNo != null },
         promotions = promotions.map { promo ->

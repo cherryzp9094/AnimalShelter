@@ -17,6 +17,8 @@ import com.cherryzp.animalshelter.resources.room_quarantine
 import com.cherryzp.animalshelter.resources.staff_keepers
 import com.cherryzp.animalshelter.resources.staff_vets
 import com.cherryzp.animalshelter.ui.common.UiText
+import com.cherryzp.animalshelter.ui.common.collapseSpaces
+import com.cherryzp.animalshelter.ui.common.plusSeparated
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.detail.DetailRow
 import com.cherryzp.animalshelter.ui.detail.mapTarget
@@ -69,8 +71,8 @@ fun ShelterInfo.toUi(fallbackTel: String?): ShelterInfoUi = ShelterInfoUi(
         row(Res.string.label_org_name, orgName)
     ),
     tel = tel.clean() ?: fallbackTel.clean(),
-    roadAddress = roadAddress.clean(),
-    jibunAddress = jibunAddress.clean(),
+    roadAddress = roadAddress.collapseSpaces(),
+    jibunAddress = jibunAddress.collapseSpaces(),
     map = mapTarget(),
     hours = listOfNotNull(
         weekdayHours?.let { row(Res.string.label_hours_weekday, it.toUiText(), numeric = true) },
@@ -81,10 +83,9 @@ fun ShelterInfo.toUi(fallbackTel: String?): ShelterInfoUi = ShelterInfoUi(
         weekendAdoptionHours?.let {
             row(Res.string.label_adoption_hours_weekend, it.toUiText(), numeric = true)
         },
-        row(Res.string.label_closed_day, closedDay)
+        row(Res.string.label_closed_day, closedDay.plusSeparated())
     ),
-    targetAnimals = targetAnimals.clean()?.split('+')?.mapNotNull { it.clean() }
-        ?.joinToString(", ")?.ifEmpty { null },
+    targetAnimals = targetAnimals.plusSeparated(),
     facilities = facilityLines(),
     designatedOn = designatedOn.clean(),
     dataDate = dataDate.clean()

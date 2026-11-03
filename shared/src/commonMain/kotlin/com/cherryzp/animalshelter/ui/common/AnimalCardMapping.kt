@@ -21,7 +21,7 @@ fun Animal.toCardUi(today: LocalDate, endpoint: ApiEndpoint, isBookmarked: Boole
         facts = cardFactParts(),
         shelterLine = shelterLine(),
         appearance = appearanceParts(),
-        happenPlace = happenPlace?.trim()?.takeIf { it.isNotEmpty() },
+        happenPlace = happenPlace.collapseSpaces(),
         titleParts = titleParts(),
         isBookmarked = isBookmarked
     )

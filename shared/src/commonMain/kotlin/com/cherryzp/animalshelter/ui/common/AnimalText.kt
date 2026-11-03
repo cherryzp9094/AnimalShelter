@@ -99,6 +99,17 @@ fun Animal.appearanceParts(): List<UiText> = buildList {
 fun String?.meaningfulText(): String? =
     this?.trim()?.takeIf { text -> text.any { it.isLetterOrDigit() } }
 
+/** 연속 공백(줄바꿈·탭 포함)을 하나로 줄이고 앞뒤를 자른다. 비면 null. 주소 원문용(중간 검토 F9). */
+fun String?.collapseSpaces(): String? =
+    this?.replace(WHITESPACE_RUN, " ")?.trim()?.takeIf { it.isNotEmpty() }
+
+private val WHITESPACE_RUN = Regex("""\s+""")
+
+/** "일요일+공휴일" → "일요일, 공휴일": 원문의 `+` 구분자를 ", "로(구조 대상·휴무일, F9). 빈 부분은 뺀다. */
+fun String?.plusSeparated(): String? = this?.split('+')?.mapNotNull { part ->
+    part.trim().takeIf { it.isNotEmpty() }
+}?.joinToString(", ")?.ifEmpty { null }
+
 /** 보호소 줄: 관할 기관 · 보호소 이름. 둘 다 없으면 null. */
 fun Animal.shelterLine(): String? = listOfNotNull(
     shelter.orgName?.trim()?.takeIf { it.isNotEmpty() },

@@ -8,6 +8,7 @@ import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.choice_no
 import com.cherryzp.animalshelter.resources.choice_unknown
 import com.cherryzp.animalshelter.resources.choice_yes
+import com.cherryzp.animalshelter.resources.label_happen_place
 import com.cherryzp.animalshelter.resources.label_neuter
 import com.cherryzp.animalshelter.resources.label_sex
 import com.cherryzp.animalshelter.resources.sex_female
@@ -40,5 +41,21 @@ class AnimalDetailMappingTest {
         assertEquals(uiText(Res.string.choice_yes), summaryValue(null, Neutered.YES, label))
         assertEquals(uiText(Res.string.choice_no), summaryValue(null, Neutered.NO, label))
         assertEquals(uiText(Res.string.choice_unknown), summaryValue(null, Neutered.UNKNOWN, label))
+    }
+
+    @Test
+    fun `상세의 보호소 주소·발견 장소는 연속 공백을 하나로(F9)`() {
+        val animal = testAnimal().let {
+            it.copy(
+                happenPlace = "세종  전동면",
+                shelter = it.shelter.copy(address = " 세종특별자치시  전동면   미곡리 ")
+            )
+        }
+        val ui = animal.toDetailUi(today, ApiEndpoint.Fixture)
+        assertEquals("세종특별자치시 전동면 미곡리", ui.shelter?.address)
+        assertEquals(
+            listOf(UiText.Raw("세종 전동면")),
+            ui.found.single { it.label == uiText(Res.string.label_happen_place) }.values
+        )
     }
 }

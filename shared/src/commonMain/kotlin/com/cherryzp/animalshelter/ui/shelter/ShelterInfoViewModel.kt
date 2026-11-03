@@ -15,9 +15,11 @@ import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
 import com.cherryzp.animalshelter.ui.common.clearIfShown
+import com.cherryzp.animalshelter.ui.common.collapseSpaces
 import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.time.Clock
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +47,7 @@ class ShelterInfoViewModel(
     private val fallback = ShelterFallbackUi(
         name = key.fallbackName?.trim()?.ifEmpty { null },
         tel = key.fallbackTel?.trim()?.ifEmpty { null },
-        address = key.fallbackAddress?.trim()?.ifEmpty { null }
+        address = key.fallbackAddress.collapseSpaces()
     )
 
     val uiState: StateFlow<ShelterInfoUiState> = combine(
@@ -87,6 +89,8 @@ class ShelterInfoViewModel(
      * 가므로(R1) 화면이 곧바로 목록으로 돌아가도 된다. 마지막 조건 저장·맨 위로 올리기는 목록이 한다.
      */
     fun onShowNotices() {
+        // UNDISPATCHED: 화면이 곧바로 목록으로 돌아가며 이 ViewModel 범위가 취소되기 전에 검색이 시작되게
+        // (필터의 적용과 같다, F9 — Main.immediate에 기대지 않는다)
         val current = animals.getSearchResultsStream().value.filter
         val filter = current.copy(
             shelterRegNo = key.regNo,
@@ -96,7 +100,7 @@ class ShelterInfoViewModel(
             sigunguCode = null,
             sigunguName = null
         )
-        viewModelScope.launch { animals.search(filter) }
+        viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) { animals.search(filter) }
     }
 
     fun onExternalActionResult(opened: Boolean) {

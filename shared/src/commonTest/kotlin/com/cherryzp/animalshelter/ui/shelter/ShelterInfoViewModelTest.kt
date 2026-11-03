@@ -16,11 +16,13 @@ import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.navigation.ShelterInfoKey
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.error_network
+import com.cherryzp.animalshelter.resources.label_closed_day
 import com.cherryzp.animalshelter.resources.label_vehicles
 import com.cherryzp.animalshelter.resources.room_medical
 import com.cherryzp.animalshelter.resources.staff_vets
 import com.cherryzp.animalshelter.testing.FakeClock
 import com.cherryzp.animalshelter.testing.runMainTest
+import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -156,6 +158,8 @@ class ShelterInfoViewModelTest {
         advanceUntilIdle()
 
         env.vm.onShowNotices()
+        // UNDISPATCHED(F9): 화면이 곧바로 닫혀 ViewModel 범위가 취소돼도 검색은 이미 시작됐다
+        assertEquals(1, env.animals.searchCalls.size)
         advanceUntilIdle()
 
         assertEquals(
@@ -170,6 +174,23 @@ class ShelterInfoViewModelTest {
                 )
             ),
             env.animals.searchCalls
+        )
+    }
+
+    @Test
+    fun `주소 연속 공백은 하나로, 휴무일·구조 대상의 +는 쉼표로(F9)`() {
+        val ui = testShelterInfo().copy(
+            roadAddress = "세종특별자치시  전동면   미곡리 1",
+            jibunAddress = " 세종특별자치시\t전동면 ",
+            closedDay = "일요일+공휴일",
+            targetAnimals = "개+고양이+"
+        ).toUi(fallbackTel = null)
+        assertEquals("세종특별자치시 전동면 미곡리 1", ui.roadAddress)
+        assertEquals("세종특별자치시 전동면", ui.jibunAddress)
+        assertEquals("개, 고양이", ui.targetAnimals)
+        assertEquals(
+            listOf(UiText.Raw("일요일, 공휴일")),
+            ui.hours.single { it.label == uiText(Res.string.label_closed_day) }.values
         )
     }
 
