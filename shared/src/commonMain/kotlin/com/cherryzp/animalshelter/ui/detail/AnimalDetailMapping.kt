@@ -5,7 +5,9 @@ import com.cherryzp.animalshelter.data.repository.ImageUrlPolicy
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.AnimalStatus
+import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.PromotionType
+import com.cherryzp.animalshelter.model.Sex
 import com.cherryzp.animalshelter.model.ShelterInfo
 import com.cherryzp.animalshelter.model.statusOn
 import com.cherryzp.animalshelter.resources.Res
@@ -13,6 +15,9 @@ import com.cherryzp.animalshelter.resources.age_approx
 import com.cherryzp.animalshelter.resources.age_under_one
 import com.cherryzp.animalshelter.resources.age_under_two_months
 import com.cherryzp.animalshelter.resources.age_year
+import com.cherryzp.animalshelter.resources.choice_no
+import com.cherryzp.animalshelter.resources.choice_unknown
+import com.cherryzp.animalshelter.resources.choice_yes
 import com.cherryzp.animalshelter.resources.date_range
 import com.cherryzp.animalshelter.resources.detail_status_ended_hint
 import com.cherryzp.animalshelter.resources.detail_status_noticing_hint
@@ -41,13 +46,14 @@ import com.cherryzp.animalshelter.resources.promo_adoption_support
 import com.cherryzp.animalshelter.resources.promo_event
 import com.cherryzp.animalshelter.resources.promo_period
 import com.cherryzp.animalshelter.resources.promo_volunteer
+import com.cherryzp.animalshelter.resources.sex_female
+import com.cherryzp.animalshelter.resources.sex_male
 import com.cherryzp.animalshelter.resources.weight_kg
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.formatWeight
 import com.cherryzp.animalshelter.ui.common.meaningfulText
 import com.cherryzp.animalshelter.ui.common.titleParts
 import com.cherryzp.animalshelter.ui.common.toStatusUi
-import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
@@ -109,6 +115,23 @@ fun Animal.ageValues(today: LocalDate): List<UiText> {
     return listOf(uiText(Res.string.age_year, year), approx)
 }
 
+/**
+ * 상세 요약의 성별 값(중간 검토 F2). 라벨("성별") 아래라 낱말을 되풀이하지 않는다 — 미상은 `choice_unknown`.
+ * 요약 칩·카드처럼 혼자 읽히는 곳은 [com.cherryzp.animalshelter.ui.common.toUiText](`sex_*`)를 쓴다.
+ */
+fun Sex.detailValue(): UiText = when (this) {
+    Sex.MALE -> uiText(Res.string.sex_male)
+    Sex.FEMALE -> uiText(Res.string.sex_female)
+    Sex.UNKNOWN -> uiText(Res.string.choice_unknown)
+}
+
+/** 상세 요약의 중성화 값(F2): 필터 선택지와 같은 예 / 아니요 / 미상. 요약 칩은 `neuter_*`. */
+fun Neutered.detailValue(): UiText = when (this) {
+    Neutered.YES -> uiText(Res.string.choice_yes)
+    Neutered.NO -> uiText(Res.string.choice_no)
+    Neutered.UNKNOWN -> uiText(Res.string.choice_unknown)
+}
+
 /** 축종 보조 제목. */
 fun AnimalKind.toUiText(): UiText = when (this) {
     AnimalKind.DOG -> uiText(Res.string.kind_dog)
@@ -145,8 +168,8 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
         name = kindName.clean(),
         kindLabel = kind?.toUiText(),
         summary = buildList {
-            addRow(Res.string.label_sex, sex?.toUiText())
-            addRow(Res.string.label_neuter, neutered?.toUiText())
+            addRow(Res.string.label_sex, sex?.detailValue())
+            addRow(Res.string.label_neuter, neutered?.detailValue())
             addRow(Res.string.label_age, *ageValues(today).toTypedArray(), numeric = true)
             addRow(
                 Res.string.label_weight,

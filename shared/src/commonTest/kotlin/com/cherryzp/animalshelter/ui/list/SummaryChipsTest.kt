@@ -10,8 +10,11 @@ import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.date_last_7
 import com.cherryzp.animalshelter.resources.date_range
 import com.cherryzp.animalshelter.resources.kind_cat
+import com.cherryzp.animalshelter.resources.neuter_no
+import com.cherryzp.animalshelter.resources.neuter_unknown
 import com.cherryzp.animalshelter.resources.neuter_yes
 import com.cherryzp.animalshelter.resources.sex_female
+import com.cherryzp.animalshelter.resources.sex_unknown
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.resources.state_protect
@@ -86,6 +89,21 @@ class SummaryChipsTest {
         assertEquals(
             listOf(UiText.Raw("서울동물복지지원센터"), uiText(Res.string.date_range, "10-01", "10-15")),
             labels
+        )
+    }
+
+    @Test
+    fun `성별·중성화 칩은 라벨 없이 혼자 읽히는 문구(F2)`() {
+        fun tail(sex: Sex, neutered: Neutered) =
+            summaryChips(SearchFilter(sex = sex, neutered = neutered), SortOrder.LATEST, today)
+                .map { it.label }.takeLast(2)
+        assertEquals(
+            listOf(uiText(Res.string.sex_unknown), uiText(Res.string.neuter_no)),
+            tail(Sex.UNKNOWN, Neutered.NO)
+        )
+        assertEquals(
+            listOf(uiText(Res.string.sex_female), uiText(Res.string.neuter_unknown)),
+            tail(Sex.FEMALE, Neutered.UNKNOWN)
         )
     }
 }

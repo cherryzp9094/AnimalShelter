@@ -47,8 +47,8 @@
     <string name="sex_male">수컷</string>
     <string name="sex_female">암컷</string>
     <string name="sex_unknown">성별 미상</string>
-    <string name="neuter_yes">중성화 O</string>
-    <string name="neuter_no">중성화 X</string>
+    <string name="neuter_yes">중성화 완료</string>
+    <string name="neuter_no">중성화 안 함</string>
     <string name="neuter_unknown">중성화 미상</string>
     <string name="age_year">%1$d년생</string>
     <string name="age_under_two_months">생후 2개월 미만</string>
@@ -86,7 +86,7 @@
     <string name="choice_all">전체</string>
     <string name="choice_unknown">미상</string>
     <string name="choice_yes">예</string>
-    <string name="choice_no">아니오</string>
+    <string name="choice_no">아니요</string>
     <string name="filter_codes_error">목록을 불러오지 못했어요.</string>
     <string name="filter_codes_stale">최신 목록을 못 받았어요. 저장된 목록을 보여 드려요.</string>
     <string name="filter_reset">초기화</string>
