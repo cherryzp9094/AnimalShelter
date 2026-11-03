@@ -98,7 +98,88 @@ class BookmarkListViewModelTest {
         advanceUntilIdle()
         assertNull(env.state.message)
         assertEquals(listOf("A"), env.state.items.map { it.desertionNo })
-        assertEquals(animal, bookmarks.addCalls.last())
+        assertEquals(animal, bookmarks.restoreCalls.last().first.animal)
+        assertEquals("A", env.state.restoredKey)
+        env.vm.onRestoreShown()
+        advanceUntilIdle()
+        assertNull(env.state.restoredKey)
+    }
+
+    @Test
+    fun `가운데 것을 지우고 되돌리면 같은 자리·같은 저장 시각(F4)`() = runVmTest {
+        var now = clock.now()
+        val bookmarks = FakeBookmarkRepository { now.also { now += 1.minutes } }
+        listOf("C", "B", "A").forEach { bookmarks.add(testAnimal(desertionNo = it)) }
+        val savedAt = bookmarks.bookmarks.value.associate { it.animal.desertionNo to it.savedAt }
+        val env = start(Env(bookmarks))
+        assertEquals(listOf("A", "B", "C"), env.state.items.map { it.desertionNo })
+
+        env.vm.onToggleBookmark("B")
+        advanceUntilIdle()
+        assertEquals(listOf("A", "C"), env.state.items.map { it.desertionNo })
+        env.vm.onMessageAction(MessageAction.UNDO, env.state.message!!.id)
+        advanceUntilIdle()
+
+        assertEquals(listOf("A", "B", "C"), env.state.items.map { it.desertionNo })
+        assertEquals(
+            savedAt,
+            bookmarks.bookmarks.value.associate {
+                it.animal.desertionNo to
+                    it.savedAt
+            }
+        )
+        assertEquals(3, bookmarks.addCalls.size) // 되돌리기는 add가 아니다
+    }
+
+    @Test
+    fun `둘을 연달아 지우면 두 번째 것만 돌아온다(F4)`() = runVmTest {
+        val bookmarks = FakeBookmarkRepository()
+        listOf("C", "B", "A").forEach { bookmarks.add(testAnimal(desertionNo = it)) }
+        val env = start(Env(bookmarks))
+
+        env.vm.onToggleBookmark("A")
+        advanceUntilIdle()
+        val first = env.state.message!!
+        env.vm.onToggleBookmark("C")
+        advanceUntilIdle()
+        // 사라진 첫 안내의 버튼은 받지 않는다
+        env.vm.onMessageAction(MessageAction.UNDO, first.id)
+        advanceUntilIdle()
+        assertEquals(listOf("B"), env.state.items.map { it.desertionNo })
+
+        env.vm.onMessageAction(MessageAction.UNDO, env.state.message!!.id)
+        advanceUntilIdle()
+        assertEquals(listOf("B", "C"), env.state.items.map { it.desertionNo })
+    }
+
+    @Test
+    fun `되돌리기 전에 다시 추가된 번호면 그대로(F4)`() = runVmTest {
+        val bookmarks = FakeBookmarkRepository()
+        listOf("B", "A").forEach { bookmarks.add(testAnimal(desertionNo = it)) }
+        val env = start(Env(bookmarks))
+
+        env.vm.onToggleBookmark("B")
+        advanceUntilIdle()
+        bookmarks.add(testAnimal(desertionNo = "B", kindName = "다시 추가"))
+        env.vm.onMessageAction(MessageAction.UNDO, env.state.message!!.id)
+        advanceUntilIdle()
+
+        assertEquals(listOf("B", "A"), env.state.items.map { it.desertionNo })
+        assertEquals("다시 추가", bookmarks.bookmarks.value.first().animal.kindName)
+    }
+
+    @Test
+    fun `되살린 카드가 보이는 범위 밖일 때만 스크롤 위치(F4)`() {
+        val keys = listOf("A", "B", "C", "D", "E")
+        // 1열: 첫 카드를 되살렸는데 첫 보이는 것이 B → 0으로
+        assertEquals(0, restoreScrollTarget(keys, "A", firstVisibleKey = "B", lastVisibleKey = "C"))
+        // 보이는 범위 안이면 그대로
+        assertNull(restoreScrollTarget(keys, "C", "B", "D"))
+        // 아래로 벗어나도 보이게
+        assertEquals(4, restoreScrollTarget(keys, "E", "A", "C"))
+        // 배치 정보가 없으면 그 자리로, 목록에 아직 없으면 null
+        assertEquals(1, restoreScrollTarget(keys, "B", null, null))
+        assertNull(restoreScrollTarget(keys, "Z", "A", "C"))
     }
 
     @Test

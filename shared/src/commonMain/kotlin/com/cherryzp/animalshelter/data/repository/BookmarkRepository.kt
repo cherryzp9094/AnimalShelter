@@ -16,6 +16,12 @@ interface BookmarkRepository {
 
     suspend fun remove(desertionNo: String)
 
+    /**
+     * 지운 북마크를 되살린다(되돌리기, 중간 검토 F4): 원래 `savedAt`으로 순서 위치 [index]에 넣는다(`0..size`로
+     * 자른다). 이미 있는 번호면(그새 다시 추가했으면) 아무것도 하지 않는다.
+     */
+    suspend fun restore(bookmark: Bookmark, index: Int)
+
     /** 있는 것만 바꾼다. `savedAt`은 그대로, 새 스냅샷에 `happenDate`가 없으면 옛 값을 둔다. */
     suspend fun updateSnapshot(animal: Animal)
 

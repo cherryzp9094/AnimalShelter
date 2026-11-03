@@ -19,8 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -62,6 +64,7 @@ fun BookmarkListScreen(
         onToggleLayout = viewModel::onToggleLayout,
         onMessageShown = viewModel::onMessageShown,
         onMessageAction = viewModel::onMessageAction,
+        onRestoreShown = viewModel::onRestoreShown,
         modifier = modifier
     )
 }
@@ -81,6 +84,7 @@ fun BookmarkListScreen(
     onMessageShown: (id: Long) -> Unit,
     onMessageAction: (action: MessageAction, id: Long) -> Unit,
     modifier: Modifier = Modifier,
+    onRestoreShown: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -91,6 +95,21 @@ fun BookmarkListScreen(
         onShown = onMessageShown,
         onAction = onMessageAction
     )
+    // 되돌린 카드가 화면 밖(첫 보이는 카드보다 앞 — 1열 보기의 첫 카드 등)이면 보이게 한다(F4)
+    val currentRestoreShown by rememberUpdatedState(onRestoreShown)
+    val restoredKey = state.restoredKey
+    LaunchedEffect(restoredKey, state.items) {
+        if (restoredKey == null) return@LaunchedEffect
+        if (state.items.none { it.desertionNo == restoredKey }) return@LaunchedEffect
+        val visible = gridState.layoutInfo.visibleItemsInfo
+        restoreScrollTarget(
+            keys = state.items.map { it.desertionNo },
+            restoredKey = restoredKey,
+            firstVisibleKey = visible.firstOrNull()?.key,
+            lastVisibleKey = visible.lastOrNull()?.key
+        )?.let { gridState.requestScrollToItem(it) }
+        currentRestoreShown()
+    }
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {

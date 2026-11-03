@@ -1,6 +1,7 @@
 package com.cherryzp.animalshelter.data.repository
 
 import com.cherryzp.animalshelter.model.Animal
+import com.cherryzp.animalshelter.model.Bookmark
 import com.cherryzp.animalshelter.platform.storageTestModule
 import com.cherryzp.animalshelter.testing.FakeClock
 import com.cherryzp.animalshelter.testing.withTestStores
@@ -54,6 +55,40 @@ class BookmarkRepositoryTest {
                 repo.getBookmarksStream().first().map {
                     it.animal.desertionNo
                 }
+            )
+        }
+    }
+
+    @Test
+    fun `restore는 원래 자리·원래 savedAt, 이미 있는 번호면 그대로, 위치는 잘라 넣는다`() = runTest {
+        withTestStores { stores ->
+            val repo = DefaultBookmarkRepository(stores.bookmarks(), clock)
+            listOf("C", "B", "A").forEach {
+                repo.add(Animal(it))
+                clock.advance(1.hours)
+            }
+            val removed = repo.getBookmarksStream().first()[1]
+            assertEquals("B", removed.animal.desertionNo)
+            repo.remove("B")
+            clock.advance(1.hours)
+
+            repo.restore(removed, 1)
+            val restored = repo.getBookmarksStream().first()
+            assertEquals(listOf("A", "B", "C"), restored.map { it.animal.desertionNo })
+            assertEquals(removed.savedAt, restored[1].savedAt)
+
+            repo.restore(removed.copy(animal = Animal("B", kindName = "무시")), 0)
+            assertEquals(
+                listOf("A", "B", "C"),
+                repo.getBookmarksStream().first().map { it.animal.desertionNo }
+            )
+            assertEquals(null, repo.getBookmarksStream().first()[1].animal.kindName)
+
+            repo.remove("C")
+            repo.restore(Bookmark(Animal("C"), removed.savedAt), 99)
+            assertEquals(
+                listOf("A", "B", "C"),
+                repo.getBookmarksStream().first().map { it.animal.desertionNo }
             )
         }
     }

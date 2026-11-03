@@ -50,6 +50,20 @@ internal class DefaultBookmarkRepository(
         }
     }
 
+    override suspend fun restore(bookmark: Bookmark, index: Int) {
+        store.update { data ->
+            val no = bookmark.animal.desertionNo
+            if (no in data.entries) return@update data
+            val order = data.order.toMutableList()
+            order.add(index.coerceIn(0, order.size), no)
+            BookmarkData(
+                entries = data.entries +
+                    (no to StoredBookmark(bookmark.animal, bookmark.savedAt.toEpochMilliseconds())),
+                order = order
+            )
+        }
+    }
+
     override suspend fun updateSnapshot(animal: Animal) {
         store.update { data ->
             val existing = data.entries[animal.desertionNo] ?: return@update data

@@ -18,6 +18,7 @@ class FakeBookmarkRepository(
     val recovered = MutableStateFlow(false)
     val addCalls = mutableListOf<Animal>()
     val removeCalls = mutableListOf<String>()
+    val restoreCalls = mutableListOf<Pair<Bookmark, Int>>()
     val updateCalls = mutableListOf<Animal>()
 
     override fun getBookmarksStream(): Flow<List<Bookmark>> = bookmarks
@@ -41,6 +42,14 @@ class FakeBookmarkRepository(
     override suspend fun remove(desertionNo: String) {
         removeCalls += desertionNo
         bookmarks.value = bookmarks.value.filterNot { it.animal.desertionNo == desertionNo }
+    }
+
+    /** 실제 구현처럼 원래 `savedAt`으로 [index](0..size로 자른다)에, 이미 있는 번호면 그대로(F4). */
+    override suspend fun restore(bookmark: Bookmark, index: Int) {
+        restoreCalls += bookmark to index
+        val list = bookmarks.value
+        if (list.any { it.animal.desertionNo == bookmark.animal.desertionNo }) return
+        bookmarks.value = list.toMutableList().also { it.add(index.coerceIn(0, it.size), bookmark) }
     }
 
     override suspend fun updateSnapshot(animal: Animal) {
