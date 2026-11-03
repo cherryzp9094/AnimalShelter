@@ -3,6 +3,7 @@ package com.cherryzp.animalshelter.navigation
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.runtime.Composable
 import androidx.window.core.layout.WindowSizeClass
@@ -12,10 +13,23 @@ import androidx.window.core.layout.WindowSizeClass
 /** 목록 칸이 지금 펼쳐져 보이는가(두 칸·세 칸). 목록-상세 장면 밖이면 false. */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun isListPaneExpanded(): Boolean {
+fun isListPaneExpanded(): Boolean = isPaneExpanded(ListDetailPaneScaffoldRole.List)
+
+/**
+ * 상세 옆에 다른 칸(목록 또는 보호소 — `extraPane`)이 펼쳐져 있는가(중간 검토 F6). 그러면 상세의 뒤로 화살표를
+ * 숨긴다 — [상세 | 보호소](expanded + 보호소)에서 두 칸 모두 화살표가 있으면 둘 다 보호소를 닫았다.
+ */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+fun isDetailBesideOtherPane(): Boolean = isPaneExpanded(ListDetailPaneScaffoldRole.List) ||
+    isPaneExpanded(ListDetailPaneScaffoldRole.Extra)
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun isPaneExpanded(role: ThreePaneScaffoldRole): Boolean {
     val scope = LocalListDetailSceneScope.current ?: return false
     val value = scope.scaffoldTransitionScope.scaffoldStateTransition.currentState
-    return value[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
+    return value[role] == PaneAdaptedValue.Expanded
 }
 
 /**

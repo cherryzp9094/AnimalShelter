@@ -129,7 +129,7 @@ private fun AppNavDisplay(
             entry<AnimalDetailKey>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
                 AnimalDetailScreen(
                     viewModel = koinViewModel { parametersOf(key) },
-                    showBack = !isListPaneExpanded(),
+                    showBack = !isDetailBesideOtherPane(),
                     onBack = { backStack.removeLastOrNull() },
                     onOpenPhoto = { backStack.add(it) },
                     onOpenShelter = { backStack.add(it) },
