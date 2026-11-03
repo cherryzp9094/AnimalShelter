@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -39,6 +41,7 @@ import com.cherryzp.animalshelter.resources.action_retry
 import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.photo_a11y
 import com.cherryzp.animalshelter.resources.photo_counter
+import com.cherryzp.animalshelter.ui.common.DarkSystemBarsEffect
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
@@ -79,6 +82,8 @@ fun PhotoViewerScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // 검은 배경 — 테마가 라이트여도 상태 바 아이콘을 밝게(C4)
+    DarkSystemBarsEffect()
     Box(modifier = modifier.fillMaxSize().background(ViewerBackground)) {
         val photos = state.photos
         val error = state.error
@@ -154,7 +159,10 @@ private fun ViewerTopBar(counter: String?, onClose: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(ViewerBackground.copy(alpha = 0.4f))
-            .windowInsetsPadding(WindowInsets.safeDrawing)
+            // 위·옆만 — 전체 safeDrawing이면 아래 내비게이션 바 높이만큼 바가 두꺼워진다
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+            )
             .padding(4.dp)
     ) {
         IconButton(onClick = onClose) {

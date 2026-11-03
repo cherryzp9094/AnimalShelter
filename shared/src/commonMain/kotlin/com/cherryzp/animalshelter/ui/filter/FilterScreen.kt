@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
@@ -172,10 +174,14 @@ fun FilterScreen(
             FilterBottomBar(canApply = state.canApply, onReset = onReset, onApply = onApply)
         }
     ) { innerPadding ->
+        // 품종 검색 칸이 키보드에 가리지 않게: 바깥 inset을 소비한 뒤 imePadding → verticalScroll(C4, edge-to-edge 스킬)
         Box(
-            modifier = Modifier.fillMaxSize().padding(
-                innerPadding
-            ).verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.TopCenter
         ) {
             Column(
