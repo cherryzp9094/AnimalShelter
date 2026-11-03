@@ -25,7 +25,9 @@ import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.resources.bookmark_save_failed
 import com.cherryzp.animalshelter.resources.date_default
 import com.cherryzp.animalshelter.resources.error_network
+import com.cherryzp.animalshelter.resources.error_quota
 import com.cherryzp.animalshelter.resources.filter_none
+import com.cherryzp.animalshelter.resources.list_load_more_failed
 import com.cherryzp.animalshelter.resources.list_noticing_count
 import com.cherryzp.animalshelter.resources.list_total_count
 import com.cherryzp.animalshelter.resources.sort_too_many
@@ -227,6 +229,23 @@ class AnimalListViewModelTest {
     }
 
     @Test
+    fun `한도 초과로 다음 페이지가 실패하면 끝 행은 버튼 없이 그 오류 문구(F7)`() = runVmTest {
+        val env = Env(initial = loaded())
+        subscribe(env)
+
+        env.vm.onNearEnd()
+        advanceUntilIdle()
+        env.animals.results.value = loaded().copy(error = ApiError.Gateway("22", null), errorId = 1)
+        advanceUntilIdle()
+
+        assertEquals(
+            ListFooter.Failed(uiText(Res.string.error_quota), canRetry = false),
+            env.state.footer
+        )
+        assertNull(env.state.message)
+    }
+
+    @Test
     fun `만들 때 남아 있던 오류는 알리지 않는다`() = runVmTest {
         val env = Env(initial = loaded().copy(error = ApiError.Network, errorId = 9))
         subscribe(env)
@@ -243,7 +262,10 @@ class AnimalListViewModelTest {
         advanceUntilIdle()
         env.animals.results.value = loaded().copy(error = ApiError.Network, errorId = 1)
         advanceUntilIdle()
-        assertEquals(ListFooter.RETRY, env.state.footer)
+        assertEquals(
+            ListFooter.Failed(uiText(Res.string.list_load_more_failed), canRetry = true),
+            env.state.footer
+        )
         assertNull(env.state.message) // 다음 페이지 실패는 끝 행이 알린다
         env.vm.onRetry()
         advanceUntilIdle()
@@ -380,7 +402,7 @@ class AnimalListViewModelTest {
         assertEquals(false, error.canRetry)
         assertTrue(first.state.isInitialLoading)
         assertNull(first.state.fullScreen)
-        assertEquals(ListFooter.END, end.state.footer)
+        assertEquals(ListFooter.End, end.state.footer)
     }
 
     @Test

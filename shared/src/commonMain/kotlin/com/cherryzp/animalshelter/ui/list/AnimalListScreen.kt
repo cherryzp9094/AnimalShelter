@@ -49,7 +49,6 @@ import com.cherryzp.animalshelter.resources.empty_change_filter
 import com.cherryzp.animalshelter.resources.empty_results
 import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.resources.list_end
-import com.cherryzp.animalshelter.resources.list_load_more_failed
 import com.cherryzp.animalshelter.resources.list_total_count
 import com.cherryzp.animalshelter.ui.common.AnimalCardUi
 import com.cherryzp.animalshelter.ui.common.AnimalGrid
@@ -254,39 +253,43 @@ private fun LazyGridScope.listHeader(state: AnimalListUiState, onChipClick: (Sum
     }
 }
 
-/** 그리드 끝 행(A11): 받는 중 / 마지막 / 다음 페이지 실패 + 다시 시도. */
+/** 그리드 끝 행(A11, F7): 받는 중 / 마지막 / 다음 페이지 실패(+ 다시 시도할 수 있으면 버튼). */
 private fun LazyGridScope.listFooter(footer: ListFooter, onRetry: () -> Unit) {
-    if (footer == ListFooter.NONE) return
+    if (footer == ListFooter.None) return
     item(key = "footer", span = { GridItemSpan(maxLineSpan) }, contentType = "footer") {
         Box(
             Modifier.fillMaxWidth().padding(vertical = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             when (footer) {
-                ListFooter.LOADING -> CircularProgressIndicator(
+                ListFooter.Loading -> CircularProgressIndicator(
                     Modifier.size(24.dp),
                     strokeWidth = 2.dp
                 )
 
-                ListFooter.END -> Text(
+                ListFooter.End -> Text(
                     text = stringResource(Res.string.list_end),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                ListFooter.RETRY -> Column(
+                is ListFooter.Failed -> Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        text = stringResource(Res.string.list_load_more_failed),
+                        text = footer.text.resolve(),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center
                     )
-                    TextButton(onClick = onRetry) { Text(stringResource(Res.string.action_retry)) }
+                    if (footer.canRetry) {
+                        TextButton(onClick = onRetry) {
+                            Text(stringResource(Res.string.action_retry))
+                        }
+                    }
                 }
 
-                ListFooter.NONE -> Unit
+                ListFooter.None -> Unit
             }
         }
     }
@@ -326,7 +329,7 @@ private fun AnimalListDataPreview() {
             ),
             header = uiText(Res.string.list_total_count, "7,544"),
             items = PreviewData.cards,
-            footer = ListFooter.END
+            footer = ListFooter.End
         )
     )
 }

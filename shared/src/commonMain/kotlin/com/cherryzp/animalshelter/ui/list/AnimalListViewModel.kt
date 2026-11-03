@@ -19,6 +19,7 @@ import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.bookmark_added
 import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.resources.bookmark_save_failed
+import com.cherryzp.animalshelter.resources.list_load_more_failed
 import com.cherryzp.animalshelter.resources.list_noticing_count
 import com.cherryzp.animalshelter.resources.list_total_count
 import com.cherryzp.animalshelter.ui.bookmarks.RecoveryNotice
@@ -298,11 +299,19 @@ class AnimalListViewModel(
                 else -> null
             },
             footer = when {
-                !hasItems -> ListFooter.NONE
-                r.loading == LoadState.MORE -> ListFooter.LOADING
-                error != null && local.lastAction == LastAction.LOAD_MORE -> ListFooter.RETRY
-                !r.hasMore && r.loading == LoadState.IDLE && r.fetchedAt != null -> ListFooter.END
-                else -> ListFooter.NONE
+                !hasItems -> ListFooter.None
+
+                r.loading == LoadState.MORE -> ListFooter.Loading
+
+                error != null && local.lastAction == LastAction.LOAD_MORE -> if (error.canRetry()) {
+                    ListFooter.Failed(uiText(Res.string.list_load_more_failed), canRetry = true)
+                } else {
+                    ListFooter.Failed(error.toUiText(config.isDebug), canRetry = false)
+                }
+
+                !r.hasMore && r.loading == LoadState.IDLE && r.fetchedAt != null -> ListFooter.End
+
+                else -> ListFooter.None
             },
             fullScreen = when {
                 hasItems || waitingFirst -> null

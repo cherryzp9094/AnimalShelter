@@ -27,7 +27,7 @@ data class AnimalListUiState(
     val items: List<AnimalCardUi> = emptyList(),
     val isInitialLoading: Boolean = false,
     val refreshIndicator: RefreshIndicator? = null,
-    val footer: ListFooter = ListFooter.NONE,
+    val footer: ListFooter = ListFooter.None,
     val fullScreen: FullScreenState? = null,
     val message: UiMessage? = null,
     val queryKey: String = "",
@@ -43,8 +43,21 @@ enum class ChipTarget { FILTER, SORT_LATEST }
 /** 새로고침 표시: 당김 표시(PULL) / 상단 선(BAR). */
 enum class RefreshIndicator { PULL, BAR }
 
-/** 그리드 끝 행: 없음 / 다음 페이지 받는 중 / 마지막 / 다음 페이지 실패(다시 시도). */
-enum class ListFooter { NONE, LOADING, END, RETRY }
+/** 그리드 끝 행: 없음 / 다음 페이지 받는 중 / 마지막 / 다음 페이지 실패. */
+@Immutable
+sealed interface ListFooter {
+    data object None : ListFooter
+
+    data object Loading : ListFooter
+
+    data object End : ListFooter
+
+    /**
+     * 다음 페이지 실패(중간 검토 F7). 다시 시도할 수 있으면 `list_load_more_failed` + 버튼, 없으면(하루 한도 등)
+     * 버튼 없이 그 오류 문구([text], P5).
+     */
+    data class Failed(val text: UiText, val canRetry: Boolean) : ListFooter
+}
 
 /** 결과가 비었을 때의 한 화면. */
 @Immutable
