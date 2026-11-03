@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.cherryzp.animalshelter.data.api.toBasicString
+import com.cherryzp.animalshelter.ui.bookmarks.BookmarkListScreen
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailScreen
 import com.cherryzp.animalshelter.ui.filter.FilterScreen
 import com.cherryzp.animalshelter.ui.list.AnimalListScreen
@@ -106,7 +107,25 @@ fun AppNavDisplay() {
                     onClose = { backStack.removeLastOrNull() }
                 )
             }
-            entry<BookmarkListKey> { PlaceholderScreen(keyName = "BookmarkListKey") }
+            entry<BookmarkListKey>(
+                metadata = ListDetailSceneStrategy.listPane(
+                    detailPlaceholder = { DetailPlaceholderPane() }
+                )
+            ) {
+                BookmarkListScreen(
+                    viewModel = koinViewModel(),
+                    onBack = { backStack.removeLastOrNull() },
+                    onOpenAnimal = { card ->
+                        backStack.addDetail(
+                            AnimalDetailKey(
+                                card.desertionNo,
+                                card.happenDate?.toBasicString(),
+                                fromBookmarks = true
+                            )
+                        )
+                    }
+                )
+            }
             entry<ShelterInfoKey> { PlaceholderScreen(keyName = "ShelterInfoKey") }
         }
     )

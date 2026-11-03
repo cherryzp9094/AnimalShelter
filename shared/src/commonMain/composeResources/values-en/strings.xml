@@ -156,4 +156,7 @@
     <string name="photo_counter">%1$d / %2$d</string>
     <string name="photo_a11y">Photo %1$d of %2$d: %3$s</string>
     <string name="action_call">Call</string>
+    <string name="title_bookmarks">Bookmarks</string>
+    <string name="empty_bookmarks">You haven’t bookmarked any animals yet.</string>
+    <string name="bookmarks_recovered">Couldn’t read your bookmarks, so the list was reset.</string>
 </resources>

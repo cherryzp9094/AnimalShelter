@@ -156,4 +156,7 @@
     <string name="photo_counter">%1$d / %2$d</string>
     <string name="photo_a11y">사진 %1$d/%2$d: %3$s</string>
     <string name="action_call">전화하기</string>
+    <string name="title_bookmarks">북마크</string>
+    <string name="empty_bookmarks">북마크에 추가된 동물 친구들이 없어요.</string>
+    <string name="bookmarks_recovered">북마크 파일을 읽지 못해 목록을 비웠어요.</string>
 </resources>

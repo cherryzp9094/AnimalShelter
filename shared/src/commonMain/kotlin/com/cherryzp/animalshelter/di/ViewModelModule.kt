@@ -2,6 +2,7 @@ package com.cherryzp.animalshelter.di
 
 import com.cherryzp.animalshelter.navigation.AnimalDetailKey
 import com.cherryzp.animalshelter.navigation.PhotoViewerKey
+import com.cherryzp.animalshelter.ui.bookmarks.BookmarkListViewModel
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailViewModel
 import com.cherryzp.animalshelter.ui.filter.FilterViewModel
 import com.cherryzp.animalshelter.ui.list.AnimalListViewModel
@@ -18,6 +19,7 @@ import org.koin.dsl.module
 val viewModelModule: Module = module {
     viewModelOf(::AnimalListViewModel)
     viewModelOf(::FilterViewModel)
+    viewModelOf(::BookmarkListViewModel)
     viewModel { (key: AnimalDetailKey) ->
         AnimalDetailViewModel(key, get(), get(), get(), get(), get(), get(), get())
     }

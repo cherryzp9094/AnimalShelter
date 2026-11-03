@@ -21,6 +21,7 @@ import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.resources.bookmark_save_failed
 import com.cherryzp.animalshelter.resources.list_noticing_count
 import com.cherryzp.animalshelter.resources.list_total_count
+import com.cherryzp.animalshelter.ui.bookmarks.RecoveryNotice
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
@@ -100,6 +101,7 @@ class AnimalListViewModel(
         viewModelScope.launch { startFirstSearch() }
         viewModelScope.launch { saveSuccessfulFilters() }
         viewModelScope.launch { watchErrors() }
+        viewModelScope.launch { watchRecovery() }
     }
 
     fun onRefresh(byPull: Boolean) {
@@ -183,6 +185,7 @@ class AnimalListViewModel(
     }
 
     fun onMessageShown() {
+        if (local.value.message == RecoveryNotice) bookmarks.dismissRecoveryNotice()
         local.update { it.copy(message = null) }
     }
 
@@ -226,6 +229,13 @@ class AnimalListViewModel(
                     // 저장 실패는 다음 성공 때 다시 시도된다(조건이 같으면 건너뛴다)
                 }
             }
+    }
+
+    /** 북마크 파일이 깨져 비웠으면 시작 화면에서 한 번 알린다(B11). 보인 뒤 [onMessageShown]이 끈다. */
+    private suspend fun watchRecovery() {
+        bookmarks.getRecoveredFromCorruptionStream().collect { recovered ->
+            if (recovered && local.value.message == null) showMessage(RecoveryNotice)
+        }
     }
 
     private suspend fun watchErrors() {

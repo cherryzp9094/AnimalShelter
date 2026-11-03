@@ -159,13 +159,22 @@ fun AnimalCard(
 /**
  * 사진 위 북마크 버튼: 터치 48dp, 아이콘 24dp, 지름 32dp 원 배경(`surface` 90% — 사진 위에서도 보이게).
  * 켜짐 `ic_bookmark` + `primary`, 꺼짐 `ic_bookmark_border` + `onSurfaceVariant`.
+ * 누르면 scale 1 → 0.9 → 1(B8).
  */
 @Composable
 fun BookmarkButton(bookmarked: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(onClick = onClick, modifier = modifier) {
+    val bounce = rememberPressBounce()
+    IconButton(
+        onClick = {
+            bounce.play()
+            onClick()
+        },
+        modifier = modifier
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
+                .bounce(bounce)
                 .size(32.dp)
                 .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f), CircleShape)
         ) {

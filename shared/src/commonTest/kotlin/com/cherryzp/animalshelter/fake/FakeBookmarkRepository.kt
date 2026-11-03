@@ -31,7 +31,8 @@ class FakeBookmarkRepository(
         val list = bookmarks.value
         val index = list.indexOfFirst { it.animal.desertionNo == animal.desertionNo }
         bookmarks.value = if (index >= 0) {
-            list.toMutableList().also { it[index] = it[index].copy(animal = animal) }
+            // 실제 구현처럼 순서·savedAt을 두고, 새 스냅샷에 happenDate가 없으면 옛 값을 지킨다(R8)
+            list.toMutableList().also { it[index] = it[index].withSnapshot(animal) }
         } else {
             listOf(Bookmark(animal, now())) + list
         }
@@ -45,15 +46,22 @@ class FakeBookmarkRepository(
     override suspend fun updateSnapshot(animal: Animal) {
         updateCalls += animal
         bookmarks.value = bookmarks.value.map { bookmark ->
-            if (bookmark.animal.desertionNo != animal.desertionNo) return@map bookmark
-            val merged = if (animal.happenDate == null) {
-                animal.copy(happenDate = bookmark.animal.happenDate)
+            if (bookmark.animal.desertionNo == animal.desertionNo) {
+                bookmark.withSnapshot(animal)
             } else {
-                animal
+                bookmark
             }
-            bookmark.copy(animal = merged)
         }
     }
+
+    /** 스냅샷만 바꾼다(`savedAt` 유지, 새 스냅샷에 `happenDate`가 없으면 옛 값) — `DefaultBookmarkRepository`와 같다. */
+    private fun Bookmark.withSnapshot(animal: Animal): Bookmark = copy(
+        animal = if (animal.happenDate == null) {
+            animal.copy(happenDate = this.animal.happenDate)
+        } else {
+            animal
+        }
+    )
 
     override fun getRecoveredFromCorruptionStream(): StateFlow<Boolean> = recovered
 

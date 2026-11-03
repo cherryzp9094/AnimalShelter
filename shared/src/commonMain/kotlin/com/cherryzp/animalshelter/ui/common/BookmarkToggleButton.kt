@@ -14,11 +14,22 @@ import com.cherryzp.animalshelter.resources.ic_bookmark_border
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-/** 상단 바의 북마크 토글(상세). 켜짐 `ic_bookmark` + `primary`, 꺼짐 `ic_bookmark_border`. */
+/**
+ * 상단 바의 북마크 토글(상세). 켜짐 `ic_bookmark` + `primary`, 꺼짐 `ic_bookmark_border`.
+ * 누르면 scale 1 → 0.9 → 1(B8).
+ */
 @Composable
 fun BookmarkToggleButton(bookmarked: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    IconButton(onClick = onClick, modifier = modifier) {
+    val bounce = rememberPressBounce()
+    IconButton(
+        onClick = {
+            bounce.play()
+            onClick()
+        },
+        modifier = modifier
+    ) {
         Icon(
+            modifier = Modifier.bounce(bounce),
             painter = painterResource(
                 if (bookmarked) Res.drawable.ic_bookmark else Res.drawable.ic_bookmark_border
             ),
