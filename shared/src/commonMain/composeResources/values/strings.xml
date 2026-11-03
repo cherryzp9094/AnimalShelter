@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 한국어(기본). 문구 기준은 docs/design/03-screens.md 3절. 나머지 문구는 Phase 3. -->
+<resources>
+    <string name="app_name">애니멀 쉘터</string>
+    <string name="action_settings">설정</string>
+    <string name="action_back">뒤로</string>
+    <string name="title_settings">설정</string>
+    <string name="detail_placeholder">목록에서 동물을 골라 주세요.</string>
+</resources>
