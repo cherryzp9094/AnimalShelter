@@ -75,4 +75,22 @@ class UiFlowTest {
     /** T9 요약 칩의 클릭 동작 이름과 동작 하나(3e E8). */
     @Test
     fun t9SummaryChipsHaveActionLabels() = runFlowTest { summaryChipActionLabelFlow(it) }
+
+    /** T10 폰 가로 목록 상단 바는 끌면 숨고 올리면 나오며, 조건이 바뀌면 펼쳐진다(4a N4). */
+    @Test
+    fun t10LandscapeListTopBarHidesOnScroll() = runFlowTest(
+        widthDp = LANDSCAPE_WIDTH_DP,
+        heightDp = LANDSCAPE_HEIGHT_DP
+    ) { landscapeTopBarHidesFlow(it) }
+
+    /** T10 폰 가로 북마크 목록 상단 바도 끌면 숨는다(4a N4). */
+    @Test
+    fun t10LandscapeBookmarksTopBarHidesOnScroll() = runFlowTest(
+        widthDp = LANDSCAPE_WIDTH_DP,
+        heightDp = LANDSCAPE_HEIGHT_DP
+    ) { landscapeBookmarksTopBarHidesFlow(it) }
+
+    /** T10 폰 세로 목록 상단 바는 pinned 그대로(4a N4). */
+    @Test
+    fun t10PortraitListTopBarStaysPinned() = runFlowTest { portraitTopBarStaysFlow(it) }
 }

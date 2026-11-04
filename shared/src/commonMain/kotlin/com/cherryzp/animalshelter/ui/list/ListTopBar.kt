@@ -94,6 +94,7 @@ fun ListTopBar(
                 )
             },
             scrollBehavior = scrollBehavior,
+            modifier = Modifier.testTag(TestTags.LIST_TOP_BAR),
             actions = {
                 IconButton(
                     onClick = onOpenFilter,

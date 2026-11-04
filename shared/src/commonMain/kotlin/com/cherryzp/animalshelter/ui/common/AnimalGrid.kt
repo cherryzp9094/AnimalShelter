@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowSizeClass
@@ -103,7 +104,7 @@ fun AnimalGrid(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = contentPadding.plusEdges(edge),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().testTag(TestTags.ANIMAL_GRID)
         ) {
             header()
             items(items = items, key = { it.desertionNo }, contentType = { "animal" }) { ui ->

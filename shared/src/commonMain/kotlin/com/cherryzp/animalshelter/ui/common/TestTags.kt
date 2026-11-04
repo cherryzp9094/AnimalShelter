@@ -11,6 +11,9 @@ object TestTags {
     const val DETAIL_SCROLL = "detail_scroll"
     const val FILTER_APPLY = "filter_apply"
     const val SUMMARY_CHIPS = "summary_chips"
+    const val LIST_TOP_BAR = "list_top_bar"
+    const val BOOKMARKS_TOP_BAR = "bookmarks_top_bar"
+    const val ANIMAL_GRID = "animal_grid"
 
     fun card(desertionNo: String): String = "card:$desertionNo"
 

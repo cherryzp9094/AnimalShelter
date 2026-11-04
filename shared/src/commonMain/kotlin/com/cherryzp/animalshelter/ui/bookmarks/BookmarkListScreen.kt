@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +25,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,6 +44,8 @@ import com.cherryzp.animalshelter.ui.common.AnimalGrid
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
+import com.cherryzp.animalshelter.ui.common.TestTags
+import com.cherryzp.animalshelter.ui.common.listTopBarScrollBehavior
 import com.cherryzp.animalshelter.ui.preview.PreviewData
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import org.jetbrains.compose.resources.painterResource
@@ -92,8 +94,8 @@ fun BookmarkListScreen(
     selectedDesertionNo: String? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val gridState = rememberLazyGridState()
+    val scrollBehavior = listTopBarScrollBehavior(gridState)
     MessageSnackbarEffect(
         message = state.message,
         snackbarHostState = snackbarHostState,
@@ -148,7 +150,8 @@ fun BookmarkListScreen(
                         Icon(painterResource(icon), contentDescription = stringResource(label))
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
+                modifier = Modifier.testTag(TestTags.BOOKMARKS_TOP_BAR)
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

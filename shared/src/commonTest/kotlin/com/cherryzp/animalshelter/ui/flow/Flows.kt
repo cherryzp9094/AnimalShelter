@@ -1,11 +1,13 @@
 package com.cherryzp.animalshelter.ui.flow
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -31,6 +33,7 @@ import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.NoticeState
+import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
@@ -50,7 +53,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
-// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4 T10). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -314,4 +317,135 @@ suspend fun ComposeUiTest.summaryChipActionLabelFlow(fakes: FlowFakes) {
 
     onNode(hasText(sortChipText) and inChips).performSemanticsAction(SemanticsActions.OnClick)
     awaitCondition("최신순으로 바뀜") { fakes.animals.sortCalls.lastOrNull() == SortOrder.LATEST }
+}
+
+/** 스크롤할 만큼의 테스트 동물(사진 없음). 번호는 정렬해도 같은 순서가 되게 0으로 채운다. */
+private fun manyResults(count: Int = 40): SearchResults = SearchResults(
+    items = (1..count).map { flowAnimal("N" + it.toString().padStart(3, '0')) },
+    totalCount = count,
+    fetchedAt = Instant.parse("2026-11-04T01:00:00Z")
+)
+
+private const val FIRST_MANY = "N001"
+
+/** 바가 다 접히거나 펼쳐졌는지 볼 때의 허용 오차와 바 높이(M3 작은 상단 바 64dp). */
+private val BarHeight = 64.dp
+private const val BAR_TOLERANCE_DP = 1f
+
+/**
+ * 그리드를 끈 뒤 멈췄다가 뗀다(+면 아래로 — 위 내용이 내려온다). 끝에서 멈추므로 fling이 없다 — fling이 남으면
+ * 다음 단계(조건 바꾸기)와 겹친다. 시작 x는 그리드 왼쪽 가장자리 여백(12dp — 카드 밖): 카드를 누르면 웹에서는 그
+ * 카드가 초점을 받고, 바가 펼쳐져 칸이 줄 때 Compose가 초점 카드를 보이게 하려고 스크롤해 그만큼 바를 다시 접는다.
+ * 기기(세로 411dp)에서 900dp 창의 가운데는 화면 밖이기도 하다(P14).
+ */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.dragGrid(byDp: Float) {
+    onNodeWithTag(TestTags.ANIMAL_GRID).performTouchInput { dragAndHold(byDp) }
+}
+
+private fun TouchInjectionScope.dragAndHold(byDp: Float) {
+    val steps = 20
+    val stepPx = byDp.dp.toPx() / steps
+    down(Offset(12.dp.toPx(), centerY))
+    repeat(steps) {
+        advanceEventTime(16)
+        moveBy(Offset(0f, stepPx))
+    }
+    repeat(10) {
+        advanceEventTime(30)
+        moveBy(Offset.Zero)
+    }
+    up()
+}
+
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.heightOf(tag: String): Dp =
+    onNodeWithTag(tag).getUnclippedBoundsInRoot().let { it.bottom - it.top }
+
+@OptIn(ExperimentalTestApi::class)
+private suspend fun ComposeUiTest.awaitBarCollapsed(tag: String, expanded: Dp) {
+    awaitCondition("상단 바가 접힘($tag)") {
+        (expanded - heightOf(tag)).value >= BarHeight.value - BAR_TOLERANCE_DP
+    }
+}
+
+@OptIn(ExperimentalTestApi::class)
+private suspend fun ComposeUiTest.awaitBarExpanded(tag: String, expanded: Dp) {
+    awaitCondition("상단 바가 펼쳐짐($tag)") {
+        abs((heightOf(tag) - expanded).value) <= BAR_TOLERANCE_DP
+    }
+}
+
+/**
+ * T10(4a N4): 창 높이가 compact(폰 가로 900×400)면 목록 상단 바가 `enterAlways` — 그리드를 위로 약 200dp 끌면
+ * 바가 접히고(높이 −64dp — 기기는 상태 바 inset이 남을 수 있어 처음 높이와의 차로 잰다), 조금 내리면 바로 다시
+ * 64dp. 접힌 채 조건이 바뀌면(결과의 조건을 바꾼다) 그리드가 맨 위로 가고 바도 펼쳐진다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.landscapeTopBarHidesFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = manyResults()
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+    val bar = TestTags.LIST_TOP_BAR
+    val expanded = heightOf(bar)
+
+    dragGrid(-200f)
+    awaitBarCollapsed(bar, expanded)
+
+    dragGrid(120f)
+    awaitBarExpanded(bar, expanded)
+
+    dragGrid(-200f)
+    awaitBarCollapsed(bar, expanded)
+    awaitCondition("첫 카드가 위로 지나감") {
+        onAllNodes(hasTestTag(TestTags.card(FIRST_MANY))).fetchSemanticsNodes().isEmpty() ||
+            onNodeWithTag(TestTags.card(FIRST_MANY)).getUnclippedBoundsInRoot().top < 0.dp
+    }
+
+    // 접힌 채 조건이 바뀌면(예: 보호소 화면의 "이 보호소의 공고 보기"로 돌아온 목록) 맨 위 + 바 펼침
+    fakes.animals.results.value =
+        fakes.animals.results.value.copy(filter = SearchFilter(kind = AnimalKind.DOG))
+    awaitBarExpanded(bar, expanded)
+    awaitCondition("그리드가 맨 위(첫 카드가 바 아래)") {
+        onAllNodes(hasTestTag(TestTags.card(FIRST_MANY))).fetchSemanticsNodes().isNotEmpty() &&
+            onNodeWithTag(TestTags.card(FIRST_MANY)).getUnclippedBoundsInRoot().top >=
+            onNodeWithTag(bar).getUnclippedBoundsInRoot().bottom
+    }
+}
+
+/** T10 북마크 목록(4a N4): 폰 가로에서 북마크 목록 상단 바도 끌면 접히고 내리면 펼쳐진다. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.landscapeBookmarksTopBarHidesFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    manyResults().items.reversed().forEach { fakes.bookmarks.add(it) }
+
+    awaitTag(TestTags.OPEN_BOOKMARKS).performClick()
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+    val bar = TestTags.BOOKMARKS_TOP_BAR
+    val expanded = heightOf(bar)
+
+    dragGrid(-200f)
+    awaitBarCollapsed(bar, expanded)
+    dragGrid(120f)
+    awaitBarExpanded(bar, expanded)
+}
+
+/** T10 반대(4a N4): 폰 세로(400×760)에서는 같은 끌기에도 바가 pinned 그대로(그리드만 스크롤된다). */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.portraitTopBarStaysFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = manyResults()
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+    val bar = TestTags.LIST_TOP_BAR
+    val expanded = heightOf(bar)
+    val firstTop = onNodeWithTag(TestTags.card(FIRST_MANY)).getUnclippedBoundsInRoot().top
+
+    dragGrid(-200f)
+    awaitCondition("그리드가 스크롤됨") {
+        onAllNodes(hasTestTag(TestTags.card(FIRST_MANY))).fetchSemanticsNodes().isEmpty() ||
+            onNodeWithTag(TestTags.card(FIRST_MANY)).getUnclippedBoundsInRoot().top < firstTop
+    }
+    awaitIdle()
+    assertNear(heightOf(bar), expanded, "세로 상단 바 높이")
 }

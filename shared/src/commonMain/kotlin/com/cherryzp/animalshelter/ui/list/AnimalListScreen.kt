@@ -22,7 +22,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +55,7 @@ import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
+import com.cherryzp.animalshelter.ui.common.listTopBarScrollBehavior
 import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
@@ -123,8 +123,8 @@ fun AnimalListScreen(
     selectedDesertionNo: String? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val gridState = rememberLazyGridState()
+    val scrollBehavior = listTopBarScrollBehavior(gridState)
 
     MessageSnackbarEffect(
         message = state.message,
@@ -138,9 +138,19 @@ fun AnimalListScreen(
 
     // 조건·정렬이 바뀌면 맨 위로(처음 그릴 때·다른 화면에서 돌아올 때는 위치를 지킨다)
     var shownQueryKey by rememberSaveable { mutableStateOf(state.queryKey) }
+    var expandTopBar by remember { mutableStateOf(false) }
     if (state.queryKey != shownQueryKey) {
         shownQueryKey = state.queryKey
         gridState.requestScrollToItem(0)
+        expandTopBar = true
+    }
+    // 프로그램 스크롤은 바에 전달되지 않는다 — 맨 위로 올릴 때 접힌 바(창 높이 compact)도 펼친다(N4).
+    // 컴포지션 중이 아니라 효과에서 쓴다
+    LaunchedEffect(expandTopBar) {
+        if (expandTopBar) {
+            scrollBehavior.state.heightOffset = 0f
+            expandTopBar = false
+        }
     }
 
     val currentOnNearEnd by rememberUpdatedState(onNearEnd)
