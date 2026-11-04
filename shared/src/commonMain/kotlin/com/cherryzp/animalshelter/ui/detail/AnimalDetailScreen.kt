@@ -1,5 +1,10 @@
 package com.cherryzp.animalshelter.ui.detail
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -83,6 +88,10 @@ import org.jetbrains.compose.resources.stringResource
 
 /** 이 폭부터 2단(브리핑 B4 — 칸이 받은 폭). */
 private val TwoColumnMinWidth = 600.dp
+
+/** 상단 바 제목(D6)의 나타남·사라짐(emil 점검 — 사라짐이 더 빠르게). */
+private const val TITLE_FADE_IN_MILLIS = 150
+private const val TITLE_FADE_OUT_MILLIS = 100
 
 /** 본문 최대 폭(06 4.2). */
 private val ContentMaxWidth = 840.dp
@@ -180,11 +189,16 @@ fun AnimalDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    // D6: 품종명 줄이 바 아래로 지나간 뒤에만(사진 아래 제목과 겹치지 않게). 따로 애니메이션 없음.
-                    if (showTitle && detail != null) {
+                    // D6: 품종명 줄이 바 아래로 지나간 뒤에만(사진 아래 제목과 겹치지 않게).
+                    // 불투명도만 짧게(emil 점검): 나타날 때 150ms ease-out, 사라질 때 100ms — 움직임은 없다.
+                    AnimatedVisibility(
+                        visible = showTitle && detail != null,
+                        enter = fadeIn(tween(TITLE_FADE_IN_MILLIS, easing = LinearOutSlowInEasing)),
+                        exit = fadeOut(tween(TITLE_FADE_OUT_MILLIS))
+                    ) {
                         Text(
-                            text = detail.titleParts.map { it.resolve() }
-                                .joinToString(PART_SEPARATOR),
+                            text = detail?.titleParts?.map { it.resolve() }
+                                ?.joinToString(PART_SEPARATOR).orEmpty(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.testTag(TestTags.DETAIL_TITLE)
