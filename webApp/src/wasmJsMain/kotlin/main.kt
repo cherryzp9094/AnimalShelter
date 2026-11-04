@@ -12,6 +12,7 @@ import com.cherryzp.animalshelter.di.initKoin
 import com.cherryzp.animalshelter.navigation.BrowserHistoryNavigation
 import com.cherryzp.animalshelter.ui.theme.AppFontFiles
 import com.cherryzp.animalshelter.web.JsBrowserHistory
+import com.cherryzp.animalshelter.web.ThemeColorSystemBars
 import com.cherryzp.animalshelter.web.WebConfig
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.preloadFont
@@ -54,6 +55,8 @@ fun main() {
     // 시작 스택은 Compose보다 먼저 정한다(기록의 state 또는 해시, 브리핑 W3)
     val navigation = BrowserHistoryNavigation(JsBrowserHistory)
     val hooks = PlatformHooks(
+        // 브라우저 테마 색을 앱 바탕(설정 테마·사진 뷰어)에 맞춘다(4a 검토 F5)
+        systemBars = ThemeColorSystemBars,
         navigation = navigation,
         // 로딩 화면(index.html)을 없앤다 — 모션 줄이기면 페이드 없이(H2)
         onFirstFrame = { notifyAppReady(prefersReducedMotion()) }
