@@ -111,29 +111,33 @@ internal class AnimalShelterApi(
         return ApiResult.Success(collected.values.toList())
     }
 
+    // 코드표 넷은 같은 항목을 한 번만 — API가 같은 줄을 여러 번 준다(5a-live M8: 강남구 보호소 3줄이 같은 번호).
+    // 시도·시군구·품종은 코드, 보호소는 번호가 같으면 처음 것만(순서 유지). 이름만 같고 코드가 다르면 둘 다 둔다
+    // (서울 시군구 6110000·6119998 "서울특별시" — 고르면 다른 조회다). 02-data 1.4.
+
     suspend fun getSido(): ApiResult<List<Sido>> =
         call(ApiOperation.SIDO, paging(1, 100), SidoDto.serializer())
-            .map { body -> body.items.mapNotNull { it.toSido() } }
+            .map { body -> body.items.mapNotNull { it.toSido() }.distinctBy { it.code } }
 
     suspend fun getSigungu(sidoCode: String): ApiResult<List<Sigungu>> = call(
         ApiOperation.SIGUNGU,
         listOf("upr_cd" to sidoCode) + paging(1, 100),
         SigunguDto.serializer()
-    ).map { body -> body.items.mapNotNull { it.toSigungu() } }
+    ).map { body -> body.items.mapNotNull { it.toSigungu() }.distinctBy { it.code } }
 
     suspend fun getShelters(sidoCode: String, sigunguCode: String): ApiResult<List<ShelterCode>> =
         call(
             ApiOperation.SHELTERS,
             listOf("upr_cd" to sidoCode, "org_cd" to sigunguCode) + paging(1, 200),
             ShelterDto.serializer()
-        ).map { body -> body.items.mapNotNull { it.toShelterCode() } }
+        ).map { body -> body.items.mapNotNull { it.toShelterCode() }.distinctBy { it.regNo } }
 
     /** 품종 조회는 `up_kind_cd`(목록의 `upkind`와 다르다). */
     suspend fun getKinds(kind: AnimalKind): ApiResult<List<Kind>> = call(
         ApiOperation.KINDS,
         listOf("up_kind_cd" to kind.code) + paging(1, 500),
         KindDto.serializer()
-    ).map { body -> body.items.mapNotNull { it.toKind() } }
+    ).map { body -> body.items.mapNotNull { it.toKind() }.distinctBy { it.code } }
 
     /** 보호소 전체(`numOfRows=1000` 1회 = 전체, 실측 338건). */
     suspend fun getAllShelterInfo(): ApiResult<List<ShelterInfo>> =

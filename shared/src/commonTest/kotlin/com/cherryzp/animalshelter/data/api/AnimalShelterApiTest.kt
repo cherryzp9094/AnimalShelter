@@ -21,6 +21,8 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 /** URL 조립·키 처리·오류 분류(02-data 6·11절, D5·D6). 실제 서버는 치지 않는다(MockEngine). */
 class AnimalShelterApiTest {
@@ -436,5 +438,68 @@ class AnimalShelterApiTest {
         assertTrue(page.items.isEmpty())
         assertEquals(100, page.totalCount)
         assertFalse(page.hasMore)
+    }
+
+    private fun item(vararg pairs: Pair<String, String>) =
+        buildJsonObject { pairs.forEach { (k, v) -> put(k, v) } }
+
+    @Test
+    fun `코드표의 같은 번호 보호소는 한 번만(L4)`() = runTest {
+        val same = item("careRegNo" to "311322200900001", "careNm" to "한국동물구조관리협회")
+        val harness = ApiTestHarness(
+            handler = jsonOk(ApiTestResponses.envelope(listOf(same, same, same)))
+        )
+
+        val shelters = (harness.api.getShelters("6110000", "3220000") as ApiResult.Success).value
+
+        assertEquals(listOf("311322200900001"), shelters.map { it.regNo })
+    }
+
+    @Test
+    fun `코드표의 같은 코드 시군구는 한 번만, 이름만 같으면 둘 다(L4)`() = runTest {
+        val harness = ApiTestHarness(
+            handler = jsonOk(
+                ApiTestResponses.envelope(
+                    listOf(
+                        item("uprCd" to "6110000", "orgCd" to "3220000", "orgdownNm" to "강남구"),
+                        item("uprCd" to "6110000", "orgCd" to "3220000", "orgdownNm" to "강남구"),
+                        item("uprCd" to "6110000", "orgCd" to "6110000", "orgdownNm" to "서울특별시"),
+                        item("uprCd" to "6110000", "orgCd" to "6119998", "orgdownNm" to "서울특별시")
+                    )
+                )
+            )
+        )
+
+        val sigungu = (harness.api.getSigungu("6110000") as ApiResult.Success).value
+
+        assertEquals(listOf("3220000", "6110000", "6119998"), sigungu.map { it.code })
+    }
+
+    @Test
+    fun `코드표의 같은 코드 품종·시도는 한 번만(L4)`() = runTest {
+        val kinds = ApiTestHarness(
+            handler = jsonOk(
+                ApiTestResponses.envelope(
+                    listOf(
+                        item("kindCd" to "000054", "kindNm" to "골든 리트리버"),
+                        item("kindCd" to "000054", "kindNm" to "골든 리트리버"),
+                        item("kindCd" to "000056", "kindNm" to "그레이트 덴")
+                    )
+                )
+            )
+        ).api.getKinds(AnimalKind.DOG) as ApiResult.Success
+        val sido = ApiTestHarness(
+            handler = jsonOk(
+                ApiTestResponses.envelope(
+                    listOf(
+                        item("orgCd" to "6110000", "orgdownNm" to "서울특별시"),
+                        item("orgCd" to "6110000", "orgdownNm" to "서울특별시")
+                    )
+                )
+            )
+        ).api.getSido() as ApiResult.Success
+
+        assertEquals(listOf("000054", "000056"), kinds.value.map { it.code })
+        assertEquals(listOf("6110000"), sido.value.map { it.code })
     }
 }
