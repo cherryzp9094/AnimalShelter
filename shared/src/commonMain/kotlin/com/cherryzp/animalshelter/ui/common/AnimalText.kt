@@ -5,6 +5,7 @@ import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.Sex
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.age_under_two_months
+import com.cherryzp.animalshelter.resources.age_under_two_months_short
 import com.cherryzp.animalshelter.resources.age_year
 import com.cherryzp.animalshelter.resources.neuter_no
 import com.cherryzp.animalshelter.resources.neuter_unknown
@@ -77,13 +78,18 @@ fun Animal.titleParts(): List<UiText> = buildList {
 fun Animal.breedText(): String? = kindName?.trim()?.takeIf { it.isNotEmpty() }
 
 /**
- * 카드 2행(중간 검토 F1): 성별 · `age_year` · (60일 미만이면) `age_under_two_months` · 체중([weightUiText]).
- * 있는 것만. 사진이 보여 주지 못하는 성별·나이를 품종과 다른 줄에 두어 2열에서도 잘리지 않게 한다.
+ * 카드 2행(중간 검토 F1): 성별 · 나이 · 체중([weightUiText]). 나이는 60일 미만이면
+ * `age_under_two_months_short`("2개월 미만") 하나, 아니면 `age_year`(5a-live M7 — 연도는 올해·지난해라 더 알려
+ * 주는 것이 없고, 덧붙이면 2열에서 "미만"과 체중이 잘렸다). 있는 것만. 사진이 보여 주지 못하는 성별·나이를
+ * 품종과 다른 줄에 두어 2열에서도 잘리지 않게 한다. 제목([titleParts])은 그대로 연도와 "생후 2개월 미만"을 둘 다 둔다.
  */
 fun Animal.cardFactParts(): List<UiText> = buildList {
     sex?.let { add(it.toUiText()) }
-    birthYear?.let { add(uiText(Res.string.age_year, it)) }
-    if (isUnderTwoMonths) add(uiText(Res.string.age_under_two_months))
+    if (isUnderTwoMonths) {
+        add(uiText(Res.string.age_under_two_months_short))
+    } else {
+        birthYear?.let { add(uiText(Res.string.age_year, it)) }
+    }
     weightUiText()?.let { add(it) }
 }
 

@@ -60,6 +60,7 @@
     <string name="neuter_unknown">Neutering unknown</string>
     <string name="age_year">Born %1$d</string>
     <string name="age_under_two_months">Under 2 months</string>
+    <string name="age_under_two_months_short">Under 2 mo</string>
     <string name="weight_kg">%1$s kg</string>
     <string name="weight_kg_range">%1$s–%2$s kg</string>
     <string name="kind_all">All</string>

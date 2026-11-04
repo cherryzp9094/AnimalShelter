@@ -5,7 +5,7 @@ import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.model.Sex
 import com.cherryzp.animalshelter.resources.Res
-import com.cherryzp.animalshelter.resources.age_under_two_months
+import com.cherryzp.animalshelter.resources.age_under_two_months_short
 import com.cherryzp.animalshelter.resources.age_year
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
@@ -39,16 +39,16 @@ class AnimalCardMappingTest {
     }
 
     @Test
-    fun `2행은 60일 미만이면 나이 뒤에 덧붙이고 없는 부분은 뺀다`() {
+    fun `2행은 60일 미만이면 나이 대신 2개월 미만 하나, 없는 부분은 뺀다(L2)`() {
         val baby = card(
             testAnimal(sex = Sex.FEMALE, birthYear = 2026, isUnderTwoMonths = true)
-                .copy(weightKg = null)
+                .copy(weightKg = 0.72)
         )
         assertEquals(
             listOf(
                 uiText(Res.string.sex_female),
-                uiText(Res.string.age_year, 2026),
-                uiText(Res.string.age_under_two_months)
+                uiText(Res.string.age_under_two_months_short),
+                uiText(Res.string.weight_kg, "0.72")
             ),
             baby.facts
         )
