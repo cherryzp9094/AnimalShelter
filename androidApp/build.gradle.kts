@@ -21,6 +21,16 @@ val relayBaseUrl: String = localProperties.getProperty("RELAY_BASE_URL") ?: "htt
 // 공유 링크 호스트(gradle.properties의 shareHost, -PshareHost=…). 비면 App Links 호스트는 자리값
 // animalshelter.invalid(RFC 2606 — 검증이 늘 실패해 다른 링크를 가로채지 않는다)이고 공유 주소는 빈 값(공유 숨김).
 val shareHostProperty: String = providers.gradleProperty("shareHost").orNull.orEmpty().trim()
+
+// 4a 검토 F6: 호스트 이름만 받는다(소문자, 점 하나 이상, 스킴·포트·경로 없음). App Links 호스트는 소문자여야 하고,
+// 스킴을 넣으면 공유 주소가 https://https://…가 된다 — 설정 단계에서 멈춘다.
+val shareHostPattern =
+    Regex("^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$")
+if (shareHostProperty.isNotEmpty() && !shareHostPattern.matches(shareHostProperty)) {
+    throw GradleException(
+        "shareHost는 호스트 이름만 적는다(소문자, 예 animal.example.com): 받은 값 '$shareHostProperty'"
+    )
+}
 val appLinkHost: String = shareHostProperty.ifEmpty { "animalshelter.invalid" }
 val shareBaseUrl: String = if (shareHostProperty.isEmpty()) "" else "https://$shareHostProperty"
 
