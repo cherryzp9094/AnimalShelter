@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
@@ -57,6 +56,7 @@ import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.listTopBarScrollBehavior
 import com.cherryzp.animalshelter.ui.common.pluralText
+import com.cherryzp.animalshelter.ui.common.rememberPaneLazyGridState
 import com.cherryzp.animalshelter.ui.common.resetToTop
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
@@ -124,7 +124,8 @@ fun AnimalListScreen(
     selectedDesertionNo: String? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val gridState = rememberLazyGridState()
+    // 목록 칸 entry 안 — 두 칸 ↔ 한 칸 장면을 오가도 굳지 않게(4a-fixes 검토 G1)
+    val gridState = rememberPaneLazyGridState()
     // 그리드 갈래(첫 로딩·빈 결과·오류 전체 화면이 아닐 때)인지 — 아니면 바를 맨 위 상태로(4a 검토 F2)
     val gridShown = !state.isInitialLoading && state.fullScreen == null
     val scrollBehavior = listTopBarScrollBehavior(gridState, gridShown)

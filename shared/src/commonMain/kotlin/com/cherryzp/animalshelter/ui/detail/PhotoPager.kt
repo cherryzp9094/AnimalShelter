@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -29,12 +28,14 @@ import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.photo_a11y
 import com.cherryzp.animalshelter.resources.title_photos
 import com.cherryzp.animalshelter.ui.common.AnimalImage
+import com.cherryzp.animalshelter.ui.common.rememberPanePagerState
 import org.jetbrains.compose.resources.stringResource
 
 /**
  * 상세 사진(브리핑 B4, 06 4.2): 정사각 틀 · `Fit`(잘리지 않게) · `surfaceContainerHigh` 배경, 한 변은 받은 폭과
  * [maxSide] 중 작은 것. 2장 이상이면 아래 점 표시. 탭하면 [onOpen](그 쪽 번호). 사진 위에 글자를 얹지 않는다.
- * 쪽 번호는 `rememberPagerState`가 저장한다(칸이 바뀌어도 유지).
+ * 쪽 번호는 `rememberPanePagerState`가 저장한다 — 칸이 바뀌어도(두 칸 ↔ 한 칸 장면, Android 재생성) 같은 쪽이고,
+ * 웹에서 두 칸 → 한 칸으로 줄여도 넘기기가 굳지 않는다(4a-fixes 검토 G1).
  */
 @Composable
 fun PhotoPager(
@@ -57,7 +58,7 @@ fun PhotoPager(
                 )
                 return@Column
             }
-            val pagerState = rememberPagerState { urls.size }
+            val pagerState = rememberPanePagerState { urls.size }
             val openLabel = stringResource(Res.string.title_photos)
             HorizontalPager(
                 state = pagerState,

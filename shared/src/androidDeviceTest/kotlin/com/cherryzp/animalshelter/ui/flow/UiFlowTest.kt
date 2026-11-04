@@ -120,4 +120,25 @@ class UiFlowTest {
     fun t11DefaultMotionKeepsBothScreensDuringTransition() = runFlowTest {
         screenTransitionFlow(it, reducedMotion = false)
     }
+
+    /** T12 두 칸 → 한 칸으로 줄여도 목록 위치가 유지되고 계속 스크롤·다음 쪽(4a-fixes 검토 G1). */
+    @Test
+    fun t12ListKeepsScrollingAfterPaneShrink() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_HEIGHT_DP
+    ) { listKeepsScrollingAfterPaneShrinkFlow(it) }
+
+    /** T12 두 칸 → 한 칸으로 줄여도 상세 사진이 넘어간다(4a-fixes 검토 G1). */
+    @Test
+    fun t12PhotoPagerKeepsPagingAfterPaneShrink() = runFlowTest(
+        widthDp = PAGER_WIDE_WIDTH_DP,
+        heightDp = PAGER_HEIGHT_DP
+    ) { photoPagerKeepsPagingAfterPaneShrinkFlow(it) }
+
+    /** T12 두 칸 → 폰 가로로 줄인 북마크 목록이 줄면 접힌 바가 돌아온다(4a-fixes 검토 G1). */
+    @Test
+    fun t12BookmarksBarReturnsAfterPaneShrink() = runFlowTest(
+        widthDp = BOOKMARKS_WIDE_DP,
+        heightDp = BOOKMARKS_WIDE_DP
+    ) { bookmarksBarReturnsAfterPaneShrinkFlow(it) }
 }

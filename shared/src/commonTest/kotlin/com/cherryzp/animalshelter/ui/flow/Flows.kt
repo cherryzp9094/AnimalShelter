@@ -22,6 +22,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
@@ -45,17 +46,20 @@ import com.cherryzp.animalshelter.resources.empty_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
 import com.cherryzp.animalshelter.resources.empty_results
 import com.cherryzp.animalshelter.resources.kind_cat
+import com.cherryzp.animalshelter.resources.photo_a11y
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.ui.common.TestTags
 import kotlin.math.abs
+import kotlin.math.min
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
-// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11,
+// 4a-fixes 검토 G1 T12). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -561,4 +565,171 @@ suspend fun ComposeUiTest.screenTransitionFlow(fakes: FlowFakes, reducedMotion: 
     awaitCondition("전환이 끝나 목록 카드가 없다") {
         onAllNodes(hasTestTag(TestTags.card("B"))).fetchSemanticsNodes().isEmpty()
     }
+}
+
+/** 그리드의 첫 카드([tag])가 위로 지나갔는가 — 노드가 없거나(첫 카드라 위쪽뿐) 위 끝이 그리드 위 끝보다 위. */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.isAboveGrid(tag: String): Boolean {
+    if (onAllNodes(hasTestTag(tag)).fetchSemanticsNodes().isEmpty()) return true
+    return onNodeWithTag(tag).getUnclippedBoundsInRoot().top <
+        onNodeWithTag(TestTags.ANIMAL_GRID).getUnclippedBoundsInRoot().top
+}
+
+/** [condition]이 될 때까지 그리드를 [byDp]씩 끈다(많아야 [maxDrags]번). 그래도 아니면 [awaitCondition]의 실패 문구로. */
+@OptIn(ExperimentalTestApi::class)
+private suspend fun ComposeUiTest.dragGridUntil(
+    what: String,
+    byDp: Float,
+    maxDrags: Int,
+    condition: () -> Boolean,
+) {
+    repeat(maxDrags) {
+        awaitIdle()
+        if (condition()) return
+        dragGrid(byDp)
+    }
+    awaitCondition(what, condition)
+}
+
+/** T12 목록: 이 번호 이후의 카드가 보이면 뒤쪽까지 스크롤된 것(40개 중 30번째 — 폰 2열이면 15번째 줄). */
+private const val FAR_CARD_FROM = 30
+
+/** T12 목록·북마크를 한 칸 장면에서 끄는 거리와 최대 횟수(폰 2열 40개 = 20줄을 끝까지 내릴 만큼). */
+private const val SHRINK_DRAG_DP = -500f
+private const val SHRINK_MAX_DRAGS = 16
+
+/**
+ * T12 목록(4a-fixes 검토 G1): 두 칸([WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP])에서 목록 칸을 끌어 첫 카드가 위로 지나가게 한
+ * 뒤 폰 세로(400×760)로 줄인다 — 목록 entry가 두 칸 장면(`LookaheadScope` 안)에서 한 칸 장면으로 옮겨진다. 위치가
+ * 유지되고(첫 카드가 여전히 위), 그 뒤로도 끌면 뒤쪽 카드까지 내려가 다음 쪽을 요청한다. 고치기 전에는 그리드 상태가
+ * 굳어 첫 줄 안에서만 조금 움직이고 다음 쪽이 없었다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.listKeepsScrollingAfterPaneShrinkFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = manyResults().copy(totalCount = 200, pageNo = 1, hasMore = true)
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+
+    dragGrid(-600f)
+    awaitCondition("두 칸에서 첫 카드가 위로 지나감") { isAboveGrid(TestTags.card(FIRST_MANY)) }
+    val loadsBefore = fakes.animals.loadMoreCalls
+
+    resizeWindow(fakes, PHONE_WIDTH_DP, PHONE_HEIGHT_DP)
+    awaitTag(TestTags.ANIMAL_GRID)
+    awaitIdle()
+    assertTrue(isAboveGrid(TestTags.card(FIRST_MANY)), "한 칸으로 줄인 뒤 목록이 맨 위로 돌아갔다(위치 유지 안 됨)")
+
+    val farTags = (FAR_CARD_FROM..40).map { TestTags.card("N" + it.toString().padStart(3, '0')) }
+    dragGridUntil(
+        "한 칸으로 줄인 뒤 끌어서 뒤쪽 카드(N0$FAR_CARD_FROM 이후)가 보임",
+        SHRINK_DRAG_DP,
+        SHRINK_MAX_DRAGS
+    ) {
+        farTags.any { onAllNodes(hasTestTag(it)).fetchSemanticsNodes().isNotEmpty() }
+    }
+    // 끝에서 NEAR_END_OFFSET 안쪽(마지막 카드 근처)까지 더 끌면 다음 쪽
+    dragGridUntil(
+        "한 칸으로 줄인 뒤 끝까지 끌어 다음 쪽 요청(줄이기 전 ${loadsBefore}회)",
+        SHRINK_DRAG_DP,
+        SHRINK_MAX_DRAGS
+    ) {
+        fakes.animals.loadMoreCalls > loadsBefore
+    }
+}
+
+/**
+ * T12 사진 창: 두 칸 900×600(상세 칸이 600dp보다 좁아 1단) → 한 칸 599×600(600 미만이라 1단). 단이 같아야
+ * `PhotoPager`가 같은 자리 그대로 옮겨진다 — 1단 → 2단이면 새로 만들어져 굳는 것이 가려진다(`repo-pager.txt` b).
+ */
+const val PAGER_WIDE_WIDTH_DP = 900
+const val PAGER_HEIGHT_DP = 600
+private const val PAGER_NARROW_WIDTH_DP = 599
+
+/**
+ * T12 사진(4a-fixes 검토 G1): 사진 2장인 동물을 두 칸에서 열어 [목록 | 상세] → 상세가 같은 1단으로 남는 한 칸으로
+ * 줄인다 — 상세 entry가 두 칸 장면에서 한 칸 장면으로 옮겨진다. 사진을 왼쪽으로 넘기면 2/2가 1/2 자리에 온다. 고치기
+ * 전에는 페이저 상태가 굳어 1/2에서 넘어가지 않았다.
+ *
+ * 사진 주소는 http·https가 아닌 서로 다른 값 — 네트워크를 타지 않는다(Coil의 네트워크 fetcher는 http·https만 받는다).
+ * 빈 주소 둘(`""`·`" "`)은 화면용 주소가 정규화(trim)로 같아져 페이저 `key`가 겹친다.
+ * 기기(세로 411dp)에서는 넓은 창의 상세 칸이 화면 밖이라 줄인 뒤에 넘기고, 시작점은 화면 안(사진 왼쪽에서 300dp 이내).
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.photoPagerKeepsPagingAfterPaneShrinkFlow(fakes: FlowFakes) {
+    val withPhotos = flowAnimal("P").copy(photos = listOf("photo-1", "photo-2"))
+    fakes.animals.results.value =
+        listOf3().copy(items = listOf(withPhotos, flowAnimal("B"), flowAnimal("C")))
+    val first = getString(Res.string.photo_a11y, 1, 2, "")
+    val second = getString(Res.string.photo_a11y, 2, 2, "")
+
+    awaitTag(TestTags.card("P")).performClick()
+    awaitCondition("두 칸 상세의 사진 1/2") {
+        onAllNodes(
+            hasContentDescription(first, substring = true)
+        ).fetchSemanticsNodes().isNotEmpty()
+    }
+    assertTrue(
+        onAllNodes(hasTestTag(TestTags.card("B"))).fetchSemanticsNodes().isNotEmpty(),
+        "두 칸([목록 | 상세])이 아니다"
+    )
+
+    resizeWindow(fakes, PAGER_NARROW_WIDTH_DP, PAGER_HEIGHT_DP)
+    awaitCondition("한 칸(상세만)") {
+        onAllNodes(hasTestTag(TestTags.card("B"))).fetchSemanticsNodes().isEmpty()
+    }
+    awaitIdle()
+    val photo = onNode(hasContentDescription(first, substring = true))
+    val pageLeft = photo.getUnclippedBoundsInRoot().left
+
+    photo.performTouchInput {
+        val startX = min(width - 1f, 300.dp.toPx())
+        swipe(
+            start = Offset(startX, centerY),
+            end = Offset(8.dp.toPx(), centerY),
+            durationMillis = 200
+        )
+    }
+    awaitCondition("한 칸으로 줄인 뒤 사진이 2/2로 넘어감") {
+        val nodes = onAllNodes(hasContentDescription(second, substring = true))
+        nodes.fetchSemanticsNodes().isNotEmpty() &&
+            abs(
+                (
+                    onNode(
+                        hasContentDescription(second, substring = true)
+                    ).getUnclippedBoundsInRoot().left -
+                        pageLeft
+                    ).value
+            ) <=
+            1f
+    }
+}
+
+/** T12 북마크 처음 창(900×900 — 폭 expanded·높이 medium이라 두 칸). */
+const val BOOKMARKS_WIDE_DP = 900
+
+/**
+ * T12 북마크(4a-fixes 검토 G1, 구현자가 찾은 것): 900×900(두 칸)에서 북마크 40개를 열고 900×400(폰 가로 — 한 칸,
+ * `enterAlways`)으로 줄인 뒤 끌어 바를 접는다. 3개만 남겨 그리드가 스크롤할 수 없게 되면 바가 64dp로 돌아온다.
+ * 고치기 전에는 굳은 그리드 상태가 "스크롤할 수 있다"를 내놓아 바가 접힌 채 남았다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.bookmarksBarReturnsAfterPaneShrinkFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    manyResults().items.reversed().forEach { fakes.bookmarks.add(it) }
+
+    awaitTag(TestTags.OPEN_BOOKMARKS).performClick()
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+
+    resizeWindow(fakes, LANDSCAPE_WIDTH_DP, LANDSCAPE_HEIGHT_DP)
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+    val bar = TestTags.BOOKMARKS_TOP_BAR
+    val expanded = heightOf(bar)
+
+    dragGrid(-200f)
+    awaitBarCollapsed(bar, expanded)
+
+    fakes.bookmarks.bookmarks.value = fakes.bookmarks.bookmarks.value.take(3)
+    awaitBarExpanded(bar, expanded)
 }

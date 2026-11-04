@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +45,7 @@ import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.common.listTopBarScrollBehavior
+import com.cherryzp.animalshelter.ui.common.rememberPaneLazyGridState
 import com.cherryzp.animalshelter.ui.preview.PreviewData
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import org.jetbrains.compose.resources.painterResource
@@ -77,7 +77,8 @@ fun BookmarkListScreen(
 
 /**
  * 북마크 목록(상태만, 03 2.5·브리핑 B10): 뒤로 + 제목 + 보기 전환(목록과 같은 설정값). 그리드·카드는 목록과 공용.
- * 비면 `ic_pets` + `empty_bookmarks`. 그리드 위치는 entry 안의 `rememberLazyGridState`가 지킨다.
+ * 비면 `ic_pets` + `empty_bookmarks`. 그리드 위치는 entry 안의 `rememberPaneLazyGridState`가 지킨다(두 칸 ↔ 한 칸
+ * 장면을 오가도 굳지 않는다 — 4a-fixes 검토 G1).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,7 +95,7 @@ fun BookmarkListScreen(
     selectedDesertionNo: String? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val gridState = rememberLazyGridState()
+    val gridState = rememberPaneLazyGridState()
     // 비면 그리드가 없다 — 바를 맨 위 상태로(4a 검토 F2)
     val scrollBehavior = listTopBarScrollBehavior(gridState, gridShown = !state.isEmpty)
     MessageSnackbarEffect(

@@ -5,6 +5,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -51,8 +56,8 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 
 /** 흐름 테스트 창 크기(폰 세로, 03 0.4 compact — 2열/1열). 두 플랫폼에서 같게 고정한다. */
-private const val PHONE_WIDTH_DP = 400
-private const val PHONE_HEIGHT_DP = 760
+const val PHONE_WIDTH_DP = 400
+const val PHONE_HEIGHT_DP = 760
 
 /** 두 칸 흐름 창(large 1280 — 목록 440dp + 상세, 03 0.4). */
 const val WIDE_WIDTH_DP = 1280
@@ -68,7 +73,19 @@ const val LANDSCAPE_HEIGHT_DP = 400
 /** 기다림 상한(밀리초). 화면 전환·ViewModel 수집은 실제 시간으로 돈다. */
 const val FLOW_TIMEOUT_MILLIS = 10_000L
 
-/** 흐름 하나의 가짜 Repository들(네트워크 없음 — 테스트 동물은 사진이 없다). */
+/**
+ * 흐름 테스트의 창 크기(dp). 흐름 중에 [resizeWindow]로 바꾸면 창 크기 클래스·칸 수와 배치 크기가 따라간다 — 웹에서
+ * 창을 끌어 줄이는 것과 같다(Activity 재생성 없음, 4a-fixes2 G1 T12).
+ */
+@Stable
+class FlowWindow(widthDp: Int = PHONE_WIDTH_DP, heightDp: Int = PHONE_HEIGHT_DP) {
+    var widthDp by mutableIntStateOf(widthDp)
+        internal set
+    var heightDp by mutableIntStateOf(heightDp)
+        internal set
+}
+
+/** 흐름 하나의 가짜 Repository들(네트워크 없음 — 테스트 동물은 사진이 없다)과 창 크기([window]). */
 class FlowFakes(
     val animals: FakeAnimalRepository = FakeAnimalRepository(),
     val bookmarks: FakeBookmarkRepository = FakeBookmarkRepository(),
@@ -76,6 +93,7 @@ class FlowFakes(
     val codeTables: FakeCodeTableRepository = FakeCodeTableRepository(),
     val shelters: FakeShelterRepository = FakeShelterRepository(),
     val clock: FakeClock = FakeClock(),
+    val window: FlowWindow = FlowWindow(),
 )
 
 private fun flowModule(fakes: FlowFakes) = module {
@@ -94,23 +112,31 @@ private fun flowModule(fakes: FlowFakes) = module {
     single { ImageUrlResolver { it } }
 }
 
-/** 창 크기를 폰으로 고정한다(창 크기 클래스·칸 규칙이 이 값을 본다). */
-private class FixedWindowInfo(override val containerSize: IntSize) : WindowInfo {
+/**
+ * 창 크기를 [FlowWindow]에서 읽는다(창 크기 클래스·칸 규칙이 이 값을 본다). `containerSize`를 읽을 때마다 상태를
+ * 읽으므로 창 크기가 바뀌면 그 값을 읽은 곳이 다시 그려진다.
+ */
+private class FlowWindowInfo(private val size: () -> IntSize) : WindowInfo {
     override val isWindowFocused: Boolean = true
+    override val containerSize: IntSize get() = size()
 }
 
 @Composable
-private fun SizedApp(widthDp: Int, heightDp: Int, hooks: PlatformHooks) {
+private fun SizedApp(window: FlowWindow, hooks: PlatformHooks) {
     val density = LocalDensity.current
-    val size = with(density) { IntSize(widthDp.dp.roundToPx(), heightDp.dp.roundToPx()) }
-    CompositionLocalProvider(LocalWindowInfo provides FixedWindowInfo(size)) {
+    val windowInfo = remember(window, density) {
+        FlowWindowInfo {
+            with(density) { IntSize(window.widthDp.dp.roundToPx(), window.heightDp.dp.roundToPx()) }
+        }
+    }
+    CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
         // 테스트 화면(브라우저 캔버스 1024px 폭, 기기 세로 411dp 폭)보다 커도 지정한 크기로 배치한다(왼쪽 위 기준) —
         // 줄이면 창 크기 클래스(1280)와 실제 칸 폭이 어긋나 두 칸 상세가 1단이 된다(3e). 넘친 부분은 보이지 않을 뿐이라
         // 그쪽 노드는 위치만 재고(`getUnclippedBoundsInRoot`) 누르지 않는다.
         Box(
             Modifier
                 .wrapContentSize(Alignment.TopStart, unbounded = true)
-                .size(widthDp.dp, heightDp.dp)
+                .size(window.widthDp.dp, window.heightDp.dp)
         ) { App(hooks) }
     }
 }
@@ -118,8 +144,8 @@ private fun SizedApp(widthDp: Int, heightDp: Int, hooks: PlatformHooks) {
 /**
  * UI 흐름 하나(브리핑 C6, P14): Fake Repository + 실제 ViewModel(`viewModelModule`)을 Koin에 올리고 `App()`을 띄운다.
  * 흐름 본문은 `commonTest`에, `@Test` 래퍼는 `wasmJsTest`·`androidDeviceTest`에만 둔다(호스트 JVM에서는 돌리지 않는다).
- * 창은 기본 폰 세로(400×760), 두 칸 흐름은 [WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP]. [hooks]는 `App(hooks)`에 그대로 넘긴다
- * (모션 줄이기 T11 — 4a 검토 F4).
+ * 창은 기본 폰 세로(400×760), 두 칸 흐름은 [WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP] — 흐름 중에 [resizeWindow]로 바꿀 수
+ * 있다(T12). [hooks]는 `App(hooks)`에 그대로 넘긴다(모션 줄이기 T11 — 4a 검토 F4).
  */
 @OptIn(ExperimentalTestApi::class)
 fun runFlowTest(
@@ -129,13 +155,28 @@ fun runFlowTest(
     hooks: PlatformHooks = PlatformHooks(),
     block: suspend ComposeUiTest.(FlowFakes) -> Unit,
 ): TestResult = runComposeUiTest {
+    fakes.window.widthDp = widthDp
+    fakes.window.heightDp = heightDp
     startKoin { modules(flowModule(fakes), viewModelModule) }
     try {
-        setContent { SizedApp(widthDp, heightDp, hooks) }
+        setContent { SizedApp(fakes.window, hooks) }
         block(fakes)
     } finally {
         stopKoin()
     }
+}
+
+/**
+ * 흐름 중에 창 크기를 바꾼다(4a-fixes2 G1 T12 — 웹에서 창을 끌어 줄이는 것과 같다, Activity 재생성 없음). 창 크기
+ * 클래스·칸 수가 따라가 두 칸 ↔ 한 칸 장면이 바뀐다. UI 스레드에서 쓰고 화면이 가라앉을 때까지 기다린다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.resizeWindow(fakes: FlowFakes, widthDp: Int, heightDp: Int) {
+    runOnIdle {
+        fakes.window.widthDp = widthDp
+        fakes.window.heightDp = heightDp
+    }
+    awaitIdle()
 }
 
 /** 태그가 붙은 노드가 나타날 때까지 기다린 뒤 돌려준다. */
