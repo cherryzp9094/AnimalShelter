@@ -1,8 +1,13 @@
 # AnimalShelter 중계 Worker. 규약: docs/design/02-data.md 7절
-name = "animalshelter-relay"
+# 이름·주소는 4b 사용자 답(2026-11-05, docs/design/briefs/phase4b-deploy.md 0절): 이름 animalshelter(Q3),
+# 주소 workers.dev(Q2 (a)) → https://animalshelter.<계정 하위 도메인>.workers.dev. 공유 링크(/a/…)·App Links가
+# 이 주소에 묶이므로 첫 배포 뒤에는 이름을 바꾸지 않는다. account_id는 두지 않는다(이 맥의 wrangler 로그인 계정 — Q1).
+name = "animalshelter"
 main = "worker.js"
 compatibility_date = "2026-11-01"
-# 버전마다 공개 미리보기 주소를 만들지 않는다(4a R4). 계정·배포 설정(account_id·routes·workers_dev)은 4b에서.
+# workers.dev 주소로 낸다(기본값에 기대지 않고 명시).
+workers_dev = true
+# 버전마다 공개 미리보기 주소를 만들지 않는다(4a R4).
 preview_urls = false
 
 [vars]

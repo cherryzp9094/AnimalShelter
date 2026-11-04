@@ -14,7 +14,7 @@ Cloudflare Worker 하나가 웹 앱(정적 자산)과 함께 다음을 맡는다
 | `worker.js` | fetch 핸들러: 라우팅·업스트림 호출·캐시·CORS(I/O) |
 | `lib.js` | 순수 함수: 경로·파라미터 검사, 업스트림 주소, 사진 경로, 재조회 창, KST 날짜, 상태 판정, OG 문구, HTML 이스케이프·주입, Origin 판정 |
 | `test/lib.test.js` | `node --test`(네트워크 없음, 입력은 인라인 또는 `../docs/api/samples`) |
-| `wrangler.toml` | 이름·정적 자산·`run_worker_first`·observability 끔·`preview_urls = false`·로컬 포트 8788. 계정·배포 설정(`account_id`·`routes`·`workers_dev`)은 없다(4b) |
+| `wrangler.toml` | 이름 `animalshelter`·`workers_dev = true`(4b — 주소 `https://animalshelter.<계정 하위 도메인>.workers.dev`)·정적 자산·`run_worker_first`·observability 끔·`preview_urls = false`·로컬 포트 8788. `account_id`·`routes`는 없다(이 맥의 wrangler 로그인 계정) |
 | `assetlinks.json` | App Links 검증 파일(패키지 `com.cherryzp.animalshelter`, 디버그 SHA-256 하나) |
 | `package.json`, `package-lock.json` | `wrangler` 4.156.2 고정(올릴 때는 설계 담당 승인) |
 | `.dev.vars.example` | 로컬 비밀값 자리(값 없음). 실제 `.dev.vars`는 git 제외 |
@@ -35,7 +35,7 @@ npx wrangler dev        # http://127.0.0.1:8788 (에뮬레이터에서는 http:/
 ```
 
 - 8787은 이 맥의 다른 프로젝트 서버가 쓴다 — 그대로 둔다.
-- 로그인 없이 뜬다. `login`·`whoami`·`deploy`·`secret`·`--remote` 같은 계정 명령은 쓰지 않는다(배포는 아래 절 — 사용자가 설계 담당과 함께).
+- 로그인 없이 뜬다. `login`·`whoami`·`deploy`·`secret`·`--remote` 같은 계정 명령은 쓰지 않는다(배포는 아래 절 — 사용자 앞에서만).
 - `/cdn-cgi/local/explorer`(관측 API)와 `relay/.wrangler/`에는 업스트림 URL(=키)이 남을 수 있으니 열어 보지 않는다.
 - 끝낼 때: `wrangler dev`를 띄운 그 작업을 멈춘다 — 터미널 앞에서 띄웠으면 그 창에서 `Ctrl+C`, 에이전트가 백그라운드 작업으로 띄웠으면 그 작업을 멈춘다. **프로세스 이름 패턴으로 kill하지 않는다**(`pkill`·`pgrep -f …` 금지 — 이 맥의 8787 python 서버 같은 다른 프로세스를 건드릴 수 있다). 멈춘 뒤 `lsof -nP -iTCP:8788 -sTCP:LISTEN`이 비었는지 확인한다(남아 있으면 PID를 확인해 사람에게 알린다). 지울 때: `rm relay/.dev.vars`.
 - 에뮬레이터(Android 17)에서 `http://10.0.2.2:8788`을 쓰려면 앱을 설치할 때마다 `adb shell pm grant com.cherryzp.animalshelter android.permission.ACCESS_LOCAL_NETWORK`(debug 빌드만 이 권한을 선언한다).
@@ -69,13 +69,13 @@ Workers 무료: 하루 100,000 요청(정적 자산 요청은 제외), 요청당
 ## 정적 자산(웹 셸, `webApp/src/wasmJsMain/resources/`)
 
 - `robots.txt`: `User-agent: *` / `Disallow: /api/` — `/a/`·`/img/`는 미리보기 봇이 읽어야 해서 막지 않는다. `index.html`에도 `<meta name="robots" content="noindex">`(개인용 — 색인 봇이 중계 한도를 쓰지 않게).
-- `.assetsignore`: `*.map` — 소스맵은 기본으로 올리지 않는다(요청하면 SPA `index.html`). 넣을지는 4b에서 정한다(넣으면 그 줄만 지운다).
+- `.assetsignore`: `*.map` — 소스맵은 올리지 않는다(요청하면 SPA `index.html` — 4b Q6, 2026-11-05). 올리려면 그 줄만 지운다. wrangler는 `.assetsignore`·`_headers`·`_redirects` 자체도 자산으로 올리지 않는다(`_headers`는 헤더 규칙으로 읽는다).
 - `_headers`: 정적 자산 응답에 `X-Content-Type-Options: nosniff`(Worker가 내는 응답은 `worker.js`가 같은 값을 붙인다 — `lib.SECURITY_HEADERS`).
 - 셋 다 배포 폴더(`webApp/build/dist/wasmJs/productionExecutable/`) 맨 위에 생긴다.
 
 ## 배포
 
-`docs/design/briefs/phase4b-deploy.md` — 설계 담당이 사용자와 함께 한다(계정 명령·비밀값·실제 주소·App Links 검증).
+`docs/design/briefs/phase4b-deploy.md` 3절 — 메인 세션이 사용자 앞에서 한다(계정 명령·비밀값·실제 주소·App Links 검증). 2026-11-05 사용자 결정: 이 맥의 wrangler 로그인을 쓰고, 인증키는 값을 화면에 내지 않고 `local.properties`에서 파이프로 `npx wrangler secret put SERVICE_KEY`에 넣는다(확인은 `npx wrangler secret list` — 이름만). `relay/.dev.vars`는 로컬 `wrangler dev`만 읽고 배포에는 올라가지 않는다. 주소·되돌리기는 배포 뒤 여기에 적는다.
 
 ## 보안 주의
 
