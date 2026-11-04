@@ -42,4 +42,8 @@ class UiFlowTest {
     /** T5 한 칸에서는 열린 카드 표시가 없다(3d D7). */
     @Test
     fun t5PhoneNoOpenedCardMark() = runFlowTest { noMarkOnPhoneFlow(it) }
+
+    /** T6 정렬 메뉴는 지금 정렬을 selected로 알린다(3d 점검 A1). */
+    @Test
+    fun t6SortMenuMarksCurrentOrder() = runFlowTest { sortMenuSelectedFlow(it) }
 }

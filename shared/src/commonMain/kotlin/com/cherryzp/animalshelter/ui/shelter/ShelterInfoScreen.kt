@@ -310,7 +310,11 @@ private fun ContactSection(
             }
         }
         if (tel != null || map != null) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // 줄을 넘기면(큰 글자) 버튼끼리 붙지 않게 세로도 8dp(3d 점검 A7)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 tel?.let {
                     FilledTonalButton(onClick = { onDial(it) }) {
                         Text(stringResource(Res.string.action_call))

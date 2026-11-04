@@ -5,6 +5,7 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
@@ -22,9 +23,12 @@ import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.action_back
+import com.cherryzp.animalshelter.resources.action_sort
 import com.cherryzp.animalshelter.resources.action_undo
 import com.cherryzp.animalshelter.resources.disclaimer
 import com.cherryzp.animalshelter.resources.kind_cat
+import com.cherryzp.animalshelter.resources.sort_closing_soon
+import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.ui.common.TestTags
 import kotlin.test.assertEquals
@@ -32,7 +36,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
-// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -182,4 +186,17 @@ suspend fun ComposeUiTest.noMarkOnPhoneFlow(fakes: FlowFakes) {
     awaitTag(TestTags.card("B"))
     awaitIdle()
     assertTrue(onAllNodes(selected).fetchSemanticsNodes().isEmpty(), "한 칸에서 열린 카드 표시")
+}
+
+/** T6(3d 점검 A1): 정렬 메뉴는 지금 정렬을 `selected`로 알린다(체크 아이콘은 장식). */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.sortMenuSelectedFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    awaitTag(TestTags.card("A"))
+
+    onNode(hasContentDescription(getString(Res.string.action_sort))).performClick()
+    val latest = getString(Res.string.sort_latest)
+    awaitCondition("정렬 메뉴") { onAllNodes(hasText(latest)).fetchSemanticsNodes().isNotEmpty() }
+    onNode(hasText(latest)).assertIsSelected()
+    onNode(hasText(getString(Res.string.sort_closing_soon))).assertIsNotSelected()
 }

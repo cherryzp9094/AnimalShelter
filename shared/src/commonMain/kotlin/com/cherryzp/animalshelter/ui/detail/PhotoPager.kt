@@ -86,11 +86,14 @@ fun PhotoPager(
     }
 }
 
-/** 쪽 점(장식 — 사진 설명이 "사진 n/m"을 읽는다). */
+/**
+ * 쪽 점(장식 — 사진 설명이 "사진 n/m"을 읽는다). 지금 점 `primary`, 나머지 `outline`(바탕과 비글자 3:1 이상 —
+ * `outlineVariant`는 1.6:1이라 점이 보이지 않았다, 3d 점검 A2). 간격 8dp(A6).
+ */
 @Composable
 private fun PagerDots(count: Int, current: Int, modifier: Modifier = Modifier) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.clearAndSetSemantics {}
     ) {
         repeat(count) { index ->
@@ -101,7 +104,7 @@ private fun PagerDots(count: Int, current: Int, modifier: Modifier = Modifier) {
                         if (index == current) {
                             MaterialTheme.colorScheme.primary
                         } else {
-                            MaterialTheme.colorScheme.outlineVariant
+                            MaterialTheme.colorScheme.outline
                         },
                         CircleShape
                     )

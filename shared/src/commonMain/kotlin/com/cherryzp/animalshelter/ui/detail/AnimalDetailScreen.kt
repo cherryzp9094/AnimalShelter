@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -67,6 +68,7 @@ import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.detail_notice_gone
 import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.ui.common.BookmarkToggleButton
+import com.cherryzp.animalshelter.ui.common.BottomBarButtonHeight
 import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
 import com.cherryzp.animalshelter.ui.common.MessageAction
@@ -265,7 +267,7 @@ private class NameLineTracker {
     val isUnderBar: Boolean get() = lineBottom <= viewportTop
 }
 
-/** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체). 공유는 Phase 4. */
+/** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체, 높이 48dp). 공유는 Phase 4. */
 @Composable
 private fun CallBar(onClick: () -> Unit) {
     Surface(
@@ -281,7 +283,10 @@ private fun CallBar(onClick: () -> Unit) {
                 )
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Button(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth().heightIn(min = BottomBarButtonHeight)
+            ) {
                 Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(18.dp))
                 Text(
                     text = stringResource(Res.string.action_call_shelter),

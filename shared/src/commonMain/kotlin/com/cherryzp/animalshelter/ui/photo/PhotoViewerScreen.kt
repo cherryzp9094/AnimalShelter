@@ -52,6 +52,12 @@ import org.jetbrains.compose.resources.stringResource
 private val ViewerBackground = Color.Black
 private val ViewerContent = Color.White
 
+/**
+ * 위 바 배경의 검정 불투명도. 사진이 바 아래로 들어가도(넓은 창·확대) 흰 글자·아이콘이 대비를 지키게 —
+ * 가장 밝은(흰) 사진 위에서 0.4면 2.85:1, 0.6이면 5.74:1(3d 점검 A3).
+ */
+private const val VIEWER_BAR_SCRIM_ALPHA = 0.6f
+
 /** 사진 뷰어(ViewModel을 받아 상태를 모은다, P2). 뒤로 = 닫기(NavDisplay 기본). */
 @Composable
 fun PhotoViewerScreen(
@@ -158,7 +164,7 @@ private fun ViewerTopBar(counter: String?, onClose: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(ViewerBackground.copy(alpha = 0.4f))
+            .background(ViewerBackground.copy(alpha = VIEWER_BAR_SCRIM_ALPHA))
             // 위·옆만 — 전체 safeDrawing이면 아래 내비게이션 바 높이만큼 바가 두꺼워진다
             .windowInsetsPadding(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)

@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -156,6 +157,8 @@ private fun SortAction(checkedSort: SortOrder, onSortSelected: (SortOrder) -> Un
                             expanded = false
                             onSortSelected(order)
                         },
+                        // 체크 아이콘은 장식이라 지금 정렬을 스크린 리더에 상태로 알린다(3d 점검 A1)
+                        modifier = Modifier.semantics { selected = order == checkedSort },
                         trailingIcon = {
                             if (order == checkedSort) {
                                 Icon(

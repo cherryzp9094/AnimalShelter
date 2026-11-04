@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -84,6 +85,7 @@ import com.cherryzp.animalshelter.resources.state_all
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.resources.state_protect
 import com.cherryzp.animalshelter.resources.title_filter
+import com.cherryzp.animalshelter.ui.common.BottomBarButtonHeight
 import com.cherryzp.animalshelter.ui.common.QuickDate
 import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
@@ -322,7 +324,8 @@ private fun Section(title: StringResource, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             stringResource(title),
-            style = MaterialTheme.typography.titleSmall,
+            // 섹션 제목은 상세·보호소·설정과 같은 역할(3d 점검 A5)
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.semantics { heading() }
         )
         content()
@@ -362,7 +365,7 @@ private fun <T> ChoiceRow(
     }
 }
 
-/** 하단 고정: 초기화 + 검색하기(날짜 오류가 있으면 비활성). */
+/** 하단 고정: 초기화 + 검색하기(날짜 오류가 있으면 비활성). 버튼 높이 48dp(06 6절, 3d 점검 A4). */
 @Composable
 private fun FilterBottomBar(canApply: Boolean, onReset: () -> Unit, onApply: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
@@ -373,13 +376,17 @@ private fun FilterBottomBar(canApply: Boolean, onReset: () -> Unit, onApply: () 
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            OutlinedButton(onClick = onReset, modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = onReset,
+                modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
+            ) {
                 Text(stringResource(Res.string.filter_reset))
             }
             Button(
                 onClick = onApply,
                 enabled = canApply,
-                modifier = Modifier.weight(1f).testTag(TestTags.FILTER_APPLY)
+                modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
+                    .testTag(TestTags.FILTER_APPLY)
             ) {
                 Text(stringResource(Res.string.filter_apply))
             }
