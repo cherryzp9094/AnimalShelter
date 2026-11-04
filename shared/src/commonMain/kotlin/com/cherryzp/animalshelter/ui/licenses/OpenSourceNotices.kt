@@ -69,7 +69,12 @@ internal val OpenSourceNotices: List<NoticeGroup> = listOf(
                 "https://github.com/google/material-design-icons",
                 holder = "Google"
             ),
-            NoticeEntry("Kotlin · kotlinx", "https://kotlinlang.org/", holder = "JetBrains Team"),
+            NoticeEntry(
+                "Kotlin",
+                "https://kotlinlang.org/",
+                holder = "JetBrains s.r.o. and Kotlin Programming Language contributors"
+            ),
+            NoticeEntry("kotlinx", "https://github.com/Kotlin", holder = "JetBrains s.r.o."),
             NoticeEntry(
                 "Compose Multiplatform",
                 "https://github.com/JetBrains/compose-multiplatform",
