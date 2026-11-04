@@ -16,6 +16,9 @@ object TestTags {
 
     fun cardBookmark(desertionNo: String): String = "card_bookmark:$desertionNo"
 
+    /** 상세 요약 격자의 항목(0부터, 3e E1). */
+    fun summaryItem(index: Int): String = "summary_item:$index"
+
     /** 필터 세그먼트 하나: 묶음 이름 + 값(`null`이면 "all"). */
     fun choice(group: String, value: Any?): String = "choice:$group:${value ?: "all"}"
 }

@@ -32,6 +32,13 @@ class UiFlowTest {
     @Test
     fun t4DetailTitleAppearsAfterNameScrollsUnderBar() = runFlowTest { detailTitleFlow(it) }
 
+    /** T4 두 단 상세는 조금 스크롤하면 바 제목, 맨 위면 없다(3e E2). */
+    @Test
+    fun t4TwoColumnDetailTitleFollowsBarScrollColor() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_SHORT_HEIGHT_DP
+    ) { detailTitleTwoColumnFlow(it) }
+
     /** T5 두 칸에서 상세에 열린 카드만 selected(3d D7). */
     @Test
     fun t5WideOpenedCardIsMarked() = runFlowTest(
@@ -53,4 +60,15 @@ class UiFlowTest {
         widthDp = LANDSCAPE_WIDTH_DP,
         heightDp = LANDSCAPE_HEIGHT_DP
     ) { landscapeSinglePaneFlow(it) }
+
+    /** T7 폰 창 상세 요약의 둘째 열이 같은 자리(3e E1). */
+    @Test
+    fun t7PhoneSummarySecondColumnAligned() = runFlowTest { summaryGridFlow(it) }
+
+    /** T7 두 칸 창 2단 상세 요약의 둘째 열이 같은 자리(3e E1). */
+    @Test
+    fun t7WideSummarySecondColumnAligned() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_HEIGHT_DP
+    ) { summaryGridFlow(it) }
 }

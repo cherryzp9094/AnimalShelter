@@ -15,11 +15,17 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.cherryzp.animalshelter.data.repository.SearchResults
 import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.ListLayout
+import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.action_back
@@ -31,6 +37,7 @@ import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.ui.common.TestTags
+import kotlin.math.abs
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Instant
@@ -151,6 +158,36 @@ suspend fun ComposeUiTest.detailTitleFlow(fakes: FlowFakes) {
     awaitTag(TestTags.DETAIL_TITLE).assertIsDisplayed()
 }
 
+/**
+ * T4 두 단(3e E2, R9): 두 칸 창(1280×600)의 2단 상세는 품종명 줄이 바 아래로 못 지나가기도 한다 → 본문을 조금
+ * (약 40dp) 스크롤해 바가 스크롤 색이 되면 제목이 보이고, 맨 위로 돌아오면 사라진다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.detailTitleTwoColumnFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    awaitIdle()
+    assertTrue(
+        onAllNodes(hasTestTag(TestTags.DETAIL_TITLE)).fetchSemanticsNodes().isEmpty(),
+        "스크롤 전에 바 제목이 보인다"
+    )
+
+    // 천천히 끌어 fling 없이 조금만(터치 슬롭을 빼면 약 40dp)
+    onNodeWithTag(TestTags.DETAIL_SCROLL).performTouchInput {
+        swipeUp(startY = centerY, endY = centerY - 48.dp.toPx(), durationMillis = 500)
+    }
+    awaitTag(TestTags.DETAIL_TITLE).assertIsDisplayed()
+
+    onNodeWithTag(TestTags.DETAIL_SCROLL).performTouchInput {
+        swipeDown(startY = centerY, endY = centerY + 200.dp.toPx(), durationMillis = 500)
+    }
+    awaitCondition("맨 위에서 바 제목이 사라짐") {
+        onAllNodes(hasTestTag(TestTags.DETAIL_TITLE)).fetchSemanticsNodes().isEmpty()
+    }
+}
+
 /** T5(D7): 두 칸(1280)에서 연 카드만 `selected`, 다른 카드로 바꾸면 표시도 옮겨 간다. */
 @OptIn(ExperimentalTestApi::class)
 suspend fun ComposeUiTest.openedCardMarkFlow(fakes: FlowFakes) {
@@ -212,4 +249,35 @@ suspend fun ComposeUiTest.landscapeSinglePaneFlow(fakes: FlowFakes) {
         onAllNodes(hasTestTag(TestTags.card("A"))).fetchSemanticsNodes().isEmpty()
     }
     onNode(hasContentDescription(getString(Res.string.action_back))).assertIsDisplayed()
+}
+
+/**
+ * T7(3e E1, R1): 상세 요약은 한 줄에 둘, 같은 폭 — 성별 | 중성화, 나이 | 체중, 색상(줄 전체). 둘째 열(중성화·체중)의
+ * 왼쪽 끝이 1dp 안으로 같다. 폰 창과 두 칸 창(2단 왼쪽 열) 둘 다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.summaryGridFlow(fakes: FlowFakes) {
+    val neutered = flowAnimal("B").copy(neutered = Neutered.YES)
+    fakes.animals.results.value = listOf3().copy(
+        items = listOf(flowAnimal("A"), neutered, flowAnimal("C"))
+    )
+
+    awaitTag(TestTags.card("B")).performClick()
+    val items = (0..4).map { awaitTag(TestTags.summaryItem(it)) }
+    awaitIdle()
+    // 두 칸 창은 테스트 화면보다 넓고 길어 일부가 잘린다 — 잘리지 않은 위치로 잰다
+    val bounds = items.map { it.getUnclippedBoundsInRoot() }
+    val (sex, neuter, age, weight, color) = bounds
+    assertNear(neuter.left, weight.left, "둘째 열(중성화·체중)")
+    assertNear(sex.left, age.left, "첫째 열(성별·나이)")
+    assertNear(sex.top, neuter.top, "첫 줄(성별 | 중성화)")
+    assertNear(age.top, weight.top, "둘째 줄(나이 | 체중)")
+    assertTrue(neuter.left > sex.right, "중성화가 성별 오른쪽에 없다: $sex $neuter")
+    assertTrue(color.top > weight.top, "색상이 셋째 줄에 없다: $weight $color")
+    assertNear(sex.left, color.left, "색상 왼쪽 끝")
+    assertNear(neuter.right, color.right, "색상(줄 전체) 오른쪽 끝")
+}
+
+private fun assertNear(a: Dp, b: Dp, what: String) {
+    assertTrue(abs((a - b).value) <= 1f, "$what: $a ≠ $b")
 }

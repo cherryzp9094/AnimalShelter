@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -25,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -48,6 +48,7 @@ import com.cherryzp.animalshelter.resources.section_source
 import com.cherryzp.animalshelter.resources.section_traits
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
 import com.cherryzp.animalshelter.ui.common.StatusBadge
+import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.copyOnLongPress
 import com.cherryzp.animalshelter.ui.common.resolve
@@ -134,7 +135,7 @@ private fun DetailRows(rows: List<DetailRow>) {
 }
 
 /**
- * 섹션 1 요약: 품종명(titleLarge) + 축종, 성별·중성화·나이·체중·색상은 폭이 되면 한 줄에 여럿.
+ * 섹션 1 요약: 품종명(titleLarge) + 축종, 성별 | 중성화, 나이 | 체중, 색상 — 두 칸 격자(3e E1).
  * @param nameLineModifier 품종명 줄에 붙인다 — 상세 바 제목이 이 줄의 위치를 잰다(3d D6)
  */
 @Composable
@@ -165,11 +166,15 @@ fun SummarySection(
             }
         }
         if (detail.summary.isNotEmpty()) {
+            // 칸 폭과 무관하게 한 줄에 둘, 같은 폭(R1) — 둘째 열이 줄마다 같은 자리. 마지막 홀수 항목은 줄 전체.
             FlowRow(
+                maxItemsInEachRow = 2,
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                detail.summary.forEach { DetailRowView(it, Modifier.widthIn(min = 96.dp)) }
+                detail.summary.forEachIndexed { index, row ->
+                    DetailRowView(row, Modifier.weight(1f).testTag(TestTags.summaryItem(index)))
+                }
             }
         }
     }

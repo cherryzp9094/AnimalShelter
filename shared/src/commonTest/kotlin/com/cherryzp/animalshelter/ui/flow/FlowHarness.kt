@@ -2,8 +2,10 @@ package com.cherryzp.animalshelter.ui.flow
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -55,6 +57,9 @@ private const val PHONE_HEIGHT_DP = 760
 const val WIDE_WIDTH_DP = 1280
 const val WIDE_HEIGHT_DP = 900
 
+/** 두 칸 창의 낮은 높이 — 2단 상세 본문이 스크롤된다(높이 compact는 아니다, 3e E2). */
+const val WIDE_SHORT_HEIGHT_DP = 600
+
 /** 폰 가로 흐름 창(폭 expanded·높이 compact — 3e E3). */
 const val LANDSCAPE_WIDTH_DP = 900
 const val LANDSCAPE_HEIGHT_DP = 400
@@ -98,7 +103,14 @@ private fun SizedApp(widthDp: Int, heightDp: Int) {
     val density = LocalDensity.current
     val size = with(density) { IntSize(widthDp.dp.roundToPx(), heightDp.dp.roundToPx()) }
     CompositionLocalProvider(LocalWindowInfo provides FixedWindowInfo(size)) {
-        Box(Modifier.size(widthDp.dp, heightDp.dp)) { App() }
+        // 테스트 화면(브라우저 캔버스 1024px 폭, 기기 세로 411dp 폭)보다 커도 지정한 크기로 배치한다(왼쪽 위 기준) —
+        // 줄이면 창 크기 클래스(1280)와 실제 칸 폭이 어긋나 두 칸 상세가 1단이 된다(3e). 넘친 부분은 보이지 않을 뿐이라
+        // 그쪽 노드는 위치만 재고(`getUnclippedBoundsInRoot`) 누르지 않는다.
+        Box(
+            Modifier
+                .wrapContentSize(Alignment.TopStart, unbounded = true)
+                .size(widthDp.dp, heightDp.dp)
+        ) { App() }
     }
 }
 

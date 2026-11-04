@@ -42,10 +42,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -92,6 +94,9 @@ private val TwoColumnMinWidth = 600.dp
 /** 상단 바 제목(D6)의 나타남·사라짐(emil 점검 — 사라짐이 더 빠르게). */
 private const val TITLE_FADE_IN_MILLIS = 150
 private const val TITLE_FADE_OUT_MILLIS = 100
+
+/** 2단에서 바 제목을 보이는 스크롤 겹침 — `TopAppBar`가 `scrolledContainerColor`로 바꾸는 조건과 같다(R9). */
+private const val TITLE_OVERLAP_THRESHOLD = 0.01f
 
 /** 본문 최대 폭(06 4.2). */
 private val ContentMaxWidth = 840.dp
@@ -174,7 +179,17 @@ fun AnimalDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val nameLine = remember { NameLineTracker() }
-    val showTitle by remember { derivedStateOf { nameLine.isUnderBar } }
+    // 1단: 품종명 줄이 바 아래로 지나간 뒤(D6). 2단: 바가 스크롤 색으로 바뀌는 순간(R9) — 본문이 짧아 줄이 바 아래로
+    // 못 지나가기도 한다. 조건은 TopAppBar가 색을 바꾸는 것과 같다(overlappedFraction > 0.01).
+    val showTitle by remember(scrollBehavior) {
+        derivedStateOf {
+            if (nameLine.twoColumn) {
+                scrollBehavior.state.overlappedFraction > TITLE_OVERLAP_THRESHOLD
+            } else {
+                nameLine.isUnderBar
+            }
+        }
+    }
     MessageSnackbarEffect(
         message = state.message,
         snackbarHostState = snackbarHostState,
@@ -189,7 +204,7 @@ fun AnimalDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    // D6: 품종명 줄이 바 아래로 지나간 뒤에만(사진 아래 제목과 겹치지 않게).
+                    // D6: 품종명 줄이 바 아래로 지나간 뒤에만(사진 아래 제목과 겹치지 않게). 2단은 스크롤하면(R9).
                     // 불투명도만 짧게(emil 점검): 나타날 때 150ms ease-out, 사라질 때 100ms — 움직임은 없다.
                     AnimatedVisibility(
                         visible = showTitle && detail != null,
@@ -271,11 +286,13 @@ fun AnimalDetailScreen(
 /**
  * 상세 바 제목(3d D6)을 보일지 정하는 두 위치(루트 좌표, px): 본문 스크롤 영역의 위 끝(= 상단 바 아래 끝)과
  * 요약 품종명 줄의 아래 끝. 스크롤하면 줄의 위치만 바뀐다. 줄이 아직 배치되지 않았으면 무한대라 제목이 없다.
+ * [twoColumn]은 본문이 2단인지(본문의 `BoxWithConstraints`가 `SideEffect`로 쓴다 — 2단은 다른 규칙, R9).
  */
 @Stable
 private class NameLineTracker {
     var viewportTop by mutableFloatStateOf(0f)
     var lineBottom by mutableFloatStateOf(Float.POSITIVE_INFINITY)
+    var twoColumn by mutableStateOf(false)
 
     /** 품종명 줄의 아래 끝이 바 아래로 지나갔는가. */
     val isUnderBar: Boolean get() = lineBottom <= viewportTop
@@ -334,6 +351,8 @@ private fun DetailContent(
             if (heightCompact) maxHeight * COMPACT_HEIGHT_PHOTO_FRACTION else PhotoMaxSide
         val paneWidth = maxWidth
         val twoColumn = paneWidth >= TwoColumnMinWidth
+        // 컴포지션 중에 바깥 상태를 쓰지 않는다 — 적용된 뒤에 바 제목 규칙에 알린다(R9).
+        SideEffect { nameLine.twoColumn = twoColumn }
         val edge = if (twoColumn) 24.dp else 16.dp
         val body: @Composable (Modifier) -> Unit = { mod ->
             DetailSectionsBody(
