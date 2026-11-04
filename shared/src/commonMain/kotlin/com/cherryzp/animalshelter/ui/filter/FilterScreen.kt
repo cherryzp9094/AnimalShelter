@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,6 +85,7 @@ import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.resources.state_protect
 import com.cherryzp.animalshelter.resources.title_filter
 import com.cherryzp.animalshelter.ui.common.QuickDate
+import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.StringResource
@@ -190,6 +192,7 @@ fun FilterScreen(
             ) {
                 Section(Res.string.filter_kind) {
                     ChoiceRow(
+                        tag = "kind",
                         options = listOf(
                             null to Res.string.kind_all,
                             AnimalKind.DOG to Res.string.kind_dog,
@@ -267,6 +270,7 @@ fun FilterScreen(
                 }
                 Section(Res.string.filter_state) {
                     ChoiceRow(
+                        tag = "state",
                         options = listOf(
                             NoticeState.ALL to Res.string.state_all,
                             NoticeState.NOTICE to Res.string.state_notice,
@@ -284,6 +288,7 @@ fun FilterScreen(
                 }
                 Section(Res.string.filter_sex) {
                     ChoiceRow(
+                        tag = "sex",
                         options = listOf(
                             null to Res.string.choice_all,
                             Sex.MALE to Res.string.sex_male,
@@ -296,6 +301,7 @@ fun FilterScreen(
                 }
                 Section(Res.string.filter_neuter) {
                     ChoiceRow(
+                        tag = "neuter",
                         options = listOf(
                             null to Res.string.choice_all,
                             Neutered.YES to Res.string.choice_yes,
@@ -335,6 +341,7 @@ private fun Hint(text: String) {
 /** 하나만 고르는 세그먼트 버튼 줄(M3가 라디오 역할·`selectableGroup`을 준다). */
 @Composable
 private fun <T> ChoiceRow(
+    tag: String,
     options: List<Pair<T, StringResource>>,
     selected: T,
     onSelected: (T) -> Unit,
@@ -345,6 +352,7 @@ private fun <T> ChoiceRow(
                 selected = value == selected,
                 onClick = { onSelected(value) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                modifier = Modifier.testTag(TestTags.choice(tag, value)),
                 label = {
                     // 2줄까지(영어 "Unknown"·큰 글자에서 잘리지 않게, C2⑦) — 줄 높이는 같게 늘어난다
                     Text(stringResource(label), maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -368,7 +376,11 @@ private fun FilterBottomBar(canApply: Boolean, onReset: () -> Unit, onApply: () 
             OutlinedButton(onClick = onReset, modifier = Modifier.weight(1f)) {
                 Text(stringResource(Res.string.filter_reset))
             }
-            Button(onClick = onApply, enabled = canApply, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onApply,
+                enabled = canApply,
+                modifier = Modifier.weight(1f).testTag(TestTags.FILTER_APPLY)
+            ) {
                 Text(stringResource(Res.string.filter_apply))
             }
         }

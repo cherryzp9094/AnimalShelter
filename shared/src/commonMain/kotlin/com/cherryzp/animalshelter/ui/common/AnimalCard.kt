@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -81,7 +82,9 @@ fun AnimalCard(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
         elevation = CardDefaults.cardElevation(),
-        modifier = modifier.semantics(mergeDescendants = true) { contentDescription = a11y }
+        modifier = modifier
+            .testTag(TestTags.card(ui.desertionNo))
+            .semantics(mergeDescendants = true) { contentDescription = a11y }
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val photoHeight = if (large) min(maxWidth, LargePhotoMaxHeight) else maxWidth
@@ -100,7 +103,9 @@ fun AnimalCard(
             BookmarkButton(
                 bookmarked = ui.isBookmarked,
                 onClick = onBookmarkClick,
-                modifier = Modifier.align(Alignment.TopEnd)
+                modifier = Modifier.align(
+                    Alignment.TopEnd
+                ).testTag(TestTags.cardBookmark(ui.desertionNo))
             )
         }
         Column(

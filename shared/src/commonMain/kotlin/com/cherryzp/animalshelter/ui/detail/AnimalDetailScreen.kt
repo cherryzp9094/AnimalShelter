@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -64,6 +65,7 @@ import com.cherryzp.animalshelter.ui.common.FullScreenMessage
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
+import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.preview.PreviewData
@@ -181,7 +183,8 @@ fun AnimalDetailScreen(
                     if (detail != null) {
                         BookmarkToggleButton(
                             bookmarked = state.isBookmarked,
-                            onClick = onToggleBookmark
+                            onClick = onToggleBookmark,
+                            modifier = Modifier.testTag(TestTags.DETAIL_BOOKMARK)
                         )
                     }
                 },

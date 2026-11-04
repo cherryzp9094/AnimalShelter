@@ -29,7 +29,7 @@ kotlin {
         }
         // commonTest를 JVM(호스트)에서 돌린다.
         withHostTest {}
-        // Compose UI 흐름 테스트(Phase 3)를 에뮬레이터에서 돌린다.
+        // Compose UI 흐름 테스트(Phase 3c)를 에뮬레이터에서 돌린다.
         withDeviceTest {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
@@ -102,10 +102,28 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.koin.test)
+            // UI 흐름 본문(runComposeUiTest). 호스트 JVM에서는 흐름을 돌리지 않는다(@Test 래퍼가 wasmJsTest·androidDeviceTest에만)
+            implementation(libs.compose.ui.test)
+        }
+        getByName("androidDeviceTest") {
+            // 흐름 본문·Fake·테스트 시계만 commonTest에서 가져온다(브리핑 C6). commonTest 전체를 소스셋 트리로 잇지 않는
+            // 이유: 테스트 이름의 공백을 D8이 DEX 040(API 30) 미만에서 받지 않는다(minSdk 26).
+            val shared = "src/commonTest/kotlin/com/cherryzp/animalshelter"
+            kotlin.srcDir("$shared/ui/flow")
+            kotlin.srcDir("$shared/fake")
+            kotlin.srcDir("$shared/testing")
+            kotlin.exclude("**/FakeRepositoriesTest.kt", "**/TestStores.kt")
         }
         getByName("androidDeviceTest").dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.koin.test)
             implementation(libs.androidx.test.runner)
             implementation(libs.androidx.test.ext.junit)
+            // Compose ui-test 1.12.1이 끌어오는 espresso-core 3.5.0은 Android 17(API 37)에서 사라진 숨은 API
+            // (InputManager.getInstance)를 불러 UI 테스트가 시작 전에 실패한다 → runner 1.7.0과 같은 androidx.test 묶음의
+            // 3.7.0으로 맞춘다(기기 테스트 APK에만, 앱에는 들어가지 않는다. 브리핑 C6 — 보고에 적음)
+            implementation(libs.androidx.test.espresso.core)
             implementation(libs.androidx.compose.ui.test.junit4.android)
             implementation(libs.androidx.compose.ui.test.manifest)
         }

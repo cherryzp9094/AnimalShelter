@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,6 +46,7 @@ import com.cherryzp.animalshelter.resources.ic_sort
 import com.cherryzp.animalshelter.resources.ic_view_agenda
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
+import com.cherryzp.animalshelter.ui.common.TestTags
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -92,7 +94,10 @@ fun ListTopBar(
             },
             scrollBehavior = scrollBehavior,
             actions = {
-                IconButton(onClick = onOpenFilter) {
+                IconButton(
+                    onClick = onOpenFilter,
+                    modifier = Modifier.testTag(TestTags.OPEN_FILTER)
+                ) {
                     Icon(
                         painterResource(Res.drawable.ic_filter_list),
                         contentDescription = stringResource(Res.string.action_filter)
@@ -107,7 +112,10 @@ fun ListTopBar(
                         )
                     }
                 }
-                IconButton(onClick = onOpenBookmarks) {
+                IconButton(
+                    onClick = onOpenBookmarks,
+                    modifier = Modifier.testTag(TestTags.OPEN_BOOKMARKS)
+                ) {
                     Icon(
                         painterResource(Res.drawable.ic_bookmark_border),
                         contentDescription = stringResource(Res.string.action_bookmarks)

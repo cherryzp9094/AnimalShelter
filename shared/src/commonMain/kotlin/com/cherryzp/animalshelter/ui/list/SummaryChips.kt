@@ -7,6 +7,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.NoticeState
@@ -25,6 +26,7 @@ import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.resources.state_protect
 import com.cherryzp.animalshelter.ui.common.QuickDate
+import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.formatShortDate
 import com.cherryzp.animalshelter.ui.common.quickDateOf
@@ -116,7 +118,7 @@ fun SummaryChipRow(
     modifier: Modifier = Modifier,
 ) {
     FlowRow(
-        modifier = modifier,
+        modifier = modifier.testTag(TestTags.SUMMARY_CHIPS),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
