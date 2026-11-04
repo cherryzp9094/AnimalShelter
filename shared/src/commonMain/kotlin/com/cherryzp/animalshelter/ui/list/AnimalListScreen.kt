@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.action_retry
 import com.cherryzp.animalshelter.resources.action_view_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
@@ -56,9 +57,11 @@ import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.listTopBarScrollBehavior
 import com.cherryzp.animalshelter.ui.common.pluralText
+import com.cherryzp.animalshelter.ui.common.progressName
 import com.cherryzp.animalshelter.ui.common.rememberPaneLazyGridState
 import com.cherryzp.animalshelter.ui.common.resetToTop
 import com.cherryzp.animalshelter.ui.common.resolve
+import com.cherryzp.animalshelter.ui.common.statusMessage
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.preview.PreviewData
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
@@ -247,7 +250,10 @@ fun AnimalListScreen(
                 }
             }
             if (state.refreshIndicator == RefreshIndicator.BAR) {
-                LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter))
+                LinearProgressIndicator(
+                    Modifier.fillMaxWidth().align(Alignment.TopCenter)
+                        .progressName(stringResource(Res.string.a11y_loading))
+                )
             }
         }
     }
@@ -282,7 +288,7 @@ private fun LazyGridScope.listFooter(footer: ListFooter, onRetry: () -> Unit) {
         ) {
             when (footer) {
                 ListFooter.Loading -> CircularProgressIndicator(
-                    Modifier.size(24.dp),
+                    Modifier.size(24.dp).progressName(stringResource(Res.string.a11y_loading)),
                     strokeWidth = 2.dp
                 )
 
@@ -299,7 +305,8 @@ private fun LazyGridScope.listFooter(footer: ListFooter, onRetry: () -> Unit) {
                     Text(
                         text = footer.text.resolve(),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.statusMessage()
                     )
                     if (footer.canRetry) {
                         TextButton(onClick = onRetry) {

@@ -22,10 +22,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cherryzp.animalshelter.data.repository.CacheState
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.action_retry
 import com.cherryzp.animalshelter.resources.choice_all
 import com.cherryzp.animalshelter.resources.filter_codes_error
 import com.cherryzp.animalshelter.resources.filter_codes_stale
+import com.cherryzp.animalshelter.ui.common.progressName
+import com.cherryzp.animalshelter.ui.common.statusMessage
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -100,7 +103,7 @@ fun <T> CodeDropdown(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 stringResource(Res.string.filter_codes_error),
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f).statusMessage()
                             )
                             TextButton(onClick = onRetry) {
                                 Text(stringResource(Res.string.action_retry))
@@ -110,7 +113,12 @@ fun <T> CodeDropdown(
                 }
 
                 data != null && error != null -> {
-                    { Text(stringResource(Res.string.filter_codes_stale)) }
+                    {
+                        Text(
+                            stringResource(Res.string.filter_codes_stale),
+                            modifier = Modifier.statusMessage()
+                        )
+                    }
                 }
 
                 else -> null
@@ -130,7 +138,14 @@ fun <T> CodeDropdown(
         ExposedDropdownMenu(expanded = expanded && enabled, onDismissRequest = ::close) {
             when {
                 shown == null && error == null -> DropdownMenuItem(
-                    text = { CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp) },
+                    text = {
+                        CircularProgressIndicator(
+                            Modifier.size(
+                                24.dp
+                            ).progressName(stringResource(Res.string.a11y_loading)),
+                            strokeWidth = 2.dp
+                        )
+                    },
                     onClick = {},
                     enabled = false
                 )

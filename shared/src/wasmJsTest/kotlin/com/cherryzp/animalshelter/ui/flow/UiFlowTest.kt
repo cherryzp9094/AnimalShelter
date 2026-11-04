@@ -143,6 +143,14 @@ class UiFlowTest {
         heightDp = COLUMN_HEIGHT_DP
     ) { photoPageKeptAcrossColumnChangeFlow(it) }
 
+    /** T15 로딩 뒤 나타나는 전체 화면·끝 행 문장은 polite 라이브 영역(5a Y1). */
+    @Test
+    fun t15StatusMessagesArePoliteLiveRegions() = runFlowTest { statusMessagesLiveRegionFlow(it) }
+
+    /** T15 진행 표시에 이름 a11y_loading(5a Y2). */
+    @Test
+    fun t15LoadingIndicatorsHaveName() = runFlowTest { loadingIndicatorNameFlow(it) }
+
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).
 }

@@ -64,6 +64,7 @@ import com.cherryzp.animalshelter.navigation.PhotoViewerKey
 import com.cherryzp.animalshelter.navigation.ShelterInfoKey
 import com.cherryzp.animalshelter.platform.ExternalActions
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.action_call_shelter
 import com.cherryzp.animalshelter.resources.action_go_to_list
@@ -83,6 +84,7 @@ import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
 import com.cherryzp.animalshelter.ui.common.TestTags
+import com.cherryzp.animalshelter.ui.common.progressName
 import com.cherryzp.animalshelter.ui.common.rememberPanePagerState
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
@@ -305,7 +307,10 @@ fun AnimalDetailScreen(
                 else -> CenteredLoading()
             }
             if (state.isLoading && detail != null) {
-                LinearProgressIndicator(Modifier.fillMaxWidth().align(Alignment.TopCenter))
+                LinearProgressIndicator(
+                    Modifier.fillMaxWidth().align(Alignment.TopCenter)
+                        .progressName(stringResource(Res.string.a11y_loading))
+                )
             }
         }
     }

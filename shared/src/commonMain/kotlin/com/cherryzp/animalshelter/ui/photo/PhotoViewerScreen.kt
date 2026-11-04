@@ -36,13 +36,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.action_close
 import com.cherryzp.animalshelter.resources.action_retry
 import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.photo_a11y
 import com.cherryzp.animalshelter.resources.photo_counter
 import com.cherryzp.animalshelter.ui.common.DarkSystemBarsEffect
+import com.cherryzp.animalshelter.ui.common.progressName
 import com.cherryzp.animalshelter.ui.common.resolve
+import com.cherryzp.animalshelter.ui.common.statusMessage
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import com.cherryzp.animalshelter.ui.theme.TABULAR_NUMBERS
@@ -136,7 +139,8 @@ fun PhotoViewerScreen(
                         text = error.resolve(),
                         color = ViewerContent,
                         style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.statusMessage()
                     )
                     if (state.canRetry) {
                         OutlinedButton(onClick = onRetry) {
@@ -151,6 +155,7 @@ fun PhotoViewerScreen(
                 CircularProgressIndicator(
                     color = ViewerContent,
                     modifier = Modifier.align(Alignment.Center)
+                        .progressName(stringResource(Res.string.a11y_loading))
                 )
                 ViewerTopBar(counter = null, onClose = onClose)
             }

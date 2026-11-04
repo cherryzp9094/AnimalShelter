@@ -148,4 +148,12 @@ class UiFlowTest {
         widthDp = COLUMN_WIDE_WIDTH_DP,
         heightDp = COLUMN_HEIGHT_DP
     ) { photoPageKeptAcrossColumnChangeFlow(it) }
+
+    /** T15 로딩 뒤 나타나는 전체 화면·끝 행 문장은 polite 라이브 영역(5a Y1). */
+    @Test
+    fun t15StatusMessagesArePoliteLiveRegions() = runFlowTest { statusMessagesLiveRegionFlow(it) }
+
+    /** T15 진행 표시에 이름 a11y_loading(5a Y2). */
+    @Test
+    fun t15LoadingIndicatorsHaveName() = runFlowTest { loadingIndicatorNameFlow(it) }
 }

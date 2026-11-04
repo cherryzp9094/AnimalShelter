@@ -54,6 +54,7 @@ import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.copyOnLongPress
 import com.cherryzp.animalshelter.ui.common.rememberImageModel
 import com.cherryzp.animalshelter.ui.common.resolve
+import com.cherryzp.animalshelter.ui.common.statusMessage
 import com.cherryzp.animalshelter.ui.theme.TABULAR_NUMBERS
 import org.jetbrains.compose.resources.stringResource
 
@@ -410,7 +411,11 @@ fun NoticeBanner(text: String, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(20.dp))
-            Text(text = text, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.statusMessage()
+            )
         }
     }
 }

@@ -51,6 +51,7 @@
     <string name="a11y_ends_today">Notice ends today</string>
     <string name="a11y_bookmarked">Bookmarked</string>
     <string name="a11y_sort_to_latest">Switch to newest</string>
+    <string name="a11y_loading">Loading</string>
     <string name="sex_male">Male</string>
     <string name="sex_female">Female</string>
     <string name="sex_unknown">Unknown sex</string>

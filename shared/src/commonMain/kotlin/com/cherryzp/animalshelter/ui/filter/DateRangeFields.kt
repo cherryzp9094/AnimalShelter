@@ -47,6 +47,7 @@ import com.cherryzp.animalshelter.resources.filter_date_to
 import com.cherryzp.animalshelter.ui.common.QuickDate
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.resolve
+import com.cherryzp.animalshelter.ui.common.statusMessage
 import com.cherryzp.animalshelter.ui.theme.TABULAR_NUMBERS
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
@@ -123,7 +124,7 @@ fun DateRangeFields(
                 text = error.resolve(),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp).statusMessage()
             )
 
             from == null && to == null -> Text(

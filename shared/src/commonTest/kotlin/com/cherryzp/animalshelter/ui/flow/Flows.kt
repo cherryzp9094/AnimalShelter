@@ -1,6 +1,7 @@
 package com.cherryzp.animalshelter.ui.flow
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -28,6 +29,7 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cherryzp.animalshelter.data.api.ApiError
 import com.cherryzp.animalshelter.data.repository.SearchResults
 import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.model.Animal
@@ -38,6 +40,7 @@ import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
 import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.action_sort
@@ -46,7 +49,9 @@ import com.cherryzp.animalshelter.resources.disclaimer
 import com.cherryzp.animalshelter.resources.empty_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
 import com.cherryzp.animalshelter.resources.empty_results
+import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.resources.kind_cat
+import com.cherryzp.animalshelter.resources.list_load_more_failed
 import com.cherryzp.animalshelter.resources.photo_a11y
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
@@ -799,4 +804,46 @@ suspend fun ComposeUiTest.photoPageKeptAcrossColumnChangeFlow(fakes: FlowFakes) 
     resizeWindow(fakes, COLUMN_WIDE_WIDTH_DP, COLUMN_HEIGHT_DP)
     awaitIdle()
     assertTrue(isCurrentPhoto(texts, 1), "1단 → 2단으로 되돌린 뒤 사진이 2/2가 아니다(첫 사진으로 돌아감)")
+}
+
+/** [text]가 든 노드가 polite 라이브 영역인가(병합 전 트리 — 문장 `Text` 자신). */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.isPoliteLiveText(text: String): Boolean = onAllNodes(
+    hasText(text) and
+        SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+    useUnmergedTree = true
+).fetchSemanticsNodes().isNotEmpty()
+
+/**
+ * T15 첫째(5a Y1): 폰 창 — 목록을 네트워크 오류(결과 없음)로 두면 전체 화면 문장이 polite 라이브 영역. 결과가 있는
+ * 목록에서 다음 쪽이 실패하면(끝에 가까워 저절로 부른다) 끝 행 문장도 polite.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.statusMessagesLiveRegionFlow(fakes: FlowFakes) {
+    val network = getString(Res.string.error_network)
+    fakes.animals.results.value = SearchResults(error = ApiError.Network, errorId = 1)
+    awaitCondition("오류 전체 화면 문장") {
+        onAllNodes(hasText(network)).fetchSemanticsNodes().isNotEmpty()
+    }
+    assertTrue(isPoliteLiveText(network), "전체 화면 오류 문장이 polite 라이브 영역이 아니다")
+
+    fakes.animals.onLoadMore = {
+        fakes.animals.results.value =
+            fakes.animals.results.value.copy(error = ApiError.Network, errorId = 2)
+    }
+    fakes.animals.results.value = listOf3().copy(totalCount = 200, pageNo = 1, hasMore = true)
+    val failed = getString(Res.string.list_load_more_failed)
+    awaitCondition("끝 행 실패 문장") { onAllNodes(hasText(failed)).fetchSemanticsNodes().isNotEmpty() }
+    assertTrue(isPoliteLiveText(failed), "끝 행 실패 문장이 polite 라이브 영역이 아니다")
+}
+
+/** T15 둘째(5a Y2): 목록 첫 로딩(Fake가 아직 결과를 내지 않았다)의 진행 표시에 이름 `a11y_loading`. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.loadingIndicatorNameFlow(fakes: FlowFakes) {
+    assertTrue(fakes.animals.results.value.fetchedAt == null, "Fake가 첫 로딩 상태가 아니다")
+    val loading = getString(Res.string.a11y_loading)
+    awaitCondition("진행 표시 이름") {
+        onAllNodes(hasContentDescription(loading), useUnmergedTree = true)
+            .fetchSemanticsNodes().isNotEmpty()
+    }
 }

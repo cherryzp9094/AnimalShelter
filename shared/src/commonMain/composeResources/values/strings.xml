@@ -49,6 +49,7 @@
     <string name="a11y_ends_today">오늘 공고 마감</string>
     <string name="a11y_bookmarked">북마크됨</string>
     <string name="a11y_sort_to_latest">최신순으로 바꾸기</string>
+    <string name="a11y_loading">불러오는 중이에요</string>
     <string name="sex_male">수컷</string>
     <string name="sex_female">암컷</string>
     <string name="sex_unknown">성별 미상</string>
