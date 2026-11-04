@@ -46,7 +46,7 @@ npx wrangler dev        # http://127.0.0.1:8788 (에뮬레이터에서는 http:/
 |---|---|
 | `GET /api/{service}/{operation}?…` | `service` 2개·`operation` 6개만(그 밖 404). 오퍼레이션별 허용 파라미터만(모르는 이름·중복·50자 초과 → 400 `{"relayError":"param"}`), `numOfRows` 1~1000. 클라이언트의 `serviceKey`·`_type`은 버리고 중계가 `_type=json&serviceKey=…`를 **문자열로** 붙인다(키는 이미 퍼센트 인코딩형). 타임아웃 20초. 응답은 업스트림 상태·본문 그대로, `Content-Type: application/json; charset=utf-8`, `Cache-Control: no-store` |
 | `GET /img/shelter/YYYY/MM/<파일>.(jpg\|jpeg\|png)` | 퍼센트 디코딩 뒤 형식 검사(`..` 거부, 대괄호 허용). `image/jpeg`·`image/png`, `public, max-age=86400`, Cloudflare 캐시 1일 |
-| `GET /a/{15자리}` | 재조회 창(날짜 없이 → 구조번호의 연도 → 그 전 해, 최대 3회)으로 찾아 요약 JSON을 1시간 캐시(0건도 캐시, 업스트림 오류는 캐시하지 않고 일반 OG). `index.html`(`/`로 읽는다 — `/index.html`은 307)에 `<base href="/">`·`og:type`(website)·`og:locale`(ko_KR)·`og:title`·`og:description`·`og:image`(사진 있을 때)·`og:url`·`og:site_name`·`twitter:card`·`<meta name="description">`(동물 설명)·`robots`(noindex)·`<title>`을 넣는다 — `index.html`의 `<title>`·`description`·`robots`는 빼서 같은 이름이 하나씩만 남는다. `<body>` 첫 줄에 `history.replaceState(null, "", "/#/animal/{id}")`. `text/html`, `public, max-age=3600` |
+| `GET /a/{15자리}` | 재조회 창(날짜 없이 → 구조번호의 연도 → 그 전 해, 최대 3회)으로 찾아 요약 JSON을 1시간 캐시(0건도 캐시, 업스트림 오류는 캐시하지 않고 일반 OG). `index.html`(`/`로 읽는다 — `/index.html`은 307)의 `<meta charset>` 바로 뒤에(처음 1024바이트 안에 남게) `<base href="/">`·`og:type`(website)·`og:locale`(ko_KR)·`og:title`·`og:description`·`og:image`(사진 있을 때)·`og:url`·`og:site_name`·`twitter:card`·`<meta name="description">`(동물 설명)·`robots`(noindex)·`<title>`을 넣는다 — `index.html`의 `<title>`·`description`·`robots`는 빼서 같은 이름이 하나씩만 남는다. `<body>` 첫 줄에 `history.replaceState(null, "", "/#/animal/{id}")`. `text/html`, `public, max-age=3600` |
 | `GET /.well-known/assetlinks.json` | `assetlinks.json` 그대로(`application/json`, 리다이렉트 없음). 그 밖 `/.well-known/*`는 404 |
 | 그 밖 | 정적 자산(SPA: 없는 경로도 `index.html`) |
 
@@ -70,7 +70,8 @@ Workers 무료: 하루 100,000 요청(정적 자산 요청은 제외), 요청당
 
 - `robots.txt`: `User-agent: *` / `Disallow: /api/` — `/a/`·`/img/`는 미리보기 봇이 읽어야 해서 막지 않는다. `index.html`에도 `<meta name="robots" content="noindex">`(개인용 — 색인 봇이 중계 한도를 쓰지 않게).
 - `.assetsignore`: `*.map` — 소스맵은 기본으로 올리지 않는다(요청하면 SPA `index.html`). 넣을지는 4b에서 정한다(넣으면 그 줄만 지운다).
-- 둘 다 배포 폴더(`webApp/build/dist/wasmJs/productionExecutable/`) 맨 위에 생긴다.
+- `_headers`: 정적 자산 응답에 `X-Content-Type-Options: nosniff`(Worker가 내는 응답은 `worker.js`가 같은 값을 붙인다 — `lib.SECURITY_HEADERS`).
+- 셋 다 배포 폴더(`webApp/build/dist/wasmJs/productionExecutable/`) 맨 위에 생긴다.
 
 ## 배포
 

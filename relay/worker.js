@@ -9,14 +9,25 @@ const JSON_TYPE = "application/json; charset=utf-8";
 
 export default {
   async fetch(request, env, ctx) {
+    let response;
     try {
-      return await route(request, env, ctx);
+      response = await route(request, env, ctx);
     } catch {
       // 예외 메시지에는 URL이 들어 있을 수 있어 버린다.
-      return jsonResponse(502, { relayError: "upstream" });
+      response = jsonResponse(502, { relayError: "upstream" });
     }
+    return withSecurityHeaders(response);
   },
 };
+
+/** H5: nosniff 등(lib.SECURITY_HEADERS). 이미 있으면 두고, 바꿀 수 없는 응답(정적 자산)은 복사해 붙인다. */
+function withSecurityHeaders(response) {
+  const missing = Object.entries(lib.SECURITY_HEADERS).filter(([name]) => !response.headers.has(name));
+  if (missing.length === 0) return response;
+  const headers = new Headers(response.headers);
+  for (const [name, value] of missing) headers.set(name, value);
+  return new Response(response.body, { status: response.status, headers });
+}
 
 async function route(request, env, ctx) {
   const url = new URL(request.url);

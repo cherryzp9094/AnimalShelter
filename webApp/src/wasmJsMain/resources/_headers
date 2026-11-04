@@ -1,0 +1,3 @@
+# Cloudflare Static Assets 응답 헤더(4a H5). Worker가 내는 응답(/api·/img·/a·/.well-known)은 worker.js가 같은 값을 붙인다.
+/*
+  X-Content-Type-Options: nosniff

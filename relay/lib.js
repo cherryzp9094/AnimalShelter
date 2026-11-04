@@ -269,7 +269,7 @@ export function escapeHtml(text) {
 }
 
 /**
- * index.html에 미리보기를 넣는다(D14, 4a R2): `<head>` 맨 앞에 `<base href="/">`와 OG 메타·`<title>`·
+ * index.html에 미리보기를 넣는다(D14, 4a R2): `<head>`의 `<meta charset>` 바로 뒤(없으면 맨 앞)에 `<base href="/">`와 OG 메타·`<title>`·
  * `<meta name="description">`(동물 설명)·`robots`. index.html에 있던 `<title>`·`description`·`robots`는 뺀다 —
  * 같은 이름 메타가 둘이 되지 않게. `<body>` 첫 줄에 해시 라우팅으로 상세를 여는 `replaceState` 스크립트.
  */
@@ -294,7 +294,7 @@ export function injectOg(html, meta, desertionNo) {
   return html
     .replace(/<title>[\s\S]*?<\/title>\s*/i, "")
     .replace(/<meta\s+name="(description|robots)"[^>]*>\s*/gi, "")
-    .replace(/<head([^>]*)>/i, (tag) => `${tag}\n${tags}`)
+    .replace(/<head([^>]*)>(\s*<meta\s+charset=[^>]*>)?/i, (tag) => `${tag}\n${tags}`)
     .replace(/<body([^>]*)>/i, (tag) => `${tag}\n${script}`);
 }
 
@@ -335,3 +335,6 @@ export function headHeaders(kind) {
   }
   return { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" };
 }
+
+/** 모든 Worker 응답에 붙이는 헤더(4a H5 — 형식 추측 막기). 정적 자산은 웹 셸의 `_headers`가 같은 값을 붙인다. */
+export const SECURITY_HEADERS = { "X-Content-Type-Options": "nosniff" };

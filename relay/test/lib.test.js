@@ -192,7 +192,6 @@ test("injectOg: head 맨 앞 base, OG·title 교체, body 첫 줄 replaceState, 
     url: "https://relay.example/a/450650202602738",
   };
   const out = lib.injectOg(html, meta, "450650202602738");
-  assert.match(out, /<head>\n<base href="\/">/);
   assert.equal((out.match(/<base href="\/">/g) ?? []).length, 1);
   assert.equal((out.match(/history\.replaceState/g) ?? []).length, 1);
   assert.match(out, /<body>\n<script>history\.replaceState\(null, "", "\/#\/animal\/450650202602738"\)<\/script>/);
@@ -205,7 +204,17 @@ test("injectOg: head 맨 앞 base, OG·title 교체, body 첫 줄 replaceState, 
   assert.ok(out.includes("&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;"));
   assert.ok(out.includes(`<meta name="robots" content="noindex">`));
   assert.ok(out.includes(`<meta name="twitter:card" content="summary_large_image">`));
-  assert.ok(out.indexOf("<base") < out.indexOf('<meta charset'));
+  // charset은 처음 1024바이트 안에 — 머리 맨 앞에 두고 그 뒤에 넣는다(H5)
+  assert.match(out, /<head>\n<meta charset="utf-8">\n<base href="\/">/);
+  assert.ok(out.indexOf('<meta charset') < out.indexOf("<base"));
+});
+
+test("injectOg: charset이 없으면 head 맨 앞에", () => {
+  const out = lib.injectOg("<html><head><title>x</title></head><body></body></html>", {
+    title: "t", description: "d", image: null, url: "u",
+  }, "450650202602738");
+  assert.match(out, /<head>\n<base href="\/">/);
+  assert.deepEqual(lib.SECURITY_HEADERS, { "X-Content-Type-Options": "nosniff" });
 });
 
 test("injectOg: index.html의 description·robots는 동물 것으로 바꿔 하나씩만", () => {
