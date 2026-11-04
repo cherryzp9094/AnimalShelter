@@ -41,6 +41,14 @@ class ShelterHoursTest {
     }
 
     @Test
+    fun `오늘 줄의 휴무일도 +를 쉼표로(F9)`() {
+        assertEquals(
+            uiText(Res.string.today_closed, "일요일, 공휴일"),
+            info.copy(closedDay = "일요일+공휴일").todayParts(wednesday).last()
+        )
+    }
+
+    @Test
     fun `주말은 주말 값, 빠진 분양 시간은 뺀다`() {
         assertEquals(
             listOf(

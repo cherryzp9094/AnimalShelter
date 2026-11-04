@@ -9,6 +9,7 @@ import com.cherryzp.animalshelter.resources.today_adoption
 import com.cherryzp.animalshelter.resources.today_closed
 import com.cherryzp.animalshelter.resources.today_hours
 import com.cherryzp.animalshelter.ui.common.UiText
+import com.cherryzp.animalshelter.ui.common.plusSeparated
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -35,5 +36,5 @@ fun ShelterInfo.todayParts(today: LocalDate): List<UiText> = buildList {
     (if (weekend) weekendAdoptionHours else weekdayAdoptionHours)?.let {
         add(uiText(Res.string.today_adoption, it.toUiText()))
     }
-    closedDay?.trim()?.takeIf { it.isNotEmpty() }?.let { add(uiText(Res.string.today_closed, it)) }
+    closedDay.plusSeparated()?.let { add(uiText(Res.string.today_closed, it)) }
 }
