@@ -179,6 +179,8 @@
     <string name="bookmarks_recovered">Couldn’t read your bookmarks, so the list was reset.</string>
     <string name="title_shelter">Shelter</string>
     <string name="action_shelter_notices">Notices from this shelter</string>
+    <string name="action_previous_photo">Previous photo</string>
+    <string name="action_next_photo">Next photo</string>
     <string name="section_facilities">Facilities</string>
     <string name="label_shelter_type">Type</string>
     <string name="label_target_animals">Animals accepted</string>

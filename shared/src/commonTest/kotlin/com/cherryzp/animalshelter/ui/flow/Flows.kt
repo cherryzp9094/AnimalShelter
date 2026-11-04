@@ -10,6 +10,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -43,6 +45,8 @@ import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
 import com.cherryzp.animalshelter.resources.action_back
+import com.cherryzp.animalshelter.resources.action_next_photo
+import com.cherryzp.animalshelter.resources.action_previous_photo
 import com.cherryzp.animalshelter.resources.action_sort
 import com.cherryzp.animalshelter.resources.action_undo
 import com.cherryzp.animalshelter.resources.disclaimer
@@ -53,6 +57,7 @@ import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.resources.kind_cat
 import com.cherryzp.animalshelter.resources.list_load_more_failed
 import com.cherryzp.animalshelter.resources.photo_a11y
+import com.cherryzp.animalshelter.resources.photo_counter
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
@@ -774,9 +779,7 @@ private fun ComposeUiTest.isCurrentPhoto(texts: List<String>, index: Int): Boole
  */
 @OptIn(ExperimentalTestApi::class)
 suspend fun ComposeUiTest.photoPageKeptAcrossColumnChangeFlow(fakes: FlowFakes) {
-    val withPhotos = flowAnimal("P").copy(photos = listOf("photo-1", "photo-2"))
-    fakes.animals.results.value =
-        listOf3().copy(items = listOf(withPhotos, flowAnimal("B"), flowAnimal("C")))
+    fakes.animals.results.value = listWithTwoPhotos()
     val texts = photoTexts(2)
     val first = texts[0]
 
@@ -845,5 +848,77 @@ suspend fun ComposeUiTest.loadingIndicatorNameFlow(fakes: FlowFakes) {
     awaitCondition("진행 표시 이름") {
         onAllNodes(hasContentDescription(loading), useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
+    }
+}
+
+/** 사진 2장 동물("P", 네트워크 없는 주소 — T12와 같다)을 첫 카드로 둔 목록. */
+private fun listWithTwoPhotos(): SearchResults {
+    val withPhotos = flowAnimal("P").copy(photos = listOf("photo-1", "photo-2"))
+    return listOf3().copy(items = listOf(withPhotos, flowAnimal("B"), flowAnimal("C")))
+}
+
+/**
+ * T14 첫째(5a U1): 폰 400×760 상세의 사진 아래 줄 — [다음 사진]을 누르면 2/2이고 다음 사진은 비활성, [이전 사진]을
+ * 누르면 1/2이고 이전 사진은 비활성.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.detailPhotoButtonsFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listWithTwoPhotos()
+    val texts = photoTexts(2)
+    val previous =
+        hasContentDescription(getString(Res.string.action_previous_photo)) and hasClickAction()
+    val next = hasContentDescription(getString(Res.string.action_next_photo)) and hasClickAction()
+
+    awaitTag(TestTags.card("P")).performClick()
+    awaitCondition("상세 사진 1/2") { isCurrentPhoto(texts, 0) }
+    onNode(previous).assertIsNotEnabled()
+
+    onNode(next).performClick()
+    awaitCondition("다음 사진으로 2/2") { isCurrentPhoto(texts, 1) }
+    onNode(next).assertIsNotEnabled()
+    onNode(previous).assertIsEnabled()
+
+    onNode(previous).performClick()
+    awaitCondition("이전 사진으로 1/2") { isCurrentPhoto(texts, 0) }
+    onNode(previous).assertIsNotEnabled()
+    onNode(next).assertIsEnabled()
+}
+
+/**
+ * T14 둘째(5a U2): 상세 사진을 눌러 연 뷰어 "1 / 2"에는 이전 사진 단추가 없다 → [다음 사진] → "2 / 2"이고 다음 사진
+ * 단추가 없다 → [이전 사진] → "1 / 2".
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.viewerPhotoButtonsFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listWithTwoPhotos()
+    val texts = photoTexts(2)
+    val previous =
+        hasContentDescription(getString(Res.string.action_previous_photo)) and hasClickAction()
+    val next = hasContentDescription(getString(Res.string.action_next_photo)) and hasClickAction()
+    val firstCounter = getString(Res.string.photo_counter, 1, 2)
+    val secondCounter = getString(Res.string.photo_counter, 2, 2)
+
+    awaitTag(TestTags.card("P")).performClick()
+    awaitCondition("상세 사진 1/2") { isCurrentPhoto(texts, 0) }
+    onNode(hasContentDescription(texts[0], substring = true)).performClick()
+    awaitCondition("뷰어 1 / 2") {
+        onAllNodes(hasText(firstCounter)).fetchSemanticsNodes().isNotEmpty()
+    }
+    // 전환이 끝나 상세(사진 아래 줄의 단추)가 빠질 때까지
+    awaitCondition("상세가 빠짐") {
+        onAllNodes(hasTestTag(TestTags.DETAIL_BOOKMARK)).fetchSemanticsNodes().isEmpty()
+    }
+    assertTrue(onAllNodes(previous).fetchSemanticsNodes().isEmpty(), "첫 쪽에 이전 사진 단추가 있다")
+
+    onNode(next).performClick()
+    awaitCondition("뷰어 2 / 2") {
+        onAllNodes(hasText(secondCounter)).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitIdle()
+    assertTrue(onAllNodes(next).fetchSemanticsNodes().isEmpty(), "마지막 쪽에 다음 사진 단추가 있다")
+
+    onNode(previous).performClick()
+    awaitCondition("뷰어 1 / 2로 돌아옴") {
+        onAllNodes(hasText(firstCounter)).fetchSemanticsNodes().isNotEmpty()
     }
 }

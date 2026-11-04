@@ -151,6 +151,14 @@ class UiFlowTest {
     @Test
     fun t15LoadingIndicatorsHaveName() = runFlowTest { loadingIndicatorNameFlow(it) }
 
+    /** T14 상세 사진 아래 이전·다음 단추로 한 쪽씩, 끝 쪽에서는 비활성(5a U1). */
+    @Test
+    fun t14DetailPhotoButtonsPage() = runFlowTest { detailPhotoButtonsFlow(it) }
+
+    /** T14 사진 뷰어 양옆 이전·다음 단추로 한 쪽씩, 끝 쪽에서는 없다(5a U2). */
+    @Test
+    fun t14ViewerPhotoButtonsPage() = runFlowTest { viewerPhotoButtonsFlow(it) }
+
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).
 }

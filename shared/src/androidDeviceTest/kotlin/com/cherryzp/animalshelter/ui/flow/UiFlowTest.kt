@@ -156,4 +156,12 @@ class UiFlowTest {
     /** T15 진행 표시에 이름 a11y_loading(5a Y2). */
     @Test
     fun t15LoadingIndicatorsHaveName() = runFlowTest { loadingIndicatorNameFlow(it) }
+
+    /** T14 상세 사진 아래 이전·다음 단추로 한 쪽씩, 끝 쪽에서는 비활성(5a U1). */
+    @Test
+    fun t14DetailPhotoButtonsPage() = runFlowTest { detailPhotoButtonsFlow(it) }
+
+    /** T14 사진 뷰어 양옆 이전·다음 단추로 한 쪽씩, 끝 쪽에서는 없다(5a U2). */
+    @Test
+    fun t14ViewerPhotoButtonsPage() = runFlowTest { viewerPhotoButtonsFlow(it) }
 }

@@ -176,6 +176,8 @@
     <string name="bookmarks_recovered">북마크 파일을 읽지 못해 목록을 비웠어요.</string>
     <string name="title_shelter">보호소 정보</string>
     <string name="action_shelter_notices">이 보호소의 공고 보기</string>
+    <string name="action_previous_photo">이전 사진</string>
+    <string name="action_next_photo">다음 사진</string>
     <string name="section_facilities">시설</string>
     <string name="label_shelter_type">센터 유형</string>
     <string name="label_target_animals">구조 대상</string>
