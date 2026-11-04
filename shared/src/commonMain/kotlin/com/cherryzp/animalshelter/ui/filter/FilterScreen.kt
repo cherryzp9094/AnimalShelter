@@ -3,17 +3,13 @@ package com.cherryzp.animalshelter.ui.filter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -28,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -85,6 +80,7 @@ import com.cherryzp.animalshelter.resources.state_all
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.resources.state_protect
 import com.cherryzp.animalshelter.resources.title_filter
+import com.cherryzp.animalshelter.ui.common.BottomBar
 import com.cherryzp.animalshelter.ui.common.BottomBarButtonHeight
 import com.cherryzp.animalshelter.ui.common.QuickDate
 import com.cherryzp.animalshelter.ui.common.TestTags
@@ -365,31 +361,26 @@ private fun <T> ChoiceRow(
     }
 }
 
-/** 하단 고정: 초기화 + 검색하기(날짜 오류가 있으면 비활성). 버튼 높이 48dp(06 6절, 3d 점검 A4). */
+/**
+ * 하단 고정: 초기화 + 검색하기(날짜 오류가 있으면 비활성). 버튼 높이 48dp(06 6절, 3d 점검 A4).
+ * inset은 공용 [BottomBar](R6) — 가로 화면의 컷아웃을 피하고, 키보드가 열리면 바는 키보드 뒤에 있다.
+ */
 @Composable
 private fun FilterBottomBar(canApply: Boolean, onReset: () -> Unit, onApply: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.navigationBars)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+    BottomBar {
+        OutlinedButton(
+            onClick = onReset,
+            modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
         ) {
-            OutlinedButton(
-                onClick = onReset,
-                modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
-            ) {
-                Text(stringResource(Res.string.filter_reset))
-            }
-            Button(
-                onClick = onApply,
-                enabled = canApply,
-                modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
-                    .testTag(TestTags.FILTER_APPLY)
-            ) {
-                Text(stringResource(Res.string.filter_apply))
-            }
+            Text(stringResource(Res.string.filter_reset))
+        }
+        Button(
+            onClick = onApply,
+            enabled = canApply,
+            modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
+                .testTag(TestTags.FILTER_APPLY)
+        ) {
+            Text(stringResource(Res.string.filter_apply))
         }
     }
 }

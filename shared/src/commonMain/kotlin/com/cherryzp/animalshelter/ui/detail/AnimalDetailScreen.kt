@@ -10,18 +10,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -32,11 +27,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -75,6 +68,7 @@ import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.detail_notice_gone
 import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.ui.common.BookmarkToggleButton
+import com.cherryzp.animalshelter.ui.common.BottomBar
 import com.cherryzp.animalshelter.ui.common.BottomBarButtonHeight
 import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
@@ -298,32 +292,19 @@ private class NameLineTracker {
     val isUnderBar: Boolean get() = lineBottom <= viewportTop
 }
 
-/** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체, 높이 48dp). 공유는 Phase 4. */
+/** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체, 높이 48dp). 공유는 Phase 4a(같은 바). */
 @Composable
 private fun CallBar(onClick: () -> Unit) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Box(
-            Modifier
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(
-                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
-                    )
-                )
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+    BottomBar {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
         ) {
-            Button(
-                onClick = onClick,
-                modifier = Modifier.fillMaxWidth().heightIn(min = BottomBarButtonHeight)
-            ) {
-                Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text(
-                    text = stringResource(Res.string.action_call_shelter),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
+            Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                text = stringResource(Res.string.action_call_shelter),
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
