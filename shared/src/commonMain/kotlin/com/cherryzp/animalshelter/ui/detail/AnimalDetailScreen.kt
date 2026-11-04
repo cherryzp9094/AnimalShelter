@@ -36,12 +36,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -155,6 +162,8 @@ fun AnimalDetailScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val nameLine = remember { NameLineTracker() }
+    val showTitle by remember { derivedStateOf { nameLine.isUnderBar } }
     MessageSnackbarEffect(
         message = state.message,
         snackbarHostState = snackbarHostState,
@@ -168,7 +177,18 @@ fun AnimalDetailScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = {},
+                title = {
+                    // D6: 품종명 줄이 바 아래로 지나간 뒤에만(사진 아래 제목과 겹치지 않게). 따로 애니메이션 없음.
+                    if (showTitle && detail != null) {
+                        Text(
+                            text = detail.titleParts.map { it.resolve() }
+                                .joinToString(PART_SEPARATOR),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.testTag(TestTags.DETAIL_TITLE)
+                        )
+                    }
+                },
                 navigationIcon = {
                     if (showBack) {
                         IconButton(onClick = onBack) {
@@ -202,6 +222,7 @@ fun AnimalDetailScreen(
                 detail != null -> DetailContent(
                     state = state,
                     detail = detail,
+                    nameLine = nameLine,
                     onOpenPhoto = onOpenPhoto,
                     onOpenShelter = onOpenShelter,
                     onDial = onDial,
@@ -229,6 +250,19 @@ fun AnimalDetailScreen(
             }
         }
     }
+}
+
+/**
+ * 상세 바 제목(3d D6)을 보일지 정하는 두 위치(루트 좌표, px): 본문 스크롤 영역의 위 끝(= 상단 바 아래 끝)과
+ * 요약 품종명 줄의 아래 끝. 스크롤하면 줄의 위치만 바뀐다. 줄이 아직 배치되지 않았으면 무한대라 제목이 없다.
+ */
+@Stable
+private class NameLineTracker {
+    var viewportTop by mutableFloatStateOf(0f)
+    var lineBottom by mutableFloatStateOf(Float.POSITIVE_INFINITY)
+
+    /** 품종명 줄의 아래 끝이 바 아래로 지나갔는가. */
+    val isUnderBar: Boolean get() = lineBottom <= viewportTop
 }
 
 /** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체). 공유는 Phase 4. */
@@ -266,6 +300,7 @@ private fun CallBar(onClick: () -> Unit) {
 private fun DetailContent(
     state: AnimalDetailUiState,
     detail: AnimalDetailUi,
+    nameLine: NameLineTracker,
     onOpenPhoto: (Int) -> Unit,
     onOpenShelter: () -> Unit,
     onDial: (String) -> Unit,
@@ -296,9 +331,15 @@ private fun DetailContent(
         val banner: @Composable () -> Unit = {
             if (state.isStale) NoticeBanner(stringResource(Res.string.detail_notice_gone))
         }
+        val nameLineModifier = Modifier.onGloballyPositioned {
+            nameLine.lineBottom = it.positionInRoot().y + it.size.height
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxSize()
+                .onGloballyPositioned { nameLine.viewportTop = it.positionInRoot().y }
+                .verticalScroll(rememberScrollState())
+                .testTag(TestTags.DETAIL_SCROLL)
         ) {
             if (twoColumn) {
                 val contentWidth = min(paneWidth, ContentMaxWidth) - edge * 2
@@ -316,7 +357,7 @@ private fun DetailContent(
                             modifier = Modifier.width(leftWidth)
                         ) {
                             PhotoPager(detail.photoUrls, photoTitle, photoMax, onOpenPhoto)
-                            SummarySection(detail)
+                            SummarySection(detail, nameLineModifier = nameLineModifier)
                         }
                         body(Modifier.weight(1f))
                     }
@@ -329,7 +370,7 @@ private fun DetailContent(
                         .padding(horizontal = edge, vertical = 16.dp)
                 ) {
                     banner()
-                    SummarySection(detail)
+                    SummarySection(detail, nameLineModifier = nameLineModifier)
                     body(Modifier)
                 }
             }

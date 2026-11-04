@@ -24,6 +24,12 @@ fun isListPaneExpanded(): Boolean = isPaneExpanded(ListDetailPaneScaffoldRole.Li
 fun isDetailBesideOtherPane(): Boolean = isPaneExpanded(ListDetailPaneScaffoldRole.List) ||
     isPaneExpanded(ListDetailPaneScaffoldRole.Extra)
 
+/** 목록 칸과 상세 칸이 함께 펼쳐져 있는가 — 열린 카드 표시(3d D7)는 이때만. 한 칸·[상세 | 보호소]면 false. */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+fun isListBesideDetail(): Boolean = isPaneExpanded(ListDetailPaneScaffoldRole.List) &&
+    isPaneExpanded(ListDetailPaneScaffoldRole.Detail)
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun isPaneExpanded(role: ThreePaneScaffoldRole): Boolean {

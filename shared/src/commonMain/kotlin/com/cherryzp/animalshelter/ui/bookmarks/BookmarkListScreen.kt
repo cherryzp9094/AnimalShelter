@@ -56,6 +56,7 @@ fun BookmarkListScreen(
     onBack: () -> Unit,
     onOpenAnimal: (AnimalCardUi) -> Unit,
     modifier: Modifier = Modifier,
+    selectedDesertionNo: String? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     BookmarkListScreen(
@@ -67,7 +68,8 @@ fun BookmarkListScreen(
         onMessageShown = viewModel::onMessageShown,
         onMessageAction = viewModel::onMessageAction,
         onRestoreShown = viewModel::onRestoreShown,
-        modifier = modifier
+        modifier = modifier,
+        selectedDesertionNo = selectedDesertionNo
     )
 }
 
@@ -87,6 +89,7 @@ fun BookmarkListScreen(
     onMessageAction: (action: MessageAction, id: Long) -> Unit,
     modifier: Modifier = Modifier,
     onRestoreShown: () -> Unit = {},
+    selectedDesertionNo: String? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -170,6 +173,7 @@ fun BookmarkListScreen(
                     onBookmarkClick = { onToggleBookmark(it.desertionNo) },
                     state = gridState,
                     contentPadding = outer,
+                    selectedDesertionNo = selectedDesertionNo,
                     modifier = Modifier.fillMaxSize()
                 )
             }

@@ -7,6 +7,8 @@ object TestTags {
     const val OPEN_FILTER = "open_filter"
     const val OPEN_BOOKMARKS = "open_bookmarks"
     const val DETAIL_BOOKMARK = "detail_bookmark"
+    const val DETAIL_TITLE = "detail_title"
+    const val DETAIL_SCROLL = "detail_scroll"
     const val FILTER_APPLY = "filter_apply"
     const val SUMMARY_CHIPS = "summary_chips"
 

@@ -133,16 +133,27 @@ private fun DetailRows(rows: List<DetailRow>) {
     }
 }
 
-/** 섹션 1 요약: 품종명(titleLarge) + 축종, 성별·중성화·나이·체중·색상은 폭이 되면 한 줄에 여럿. */
+/**
+ * 섹션 1 요약: 품종명(titleLarge) + 축종, 성별·중성화·나이·체중·색상은 폭이 되면 한 줄에 여럿.
+ * @param nameLineModifier 품종명 줄에 붙인다 — 상세 바 제목이 이 줄의 위치를 잰다(3d D6)
+ */
 @Composable
-fun SummarySection(detail: AnimalDetailUi, modifier: Modifier = Modifier) {
+fun SummarySection(
+    detail: AnimalDetailUi,
+    modifier: Modifier = Modifier,
+    nameLineModifier: Modifier = Modifier,
+) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            // 품종명이 없으면 제목 묶음(축종 보조 제목)이 그 줄을 대신한다(D6).
+            modifier = if (detail.name == null) nameLineModifier else Modifier
+        ) {
             detail.name?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.semantics { heading() }
+                    modifier = nameLineModifier.semantics { heading() }
                 )
             }
             detail.kindLabel?.let {

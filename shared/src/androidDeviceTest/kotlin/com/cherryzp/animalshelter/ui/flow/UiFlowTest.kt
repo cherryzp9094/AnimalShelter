@@ -27,4 +27,19 @@ class UiFlowTest {
     fun t3LargeFirstCardUndoRestoresSamePlace() = runFlowTest {
         bookmarkUndoFlow(it, ListLayout.LARGE)
     }
+
+    /** T4 상세 바 제목은 품종명 줄이 바 아래로 지나간 뒤에만(3d D6). */
+    @Test
+    fun t4DetailTitleAppearsAfterNameScrollsUnderBar() = runFlowTest { detailTitleFlow(it) }
+
+    /** T5 두 칸에서 상세에 열린 카드만 selected(3d D7). */
+    @Test
+    fun t5WideOpenedCardIsMarked() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_HEIGHT_DP
+    ) { openedCardMarkFlow(it) }
+
+    /** T5 한 칸에서는 열린 카드 표시가 없다(3d D7). */
+    @Test
+    fun t5PhoneNoOpenedCardMark() = runFlowTest { noMarkOnPhoneFlow(it) }
 }

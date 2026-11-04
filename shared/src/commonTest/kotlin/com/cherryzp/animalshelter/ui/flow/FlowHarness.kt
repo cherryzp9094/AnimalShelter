@@ -51,6 +51,10 @@ import org.koin.dsl.module
 private const val PHONE_WIDTH_DP = 400
 private const val PHONE_HEIGHT_DP = 760
 
+/** 두 칸 흐름 창(large 1280 — 목록 440dp + 상세, 03 0.4). */
+const val WIDE_WIDTH_DP = 1280
+const val WIDE_HEIGHT_DP = 900
+
 /** 기다림 상한(밀리초). 화면 전환·ViewModel 수집은 실제 시간으로 돈다. */
 const val FLOW_TIMEOUT_MILLIS = 10_000L
 
@@ -86,28 +90,29 @@ private class FixedWindowInfo(override val containerSize: IntSize) : WindowInfo 
 }
 
 @Composable
-private fun PhoneSizedApp() {
+private fun SizedApp(widthDp: Int, heightDp: Int) {
     val density = LocalDensity.current
-    val size = with(density) {
-        IntSize(PHONE_WIDTH_DP.dp.roundToPx(), PHONE_HEIGHT_DP.dp.roundToPx())
-    }
+    val size = with(density) { IntSize(widthDp.dp.roundToPx(), heightDp.dp.roundToPx()) }
     CompositionLocalProvider(LocalWindowInfo provides FixedWindowInfo(size)) {
-        Box(Modifier.size(PHONE_WIDTH_DP.dp, PHONE_HEIGHT_DP.dp)) { App() }
+        Box(Modifier.size(widthDp.dp, heightDp.dp)) { App() }
     }
 }
 
 /**
  * UI 흐름 하나(브리핑 C6, P14): Fake Repository + 실제 ViewModel(`viewModelModule`)을 Koin에 올리고 `App()`을 띄운다.
  * 흐름 본문은 `commonTest`에, `@Test` 래퍼는 `wasmJsTest`·`androidDeviceTest`에만 둔다(호스트 JVM에서는 돌리지 않는다).
+ * 창은 기본 폰 세로(400×760), 두 칸 흐름은 [WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP].
  */
 @OptIn(ExperimentalTestApi::class)
 fun runFlowTest(
     fakes: FlowFakes = FlowFakes(),
+    widthDp: Int = PHONE_WIDTH_DP,
+    heightDp: Int = PHONE_HEIGHT_DP,
     block: suspend ComposeUiTest.(FlowFakes) -> Unit,
 ): TestResult = runComposeUiTest {
     startKoin { modules(flowModule(fakes), viewModelModule) }
     try {
-        setContent { PhoneSizedApp() }
+        setContent { SizedApp(widthDp, heightDp) }
         block(fakes)
     } finally {
         stopKoin()

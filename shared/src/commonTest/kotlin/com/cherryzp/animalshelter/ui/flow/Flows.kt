@@ -1,13 +1,17 @@
 package com.cherryzp.animalshelter.ui.flow
 
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.cherryzp.animalshelter.data.repository.SearchResults
@@ -19,6 +23,7 @@ import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.action_undo
+import com.cherryzp.animalshelter.resources.disclaimer
 import com.cherryzp.animalshelter.resources.kind_cat
 import com.cherryzp.animalshelter.resources.state_notice
 import com.cherryzp.animalshelter.ui.common.TestTags
@@ -27,7 +32,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
-// UI 흐름 본문 3개(브리핑 C6). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -121,4 +126,60 @@ suspend fun ComposeUiTest.bookmarkUndoFlow(fakes: FlowFakes, layout: ListLayout)
         after.top == before.top && after.left == before.left,
         "되살린 카드가 원래 자리에 없다: before=$before after=$after"
     )
+}
+
+/** T4(D6): 상세 바 제목은 처음엔 없고, 본문을 끝까지 내려 품종명 줄이 바 아래로 지나가면 생긴다. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.detailTitleFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    awaitIdle()
+    assertTrue(
+        onAllNodes(hasTestTag(TestTags.DETAIL_TITLE)).fetchSemanticsNodes().isEmpty(),
+        "스크롤 전에 바 제목이 보인다"
+    )
+
+    val disclaimer = getString(Res.string.disclaimer)
+    awaitCondition("면책 문구") { onAllNodes(hasText(disclaimer)).fetchSemanticsNodes().isNotEmpty() }
+    onNode(hasText(disclaimer)).performScrollTo()
+    awaitTag(TestTags.DETAIL_TITLE).assertIsDisplayed()
+}
+
+/** T5(D7): 두 칸(1280)에서 연 카드만 `selected`, 다른 카드로 바꾸면 표시도 옮겨 간다. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.openedCardMarkFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    val selected = SemanticsMatcher.expectValue(SemanticsProperties.Selected, true)
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitCondition("B가 열린 카드로 표시됨") {
+        onAllNodes(hasTestTag(TestTags.card("B")) and selected).fetchSemanticsNodes().isNotEmpty()
+    }
+    onNodeWithTag(TestTags.card("B")).assertIsSelected()
+    assertTrue(onAllNodes(selected).fetchSemanticsNodes().size == 1, "열린 카드 표시가 하나가 아니다")
+
+    onNodeWithTag(TestTags.card("C")).performClick()
+    awaitCondition("표시가 C로 옮겨 감") {
+        onAllNodes(hasTestTag(TestTags.card("C")) and selected).fetchSemanticsNodes().isNotEmpty()
+    }
+    assertTrue(
+        onAllNodes(hasTestTag(TestTags.card("B")) and selected).fetchSemanticsNodes().isEmpty(),
+        "B에 표시가 남았다"
+    )
+}
+
+/** T5 반대(D7): 한 칸(폰)에서는 상세를 열었다 돌아와도 카드에 표시가 없다. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.noMarkOnPhoneFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    val selected = SemanticsMatcher.expectValue(SemanticsProperties.Selected, true)
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    onNode(hasContentDescription(getString(Res.string.action_back))).performClick()
+    awaitTag(TestTags.card("B"))
+    awaitIdle()
+    assertTrue(onAllNodes(selected).fetchSemanticsNodes().isEmpty(), "한 칸에서 열린 카드 표시")
 }

@@ -96,6 +96,11 @@ fun AppNavDisplay() {
     }
 }
 
+/** 목록·북마크 칸 옆 상세에 열린 카드 번호(3d D7). 목록 칸과 상세 칸이 함께 보일 때만, 아니면 null. */
+@Composable
+private fun openedDetailBeside(backStack: List<NavKey>, listKey: NavKey): String? =
+    if (isListBesideDetail()) backStack.openedDetailAfter(listKey) else null
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun AppNavDisplay(
@@ -123,7 +128,8 @@ private fun AppNavDisplay(
                         )
                     },
                     onOpenBookmarks = { backStack.add(BookmarkListKey) },
-                    onOpenSettings = { backStack.add(SettingsKey) }
+                    onOpenSettings = { backStack.add(SettingsKey) },
+                    selectedDesertionNo = openedDetailBeside(backStack, AnimalListKey)
                 )
             }
             entry<AnimalDetailKey>(metadata = ListDetailSceneStrategy.detailPane()) { key ->
@@ -163,7 +169,8 @@ private fun AppNavDisplay(
                                 fromBookmarks = true
                             )
                         )
-                    }
+                    },
+                    selectedDesertionNo = openedDetailBeside(backStack, BookmarkListKey)
                 )
             }
             entry<ShelterInfoKey>(

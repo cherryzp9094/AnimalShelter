@@ -1,5 +1,6 @@
 package com.cherryzp.animalshelter.ui.common
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -53,6 +55,8 @@ private const val TWO_LINE_FONT_SCALE = 1.3f
  * 체중 / 3행 보호소 줄. [ListLayout.LARGE] 1열(확대형)만 4행 색상 · 특징(2줄)과 5행 발견 장소를 더한다 — 2열은
  * 글자 폭이 136~160dp라 그 문장을 넣지 않는다(상세에서 본다). 카드 전체가 접근성 한 문장(P10), 북마크 버튼은 따로
  * 초점을 받는다.
+ *
+ * @param selected 두 칸 이상에서 이 카드가 상세 칸에 열려 있다(3d D7) — 2dp `primary` 테두리 + `selected` 의미
  */
 @Composable
 fun AnimalCard(
@@ -61,6 +65,7 @@ fun AnimalCard(
     onClick: () -> Unit,
     onBookmarkClick: () -> Unit,
     modifier: Modifier = Modifier,
+    selected: Boolean = false,
 ) {
     val large = layout == ListLayout.LARGE
     val typography = MaterialTheme.typography
@@ -82,9 +87,13 @@ fun AnimalCard(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
         elevation = CardDefaults.cardElevation(),
+        border = if (selected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
         modifier = modifier
             .testTag(TestTags.card(ui.desertionNo))
-            .semantics(mergeDescendants = true) { contentDescription = a11y }
+            .semantics(mergeDescendants = true) {
+                contentDescription = a11y
+                if (selected) this.selected = true
+            }
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val photoHeight = if (large) min(maxWidth, LargePhotoMaxHeight) else maxWidth

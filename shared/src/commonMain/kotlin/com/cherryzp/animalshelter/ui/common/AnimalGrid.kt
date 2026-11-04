@@ -73,6 +73,7 @@ fun gridSpecFor(
  * 열 수가 바뀌어도 [state]가 첫 보이는 항목을 지킨다. `key = desertionNo`, `contentType`(P16).
  *
  * @param contentPadding 가장자리 여백에 더할 바깥 여백(시스템 바 inset 등)
+ * @param selectedDesertionNo 상세 칸에 열린 카드(두 칸 이상일 때만 — 3d D7). 한 칸이면 null
  */
 @Composable
 fun AnimalGrid(
@@ -85,6 +86,7 @@ fun AnimalGrid(
     contentPadding: PaddingValues = PaddingValues(),
     header: LazyGridScope.() -> Unit = {},
     footer: LazyGridScope.() -> Unit = {},
+    selectedDesertionNo: String? = null,
 ) {
     val heightCompact = !currentWindowAdaptiveInfoV2().windowSizeClass
         .isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
@@ -109,7 +111,8 @@ fun AnimalGrid(
                     ui = ui,
                     layout = layout,
                     onClick = { onCardClick(ui) },
-                    onBookmarkClick = { onBookmarkClick(ui) }
+                    onBookmarkClick = { onBookmarkClick(ui) },
+                    selected = ui.desertionNo == selectedDesertionNo
                 )
             }
             footer()

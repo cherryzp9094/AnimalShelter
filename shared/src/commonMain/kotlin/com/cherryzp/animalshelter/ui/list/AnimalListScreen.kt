@@ -78,6 +78,7 @@ fun AnimalListScreen(
     onOpenBookmarks: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    selectedDesertionNo: String? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     AnimalListScreen(
@@ -95,7 +96,8 @@ fun AnimalListScreen(
         onToggleBookmark = viewModel::onToggleBookmark,
         onMessageShown = viewModel::onMessageShown,
         onMessageAction = viewModel::onMessageAction,
-        modifier = modifier
+        modifier = modifier,
+        selectedDesertionNo = selectedDesertionNo
     )
 }
 
@@ -118,6 +120,7 @@ fun AnimalListScreen(
     onMessageShown: (id: Long) -> Unit,
     onMessageAction: (action: MessageAction, id: Long) -> Unit,
     modifier: Modifier = Modifier,
+    selectedDesertionNo: String? = null,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -209,6 +212,7 @@ fun AnimalListScreen(
                         onBookmarkClick = { onToggleBookmark(it.desertionNo) },
                         state = gridState,
                         contentPadding = outer,
+                        selectedDesertionNo = selectedDesertionNo,
                         header = {
                             listHeader(
                                 state = state,

@@ -12,6 +12,17 @@ fun MutableList<NavKey>.addDetail(key: AnimalDetailKey) {
     add(key)
 }
 
+/**
+ * [listKey](목록·북마크 목록) 칸 옆 상세에 열린 동물 번호(3d D7): [listKey]보다 뒤에 있는 마지막 [AnimalDetailKey].
+ * 그 뒤에 없으면 null — 예: 상세를 연 뒤 북마크 목록을 push하면 북마크 칸 옆은 자리표시다.
+ */
+fun List<NavKey>.openedDetailAfter(listKey: NavKey): String? {
+    val listIndex = lastIndexOf(listKey)
+    if (listIndex < 0) return null
+    return subList(listIndex + 1, size).lastOrNull { it is AnimalDetailKey }
+        ?.let { (it as AnimalDetailKey).desertionNo }
+}
+
 /** 목록까지 되돌린다: 맨 아래 [AnimalListKey]보다 뒤의 키를 모두 뺀다(목록이 없으면 목록만 남긴다). */
 fun MutableList<NavKey>.popToList() {
     val index = indexOfFirst { it is AnimalListKey }
