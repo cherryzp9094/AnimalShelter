@@ -519,3 +519,42 @@ suspend fun ComposeUiTest.landscapeListBarReturnsFlow(fakes: FlowFakes) {
 private fun ComposeUiTest.gridScrollMax(): Float =
     onAllNodes(hasTestTag(TestTags.ANIMAL_GRID)).fetchSemanticsNodes().firstOrNull()
         ?.config?.getOrNull(SemanticsProperties.VerticalScrollAxisRange)?.maxValue?.invoke() ?: 0f
+
+/** 화면 전환 중을 볼 프레임 수(Android Nav3 기본 전환 — 페이드 700ms — 보다 훨씬 짧다). */
+private const val TRANSITION_PROBE_FRAMES = 3
+
+/**
+ * T11(4a 검토 F4): 폰 세로(한 칸 — 상세가 목록을 덮는다)에서 카드를 누른 뒤 시계를 세 프레임만 돌린다.
+ * 모션 줄이기면 전환이 없어 목록 카드가 이미 없고 상세(뒤로 버튼)만 있다. 기본이면 전환 중이라 둘 다 있다.
+ * 시계는 끝에 자동으로 되돌린다.
+ *
+ * 기본 모션 쪽은 Android에서만 뜻이 있다 — CMP 웹의 Nav3 기본 전환은 `EnterTransition.None`/`ExitTransition.None`
+ * (navigation3-ui `NavDisplay.web.kt`)이라 웹은 모션 줄이기와 무관하게 전환이 없다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.screenTransitionFlow(fakes: FlowFakes, reducedMotion: Boolean) {
+    fakes.animals.results.value = listOf3()
+    awaitTag(TestTags.card("B"))
+    awaitIdle()
+    val back = getString(Res.string.action_back)
+    mainClock.autoAdvance = false
+    try {
+        onNodeWithTag(TestTags.card("B")).performClick()
+        repeat(TRANSITION_PROBE_FRAMES) { mainClock.advanceTimeByFrame() }
+        val listShown = onAllNodes(
+            hasTestTag(TestTags.card("B"))
+        ).fetchSemanticsNodes().isNotEmpty()
+        val detailShown = onAllNodes(hasContentDescription(back)).fetchSemanticsNodes().isNotEmpty()
+        assertTrue(detailShown, "세 프레임 뒤 상세가 있다")
+        if (reducedMotion) {
+            assertTrue(!listShown, "모션 줄이기: 세 프레임 뒤 목록 카드가 없다(전환 없음)")
+        } else {
+            assertTrue(listShown, "기본 모션: 세 프레임 뒤 목록 카드가 아직 있다(전환 중)")
+        }
+    } finally {
+        mainClock.autoAdvance = true
+    }
+    awaitCondition("전환이 끝나 목록 카드가 없다") {
+        onAllNodes(hasTestTag(TestTags.card("B"))).fetchSemanticsNodes().isEmpty()
+    }
+}

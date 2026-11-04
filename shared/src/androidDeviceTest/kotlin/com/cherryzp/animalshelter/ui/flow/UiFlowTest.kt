@@ -1,6 +1,7 @@
 package com.cherryzp.animalshelter.ui.flow
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import com.cherryzp.animalshelter.PlatformHooks
 import com.cherryzp.animalshelter.model.ListLayout
 import kotlin.test.Test
 
@@ -107,4 +108,16 @@ class UiFlowTest {
         widthDp = LANDSCAPE_WIDTH_DP,
         heightDp = LANDSCAPE_HEIGHT_DP
     ) { landscapeListBarReturnsFlow(it) }
+
+    /** T11 모션 줄이기면 화면 전환 없이 바로 상세(4a 검토 F4). */
+    @Test
+    fun t11ReducedMotionSwitchesScreensWithoutTransition() = runFlowTest(
+        hooks = PlatformHooks(reducedMotion = true)
+    ) { screenTransitionFlow(it, reducedMotion = true) }
+
+    /** T11 기본 모션이면 전환 중에 목록과 상세가 함께 있다(4a 검토 F4). */
+    @Test
+    fun t11DefaultMotionKeepsBothScreensDuringTransition() = runFlowTest {
+        screenTransitionFlow(it, reducedMotion = false)
+    }
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.cherryzp.animalshelter.App
+import com.cherryzp.animalshelter.PlatformHooks
 import com.cherryzp.animalshelter.data.api.ApiEndpoint
 import com.cherryzp.animalshelter.data.api.EndpointSelector
 import com.cherryzp.animalshelter.data.repository.AnimalRepository
@@ -99,7 +100,7 @@ private class FixedWindowInfo(override val containerSize: IntSize) : WindowInfo 
 }
 
 @Composable
-private fun SizedApp(widthDp: Int, heightDp: Int) {
+private fun SizedApp(widthDp: Int, heightDp: Int, hooks: PlatformHooks) {
     val density = LocalDensity.current
     val size = with(density) { IntSize(widthDp.dp.roundToPx(), heightDp.dp.roundToPx()) }
     CompositionLocalProvider(LocalWindowInfo provides FixedWindowInfo(size)) {
@@ -110,25 +111,27 @@ private fun SizedApp(widthDp: Int, heightDp: Int) {
             Modifier
                 .wrapContentSize(Alignment.TopStart, unbounded = true)
                 .size(widthDp.dp, heightDp.dp)
-        ) { App() }
+        ) { App(hooks) }
     }
 }
 
 /**
  * UI 흐름 하나(브리핑 C6, P14): Fake Repository + 실제 ViewModel(`viewModelModule`)을 Koin에 올리고 `App()`을 띄운다.
  * 흐름 본문은 `commonTest`에, `@Test` 래퍼는 `wasmJsTest`·`androidDeviceTest`에만 둔다(호스트 JVM에서는 돌리지 않는다).
- * 창은 기본 폰 세로(400×760), 두 칸 흐름은 [WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP].
+ * 창은 기본 폰 세로(400×760), 두 칸 흐름은 [WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP]. [hooks]는 `App(hooks)`에 그대로 넘긴다
+ * (모션 줄이기 T11 — 4a 검토 F4).
  */
 @OptIn(ExperimentalTestApi::class)
 fun runFlowTest(
     fakes: FlowFakes = FlowFakes(),
     widthDp: Int = PHONE_WIDTH_DP,
     heightDp: Int = PHONE_HEIGHT_DP,
+    hooks: PlatformHooks = PlatformHooks(),
     block: suspend ComposeUiTest.(FlowFakes) -> Unit,
 ): TestResult = runComposeUiTest {
     startKoin { modules(flowModule(fakes), viewModelModule) }
     try {
-        setContent { SizedApp(widthDp, heightDp) }
+        setContent { SizedApp(widthDp, heightDp, hooks) }
         block(fakes)
     } finally {
         stopKoin()
