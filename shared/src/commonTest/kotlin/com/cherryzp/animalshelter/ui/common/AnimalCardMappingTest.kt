@@ -10,6 +10,7 @@ import com.cherryzp.animalshelter.resources.age_year
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
 import com.cherryzp.animalshelter.resources.weight_kg
+import com.cherryzp.animalshelter.resources.weight_kg_range
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -55,6 +56,12 @@ class AnimalCardMappingTest {
             card(testAnimal(kindName = null, sex = null, birthYear = null).copy(weightKg = null))
         assertNull(bare.breed)
         assertEquals(emptyList(), bare.facts)
+    }
+
+    @Test
+    fun `2행 체중은 범위형이면 앞~뒤(L1)`() {
+        val ui = card(testAnimal().copy(weightKg = 2.0, weightMaxKg = 2.5))
+        assertEquals(uiText(Res.string.weight_kg_range, "2", "2.5"), ui.facts.last())
     }
 
     @Test

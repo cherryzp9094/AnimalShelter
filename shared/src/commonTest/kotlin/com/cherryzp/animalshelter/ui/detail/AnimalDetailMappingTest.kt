@@ -2,6 +2,7 @@ package com.cherryzp.animalshelter.ui.detail
 
 import com.cherryzp.animalshelter.data.api.ApiEndpoint
 import com.cherryzp.animalshelter.fake.testAnimal
+import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.Sex
 import com.cherryzp.animalshelter.resources.Res
@@ -11,12 +12,16 @@ import com.cherryzp.animalshelter.resources.choice_yes
 import com.cherryzp.animalshelter.resources.label_happen_place
 import com.cherryzp.animalshelter.resources.label_neuter
 import com.cherryzp.animalshelter.resources.label_sex
+import com.cherryzp.animalshelter.resources.label_weight
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
+import com.cherryzp.animalshelter.resources.weight_kg
+import com.cherryzp.animalshelter.resources.weight_kg_range
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlinx.datetime.LocalDate
 
 /** 상세 매핑(중간 검토 F2·F8·F9). */
@@ -56,6 +61,30 @@ class AnimalDetailMappingTest {
         assertEquals(
             listOf(UiText.Raw("세종 전동면")),
             ui.found.single { it.label == uiText(Res.string.label_happen_place) }.values
+        )
+    }
+
+    private fun weightRow(animal: Animal) = animal.toDetailUi(today, ApiEndpoint.Fixture).summary
+        .firstOrNull { it.label == uiText(Res.string.label_weight) }
+
+    @Test
+    fun `읽을 수 없는 체중은 상세에서도 행이 없다(L1)`() {
+        assertNull(weightRow(testAnimal().copy(weightText = "400(Kg)", weightKg = null)))
+        assertNull(weightRow(testAnimal().copy(weightText = "0(Kg)", weightKg = null)))
+    }
+
+    @Test
+    fun `상세 체중 범위형은 앞~뒤(L1)`() {
+        assertEquals(
+            listOf(uiText(Res.string.weight_kg_range, "2", "2.5")),
+            weightRow(
+                testAnimal().copy(weightText = "2~2.5(Kg)", weightKg = 2.0, weightMaxKg = 2.5)
+            )
+                ?.values
+        )
+        assertEquals(
+            listOf(uiText(Res.string.weight_kg, "5")),
+            weightRow(testAnimal())?.values
         )
     }
 }

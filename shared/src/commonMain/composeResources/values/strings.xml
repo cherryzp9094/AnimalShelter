@@ -59,6 +59,7 @@
     <string name="age_year">%1$d년생</string>
     <string name="age_under_two_months">생후 2개월 미만</string>
     <string name="weight_kg">%1$skg</string>
+    <string name="weight_kg_range">%1$s~%2$skg</string>
     <string name="kind_all">전체</string>
     <string name="kind_dog">개</string>
     <string name="kind_cat">고양이</string>

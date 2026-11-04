@@ -119,6 +119,20 @@ class StoreTest {
     }
 
     @Test
+    fun `체중 범위가 없는 옛 북마크 스냅샷도 읽고 그 값은 null(L1)`() {
+        val old = StoreJson.decodeFromString(
+            BookmarkData.serializer(),
+            """{"entries":{"1":{"animal":""" +
+                """{"desertionNo":"1","weightText":"5(Kg)","weightKg":5.0},""" +
+                """"savedAtMillis":5}},"order":["1"]}"""
+        )
+        val animal = old.entries.getValue("1").animal
+
+        assertEquals(5.0, animal.weightKg)
+        assertNull(animal.weightMaxKg)
+    }
+
+    @Test
     fun `표시 이름도 저장했다가 그대로 읽는다`() = runTest {
         withTestStores { stores ->
             val store = stores.settings()

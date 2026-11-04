@@ -13,6 +13,7 @@ import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
 import com.cherryzp.animalshelter.resources.sex_unknown
 import com.cherryzp.animalshelter.resources.weight_kg
+import com.cherryzp.animalshelter.resources.weight_kg_range
 import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlinx.datetime.LocalDate
@@ -76,14 +77,28 @@ fun Animal.titleParts(): List<UiText> = buildList {
 fun Animal.breedText(): String? = kindName?.trim()?.takeIf { it.isNotEmpty() }
 
 /**
- * 카드 2행(중간 검토 F1): 성별 · `age_year` · (60일 미만이면) `age_under_two_months` · 체중(`weight_kg`).
+ * 카드 2행(중간 검토 F1): 성별 · `age_year` · (60일 미만이면) `age_under_two_months` · 체중([weightUiText]).
  * 있는 것만. 사진이 보여 주지 못하는 성별·나이를 품종과 다른 줄에 두어 2열에서도 잘리지 않게 한다.
  */
 fun Animal.cardFactParts(): List<UiText> = buildList {
     sex?.let { add(it.toUiText()) }
     birthYear?.let { add(uiText(Res.string.age_year, it)) }
     if (isUnderTwoMonths) add(uiText(Res.string.age_under_two_months))
-    weightKg?.let { add(uiText(Res.string.weight_kg, formatWeight(it))) }
+    weightUiText()?.let { add(it) }
+}
+
+/**
+ * 체중 글(카드 2행·상세 요약이 같이 쓴다, 02-data 5.1): 범위형이면 `weight_kg_range`("2~2.5kg"), 아니면
+ * `weight_kg`. 읽을 수 없는 체중(0·100kg 초과·형식 밖)은 null — 원문을 대신 보이지 않는다(5a-live M1).
+ */
+fun Animal.weightUiText(): UiText? {
+    val kg = weightKg ?: return null
+    val max = weightMaxKg
+    return if (max != null) {
+        uiText(Res.string.weight_kg_range, formatWeight(kg), formatWeight(max))
+    } else {
+        uiText(Res.string.weight_kg, formatWeight(kg))
+    }
 }
 
 /** 카드 4행(1열만): 색상 · 특징. 있는 것만. */

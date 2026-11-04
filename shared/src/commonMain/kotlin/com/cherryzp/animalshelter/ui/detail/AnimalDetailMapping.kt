@@ -48,17 +48,16 @@ import com.cherryzp.animalshelter.resources.promo_period
 import com.cherryzp.animalshelter.resources.promo_volunteer
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
-import com.cherryzp.animalshelter.resources.weight_kg
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.collapseSpaces
-import com.cherryzp.animalshelter.ui.common.formatWeight
 import com.cherryzp.animalshelter.ui.common.meaningfulText
 import com.cherryzp.animalshelter.ui.common.pluralText
 import com.cherryzp.animalshelter.ui.common.shelterLine
 import com.cherryzp.animalshelter.ui.common.titleParts
 import com.cherryzp.animalshelter.ui.common.toStatusUi
 import com.cherryzp.animalshelter.ui.common.uiText
+import com.cherryzp.animalshelter.ui.common.weightUiText
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
 
@@ -192,12 +191,8 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
             addRow(Res.string.label_sex, sex?.detailValue())
             addRow(Res.string.label_neuter, neutered?.detailValue())
             addRow(Res.string.label_age, *ageValues(today).toTypedArray(), numeric = true)
-            addRow(
-                Res.string.label_weight,
-                weightKg?.let { uiText(Res.string.weight_kg, formatWeight(it)) }
-                    ?: weightText.clean()?.let { UiText.Raw(it) },
-                numeric = true
-            )
+            // 읽을 수 없는 체중은 원문으로 대신하지 않고 행을 뺀다(5a-live M1 — 카드와 같다)
+            addRow(Res.string.label_weight, weightUiText(), numeric = true)
             addRaw(Res.string.label_color, color)
         },
         status = status.toStatusUi(),

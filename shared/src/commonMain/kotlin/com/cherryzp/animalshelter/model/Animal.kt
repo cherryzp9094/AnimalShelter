@@ -30,8 +30,10 @@ data class Animal(
     val isUnderTwoMonths: Boolean = false,
     /** 체중 원문(예 `5(Kg)`). */
     val weightText: String? = null,
-    /** 체중(kg). 읽을 수 없거나 0·100kg 초과면 null. */
+    /** 체중(kg). 읽을 수 없거나 0·100kg 초과면 null. 범위형(`2~2.5(Kg)`)이면 앞 값. */
     val weightKg: Double? = null,
+    /** 범위형 체중의 뒤 값(`2~2.5(Kg)` → 2.5), 아니면 null. 이 필드가 없는 옛 스냅샷은 null로 읽힌다. */
+    val weightMaxKg: Double? = null,
     val sex: Sex? = null,
     val neutered: Neutered? = null,
     val specialMark: String? = null,

@@ -61,6 +61,7 @@
     <string name="age_year">Born %1$d</string>
     <string name="age_under_two_months">Under 2 months</string>
     <string name="weight_kg">%1$s kg</string>
+    <string name="weight_kg_range">%1$s–%2$s kg</string>
     <string name="kind_all">All</string>
     <string name="kind_dog">Dogs</string>
     <string name="kind_cat">Cats</string>

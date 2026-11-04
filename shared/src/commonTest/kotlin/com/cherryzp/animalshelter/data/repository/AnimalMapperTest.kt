@@ -56,17 +56,34 @@ class AnimalMapperTest {
 
     @Test
     fun `체중 오타를 정리하고 0과 100kg 초과는 null`() {
-        assertEquals(2.0, parseWeightKg("2..00(Kg)"))
-        assertEquals(3.5, parseWeightKg("3,5(Kg)"))
-        assertEquals(0.7, parseWeightKg("0.7(Kg)"))
-        assertEquals(12.0, parseWeightKg("12(Kg)"))
-        assertNull(parseWeightKg("400(Kg)"))
-        assertNull(parseWeightKg("0(Kg)"))
-        assertNull(parseWeightKg("(Kg)"))
-        assertNull(parseWeightKg(null))
+        assertEquals(ParsedWeight(2.0, null), parseWeight("2..00(Kg)"))
+        assertEquals(ParsedWeight(3.5, null), parseWeight("3,5(Kg)"))
+        assertEquals(ParsedWeight(0.7, null), parseWeight("0.7(Kg)"))
+        assertEquals(ParsedWeight(12.0, null), parseWeight("12(Kg)"))
+        assertNull(parseWeight("400(Kg)"))
+        assertNull(parseWeight("0(Kg)"))
+        assertNull(parseWeight("(Kg)"))
+        assertNull(parseWeight(null))
         val animal = AbandonmentItemDto(desertionNo = "1", weight = "400(Kg)").toAnimal()!!
         assertNull(animal.weightKg)
+        assertNull(animal.weightMaxKg)
         assertEquals("400(Kg)", animal.weightText)
+    }
+
+    @Test
+    fun `체중 범위형은 앞·뒤 값, 같으면 하나, 역순·무효는 null(L1)`() {
+        assertEquals(ParsedWeight(2.0, 2.5), parseWeight("2~2.5(Kg)"))
+        assertEquals(ParsedWeight(1.0, 1.5), parseWeight("1~1.5(Kg)"))
+        assertEquals(ParsedWeight(2.0, 2.5), parseWeight("2 ~ 2.5(Kg)"))
+        assertEquals(ParsedWeight(2.0, null), parseWeight("2~2(Kg)"))
+        assertNull(parseWeight("2.5~2(Kg)"))
+        assertNull(parseWeight("0~1(Kg)"))
+        assertNull(parseWeight("300~450(Kg)"))
+
+        val animal = AbandonmentItemDto(desertionNo = "1", weight = "2~2.5(Kg)").toAnimal()!!
+        assertEquals(2.0, animal.weightKg)
+        assertEquals(2.5, animal.weightMaxKg)
+        assertEquals("2~2.5(Kg)", animal.weightText)
     }
 
     @Test

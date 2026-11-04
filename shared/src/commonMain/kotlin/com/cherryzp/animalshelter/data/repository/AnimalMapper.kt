@@ -13,7 +13,7 @@ import kotlinx.datetime.LocalDate
 // `abandonmentPublic_v2` item → Animal(02-data 5.1). 버리는 필드: etcBigo(전부 1글자), careOwnerNm(개인 이름 가능).
 
 private val YEAR = Regex("""^(\d{4})""")
-private val WEIGHT_NUMBER = Regex("""^([\d.,]+)""")
+private val WEIGHT_NUMBER = Regex("""^([\d.,]+)\s*(?:~\s*([\d.,]+))?""")
 private val SEPARATOR_RUN = Regex("""[.,]+""")
 private val MASKED = Regex("""^\*+$""")
 private const val UNDER_TWO_MONTHS = "60일미만"
@@ -24,6 +24,7 @@ internal fun AbandonmentItemDto.toAnimal(): Animal? {
     val no = desertionNo.clean() ?: return null
     val ageRaw = age.clean()
     val weightRaw = weight.clean()
+    val parsedWeight = parseWeight(weightRaw)
     return Animal(
         desertionNo = no,
         noticeNo = noticeNo.clean(),
@@ -40,7 +41,8 @@ internal fun AbandonmentItemDto.toAnimal(): Animal? {
         birthYear = ageRaw?.let { YEAR.find(it)?.groupValues?.get(1)?.toIntOrNull() },
         isUnderTwoMonths = ageRaw?.contains(UNDER_TWO_MONTHS) == true,
         weightText = weightRaw,
-        weightKg = parseWeightKg(weightRaw),
+        weightKg = parsedWeight?.kg,
+        weightMaxKg = parsedWeight?.maxKg,
         sex = Sex.fromCode(sexCd),
         neutered = Neutered.fromCode(neuterYn),
         specialMark = specialMark.clean(),
@@ -119,15 +121,29 @@ internal fun String?.clean(): String? = this?.trim()?.ifEmpty { null }
 internal fun parseBasicDate(text: String?): LocalDate? =
     text.clean()?.let { LocalDate.Formats.ISO_BASIC.parseOrNull(it) }
 
+/** 체중 원문을 읽은 값. 범위형(`2~2.5(Kg)`)이면 [maxKg]가 뒤 값, 아니면 null. */
+internal data class ParsedWeight(val kg: Double, val maxKg: Double?)
+
 /**
- * 체중 원문 → kg. 앞의 숫자 부분을 잡아 연속된 `.`·`,`를 `.` 하나로 정리한다(실측 오타 `2..00(Kg)`, `3,5(Kg)`).
- * 읽을 수 없거나 0 이하·100kg 초과면 null.
+ * 체중 원문 → kg(02-data 5.1). 앞의 숫자, 그리고 `~` 뒤의 숫자(범위형 — 5a-live M2)를 잡는다. 숫자마다 연속된
+ * `.`·`,`를 `.` 하나로 정리한다(실측 오타 `2..00(Kg)`, `3,5(Kg)`). 유효 = 0 초과 100kg 이하.
+ * 범위는 둘 다 유효하고 앞 < 뒤일 때만(같으면 값 하나), 역순·한쪽 무효면 null. g으로 고쳐 읽지 않는다(05 2.3).
  */
-internal fun parseWeightKg(text: String?): Double? {
-    val number = text?.let { WEIGHT_NUMBER.find(it)?.groupValues?.get(1) } ?: return null
-    val value = number.replace(SEPARATOR_RUN, ".").trim('.').toDoubleOrNull() ?: return null
-    return value.takeIf { it > 0.0 && it <= MAX_WEIGHT_KG }
+internal fun parseWeight(text: String?): ParsedWeight? {
+    val match = text?.trim()?.let { WEIGHT_NUMBER.find(it) } ?: return null
+    val first = weightNumber(match.groupValues[1]) ?: return null
+    val secondText = match.groupValues[2]
+    if (secondText.isEmpty()) return ParsedWeight(first, null)
+    val second = weightNumber(secondText) ?: return null
+    return when {
+        first < second -> ParsedWeight(first, second)
+        first == second -> ParsedWeight(first, null)
+        else -> null
+    }
 }
+
+private fun weightNumber(text: String): Double? = text.replace(SEPARATOR_RUN, ".").trim('.')
+    .toDoubleOrNull()?.takeIf { it > 0.0 && it <= MAX_WEIGHT_KG }
 
 /** 쉼표 구분 체크 항목 → 목록(빈 항목 제거). */
 internal fun splitChecks(text: String?): List<String> =
