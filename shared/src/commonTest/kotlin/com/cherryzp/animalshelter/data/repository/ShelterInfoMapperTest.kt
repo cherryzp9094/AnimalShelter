@@ -72,6 +72,35 @@ class ShelterInfoMapperTest {
     }
 
     @Test
+    fun `길이 0인 시간대는 null, 00시~24시는 24시간`() {
+        assertNull(timeRange("00:00", "00:00"))
+        assertNull(timeRange("13:00", "13:00"))
+        assertNull(timeRange("09:00", " 09:00"))
+        assertTrue(timeRange("00:00", "24:00")!!.isAllDay)
+        assertEquals(TimeRange("09:00", "18:00"), timeRange("09:00", "18:00"))
+    }
+
+    @Test
+    fun `운영·분양·주말 네 칸 모두 길이 0이면 숨긴다`() {
+        val info = dto {
+            copy(
+                weekOprStime = "00:00",
+                weekOprEtime = "00:00",
+                weekCellStime = "00:00",
+                weekCellEtime = "00:00",
+                weekendOprStime = "10:00",
+                weekendOprEtime = "10:00",
+                weekendCellStime = "13:00",
+                weekendCellEtime = "13:00"
+            )
+        }.toShelterInfo()!!
+        assertNull(info.weekdayHours)
+        assertNull(info.weekdayAdoptionHours)
+        assertNull(info.weekendHours)
+        assertNull(info.weekendAdoptionHours)
+    }
+
+    @Test
     fun `시설 수가 하나도 없으면 roomCounts는 null, 번호나 이름이 없으면 버린다`() {
         assertNull(dto().toShelterInfo()!!.roomCounts)
         assertNull(ShelterInfoDto(careRegNo = "1").toShelterInfo())

@@ -63,10 +63,14 @@ internal fun ShelterInfoDto.toShelterInfo(): ShelterInfo? {
     )
 }
 
-/** 시작·끝이 둘 다 `HH:mm`일 때만 시간대. */
+/**
+ * 시작·끝이 둘 다 `HH:mm`일 때만 시간대. 시작과 끝이 같으면(길이 0 — `00:00~00:00`, `09:00~09:00`) 뜻을 알 수 없어
+ * null(그 줄을 숨긴다, Phase 3 검토 R10 — 상시로 단정하지 않는다). `00:00~24:00`은 그대로(24시간).
+ */
 internal fun timeRange(start: String?, end: String?): TimeRange? {
     val s = start.clean()?.takeIf { HOUR_MINUTE.matches(it) } ?: return null
     val e = end.clean()?.takeIf { HOUR_MINUTE.matches(it) } ?: return null
+    if (s == e) return null
     return TimeRange(s, e)
 }
 
