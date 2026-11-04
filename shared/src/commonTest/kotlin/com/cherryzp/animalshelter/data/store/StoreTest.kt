@@ -1,5 +1,6 @@
 package com.cherryzp.animalshelter.data.store
 
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.preferences.core.preferencesOf
 import com.cherryzp.animalshelter.data.api.ApiEndpoint
 import com.cherryzp.animalshelter.data.repository.Settings
@@ -11,7 +12,9 @@ import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.Sido
 import com.cherryzp.animalshelter.model.ThemeMode
+import com.cherryzp.animalshelter.platform.createJsonStorage
 import com.cherryzp.animalshelter.platform.storageTestModule
+import com.cherryzp.animalshelter.testing.FakeFailingStorage
 import com.cherryzp.animalshelter.testing.TestStores
 import com.cherryzp.animalshelter.testing.withTestStores
 import kotlin.test.AfterTest
@@ -26,6 +29,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
+import okio.IOException
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 
@@ -191,6 +195,38 @@ class StoreTest {
             }
             assertEquals(listOf("1"), store.data.first().order)
         }
+    }
+
+    @Test
+    fun `손상이 아닌 읽기 실패는 빈 목록으로 보이고 파일은 그대로(H2)`() = runTest {
+        val writer = TestStores()
+        withTestStores(writer) { stores ->
+            stores.bookmarks("kept.json").update {
+                BookmarkData(mapOf("1" to StoredBookmark(Animal("1"), 5L)), listOf("1"))
+            }
+        }
+
+        // 웹 OPFS 읽기 실패 흉내 — 라이브러리가 우리 직렬화기가 아닌 원인을 CorruptionException으로 감싼다
+        withTestStores(TestStores(writer.suffix)) { stores ->
+            val store = BookmarkStore(
+                FakeFailingStorage(
+                    createJsonStorage(stores.name("kept.json"), BookmarkStore.serializer),
+                    failReads = true,
+                    failWrites = false,
+                    readError = {
+                        CorruptionException("가짜 OPFS 읽기 실패", IOException("가짜 원인"))
+                    }
+                ),
+                stores.scope
+            )
+
+            assertEquals(BookmarkData(), store.data.first())
+            assertFalse(store.recoveredFromCorruption.value)
+        }
+
+        val reread =
+            withTestStores(TestStores(writer.suffix)) { it.bookmarks("kept.json").data.first() }
+        assertEquals(listOf("1"), reread.order)
     }
 
     @Test
