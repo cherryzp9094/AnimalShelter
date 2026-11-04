@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 // JSON 파일 저장소 3개(02-data 8절). 저장소마다 DataStore 하나(Koin single). 같은 파일에 두 개를 만들지 않는다.
 // 구독은 메모리 사본([MirroredDataStore])으로 한다 — 웹 OPFS 저장소의 제약 때문.
+// 캐시 둘(코드표·보호소)은 파일 쓰기가 실패해도 사본을 바꾸고, 북마크는 바꾸지 않는다(5a-fixes F1).
 
 /** 코드표 캐시(`code_tables.json`). 깨지면 빈 캐시로 복구한다. */
 internal class CodeTableStore(storage: Storage<CodeTableCache>, scope: CoroutineScope? = null) {
@@ -17,8 +18,9 @@ internal class CodeTableStore(storage: Storage<CodeTableCache>, scope: Coroutine
 
     val data: Flow<CodeTableCache> = store.data
 
+    /** 파일 쓰기가 실패해도 메모리 사본은 바꾸고 예외를 던진다([MirroredDataStore.updateKeepingMemoryOnFailure]). */
     suspend fun update(transform: (CodeTableCache) -> CodeTableCache) {
-        store.update(transform)
+        store.updateKeepingMemoryOnFailure(transform)
     }
 
     companion object {
@@ -34,8 +36,9 @@ internal class ShelterStore(storage: Storage<ShelterCache>, scope: CoroutineScop
 
     val data: Flow<ShelterCache> = store.data
 
+    /** 파일 쓰기가 실패해도 메모리 사본은 바꾸고 예외를 던진다([MirroredDataStore.updateKeepingMemoryOnFailure]). */
     suspend fun update(transform: (ShelterCache) -> ShelterCache) {
-        store.update(transform)
+        store.updateKeepingMemoryOnFailure(transform)
     }
 
     companion object {
@@ -64,6 +67,7 @@ internal class BookmarkStore(storage: Storage<BookmarkData>, scope: CoroutineSco
         recovered.value = false
     }
 
+    /** 파일 쓰기가 실패하면 사본은 그대로 두고 예외를 던진다 — 화면이 `bookmark_save_failed`로 알린다. */
     suspend fun update(transform: (BookmarkData) -> BookmarkData) {
         store.update(transform)
     }

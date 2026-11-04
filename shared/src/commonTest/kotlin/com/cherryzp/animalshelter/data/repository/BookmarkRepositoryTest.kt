@@ -1,20 +1,25 @@
 package com.cherryzp.animalshelter.data.repository
 
+import com.cherryzp.animalshelter.data.store.BookmarkStore
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.Bookmark
+import com.cherryzp.animalshelter.platform.createJsonStorage
 import com.cherryzp.animalshelter.platform.storageTestModule
 import com.cherryzp.animalshelter.testing.FakeClock
+import com.cherryzp.animalshelter.testing.FakeFailingStorage
 import com.cherryzp.animalshelter.testing.withTestStores
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
+import okio.IOException
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 
@@ -122,6 +127,26 @@ class BookmarkRepositoryTest {
             assertTrue(repo.getRecoveredFromCorruptionStream().value)
             repo.dismissRecoveryNotice()
             assertFalse(repo.getRecoveredFromCorruptionStream().value)
+        }
+    }
+
+    @Test
+    fun `쓰기가 실패하면 추가는 예외로 끝나고 목록은 그대로`() = runTest {
+        withTestStores { stores ->
+            val store = BookmarkStore(
+                FakeFailingStorage(
+                    createJsonStorage(stores.name("bookmarks.json"), BookmarkStore.serializer)
+                ),
+                stores.scope
+            )
+            val repo = DefaultBookmarkRepository(store, clock)
+            assertEquals(emptyList(), repo.getBookmarksStream().first())
+
+            assertFailsWith<IOException> { repo.add(Animal("A")) }
+
+            // 저장되지 않은 북마크를 화면에만 보여 주지 않는다(5a-fixes F1 — 북마크는 그대로)
+            assertEquals(emptyList(), repo.getBookmarksStream().first())
+            assertFalse(repo.isBookmarkedStream("A").first())
         }
     }
 }

@@ -2,8 +2,11 @@ package com.cherryzp.animalshelter.data.repository
 
 import com.cherryzp.animalshelter.data.api.ApiTestHarness
 import com.cherryzp.animalshelter.data.api.fixture.ApiFixtures
+import com.cherryzp.animalshelter.data.store.ShelterStore
+import com.cherryzp.animalshelter.platform.createJsonStorage
 import com.cherryzp.animalshelter.platform.storageTestModule
 import com.cherryzp.animalshelter.testing.FakeClock
+import com.cherryzp.animalshelter.testing.FakeFailingStorage
 import com.cherryzp.animalshelter.testing.withTestStores
 import io.ktor.client.engine.mock.respond
 import kotlin.test.AfterTest
@@ -12,12 +15,15 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 
@@ -112,6 +118,36 @@ class ShelterRepositoryTest {
             repo.refresh()
 
             assertEquals(2, harness.urls.size)
+        }
+    }
+
+    @Test
+    fun `캐시 쓰기가 실패해도 받은 보호소 정보를 내보낸다`() = runTest {
+        withTestStores { stores ->
+            val harness = ApiTestHarness(clock = clock) { respond(ApiFixtures.shelterInfoV2) }
+            val store = ShelterStore(
+                FakeFailingStorage(
+                    createJsonStorage(stores.name("shelters.json"), ShelterStore.serializer)
+                ),
+                stores.scope
+            )
+            val repo = DefaultShelterRepository(harness.api, store, clock, appScope)
+
+            // 실제 시간으로 기다린다 — 고치기 전에는 진행 표시에서 멈춘다
+            val found = withContext(Dispatchers.Default) {
+                withTimeout(10.seconds) {
+                    repo.getShelterInfoStream("348535202400001").first {
+                        it.data != null || it.fresh
+                    }
+                }
+            }
+            val other = repo.getShelterInfoStream("326331201100001").first()
+
+            assertEquals("(사)동물보호관리협회", found.data?.name)
+            assertEquals(true, found.fresh)
+            assertNull(found.error)
+            assertEquals("(사)동부동물보호협회", other.data?.name)
+            assertEquals(1, harness.urls.size) // 같은 실행 안에서는 메모리 사본이 신선하다
         }
     }
 }

@@ -175,7 +175,11 @@ internal class DefaultCodeTableRepository(
     }
 }
 
-/** 캐시 쓰기 실패는 화면을 막지 않는다(다음에 다시 받는다). */
+/**
+ * 캐시 쓰기 실패는 화면을 막지 않는다(다음에 다시 받는다). 코드표·보호소 저장소는 파일 쓰기가 실패해도
+ * 메모리 사본을 바꾸므로(`MirroredDataStore.updateKeepingMemoryOnFailure`, 5a-fixes F1) 받은 표는 이 실행
+ * 동안 화면에 남고, 파일이 비어 있어 다음 실행에서 다시 받는다. 여기서는 그 예외만 삼킨다.
+ */
 internal suspend fun saveQuietly(block: suspend () -> Unit) {
     try {
         block()

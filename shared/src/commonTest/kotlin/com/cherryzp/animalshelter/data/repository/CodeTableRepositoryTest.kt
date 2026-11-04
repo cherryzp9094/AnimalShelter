@@ -3,12 +3,15 @@ package com.cherryzp.animalshelter.data.repository
 import com.cherryzp.animalshelter.data.api.ApiError
 import com.cherryzp.animalshelter.data.api.ApiTestHarness
 import com.cherryzp.animalshelter.data.api.fixture.ApiFixtures
+import com.cherryzp.animalshelter.data.store.CodeTableStore
 import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.Kind
 import com.cherryzp.animalshelter.model.Sido
+import com.cherryzp.animalshelter.platform.createJsonStorage
 import com.cherryzp.animalshelter.platform.storageTestModule
 import com.cherryzp.animalshelter.testing.ApiTestResponses
 import com.cherryzp.animalshelter.testing.FakeClock
+import com.cherryzp.animalshelter.testing.FakeFailingStorage
 import com.cherryzp.animalshelter.testing.TestStores
 import com.cherryzp.animalshelter.testing.withTestStores
 import io.ktor.client.engine.mock.MockRequestHandler
@@ -19,7 +22,9 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +34,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 
@@ -51,14 +58,34 @@ class CodeTableRepositoryTest {
     private fun repository(
         stores: TestStores,
         handler: MockRequestHandler,
+    ): Pair<DefaultCodeTableRepository, ApiTestHarness> = repository(stores.codeTables(), handler)
+
+    private fun repository(
+        store: CodeTableStore,
+        handler: MockRequestHandler,
     ): Pair<DefaultCodeTableRepository, ApiTestHarness> {
         val harness = ApiTestHarness(clock = clock, handler = handler)
-        return DefaultCodeTableRepository(harness.api, stores.codeTables(), clock, appScope) to
-            harness
+        return DefaultCodeTableRepository(harness.api, store, clock, appScope) to harness
+    }
+
+    /** 쓰기가(그리고 [failReads]면 읽기도) 늘 실패하는 코드표 저장소(5a-fixes F1). */
+    private fun failingStore(
+        stores: TestStores,
+        failReads: Boolean = false,
+    ): Pair<CodeTableStore, FakeFailingStorage<*>> {
+        val storage = FakeFailingStorage(
+            createJsonStorage(stores.name("code_tables.json"), CodeTableStore.serializer),
+            failReads
+        )
+        return CodeTableStore(storage, stores.scope) to storage
     }
 
     private suspend fun <T> Flow<CacheState<T>>.settled(): CacheState<T> =
         first { it.data != null || it.error != null }
+
+    /** 실제 시간으로 기다린다 — 고치기 전에는 진행 표시에서 멈춰 끝없이 기다리므로 시간 제한을 둔다. */
+    private suspend fun <T> Flow<CacheState<T>>.settledWithin(): CacheState<T> =
+        withContext(Dispatchers.Default) { withTimeout(10.seconds) { settled() } }
 
     @Test
     fun `처음에는 로딩 상태 뒤 받은 표를 내보내고 저장한다`() = runTest {
@@ -232,6 +259,73 @@ class CodeTableRepositoryTest {
             repo.refresh(CodeTable.Sido)
 
             assertEquals(2, harness.urls.size)
+        }
+    }
+
+    @Test
+    fun `캐시 쓰기가 실패해도 받은 시도 목록을 내보낸다`() = runTest {
+        withTestStores { stores ->
+            val (store, storage) = failingStore(stores)
+            val (repo, _) = repository(store) { respond(ApiFixtures.sidoV2) }
+
+            val state = repo.getSidoStream().settledWithin()
+
+            assertEquals(16, state.data?.size)
+            assertEquals(true, state.fresh)
+            assertNull(state.error)
+            assertTrue(storage.failedWrites > 0) // 파일에 쓰려고는 했다
+        }
+    }
+
+    @Test
+    fun `캐시 쓰기가 실패해도 같은 실행 안에서는 다시 받지 않는다`() = runTest {
+        withTestStores { stores ->
+            val (store, _) = failingStore(stores)
+            val (repo, harness) = repository(store) { respond(ApiFixtures.sidoV2) }
+            repo.getSidoStream().settledWithin()
+
+            val again = repo.getSidoStream().settledWithin()
+            repo.refreshIfStale(CodeTable.Sido)
+
+            assertEquals(16, again.data?.size)
+            assertEquals(true, again.fresh)
+            assertEquals(1, harness.urls.size)
+        }
+    }
+
+    @Test
+    fun `저장소를 읽지도 쓰지도 못해도 받은 시도 목록을 내보낸다`() = runTest {
+        withTestStores { stores ->
+            val (store, _) = failingStore(stores, failReads = true)
+            val (repo, harness) = repository(store) { respond(ApiFixtures.sidoV2) }
+
+            val state = repo.getSidoStream().settledWithin()
+            val again = repo.getSidoStream().settledWithin()
+
+            assertEquals(16, state.data?.size)
+            assertEquals(true, state.fresh)
+            assertNull(state.error)
+            assertEquals(16, again.data?.size)
+            assertEquals(1, harness.urls.size)
+        }
+    }
+
+    @Test
+    fun `캐시 쓰기가 실패해도 표를 하나씩 더해 모두 남긴다`() = runTest {
+        withTestStores { stores ->
+            val (store, _) = failingStore(stores)
+            val (repo, _) = repository(store) { request ->
+                when {
+                    request.url.encodedPath.endsWith("sido_v2") -> respond(ApiFixtures.sidoV2)
+                    else -> respond(ApiFixtures.sigunguV2Seoul)
+                }
+            }
+
+            repo.getSidoStream().settledWithin()
+            repo.getSigunguStream("6110000").settledWithin()
+
+            assertEquals(16, repo.getSidoStream().first().data?.size)
+            assertEquals(10, repo.getSigunguStream("6110000").first().data?.size)
         }
     }
 }
