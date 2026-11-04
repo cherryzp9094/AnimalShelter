@@ -75,12 +75,13 @@ Workers 무료: 하루 100,000 요청(정적 자산 요청은 제외), 요청당
 
 ## 배포
 
-**배포됨 — `https://animalshelter.mulddae.workers.dev`**(2026-11-05, Worker `animalshelter`, 버전 `d8180b4a-7277-424d-9486-a85f0d5be661`, 자산 26개, secret `SERVICE_KEY` 하나). 배포 뒤 확인 D1~D11은 `docs/design/reports/phase4b.md`.
+**배포됨 — `https://animalshelter.mulddae.workers.dev`**(2026-11-05, Worker `animalshelter`, 첫 버전 `d8180b4a-7277-424d-9486-a85f0d5be661`, 자산 26개, secret `SERVICE_KEY` 하나 — 지금 버전은 아래 표의 마지막 줄). 배포 뒤 확인 D1~D11은 `docs/design/reports/phase4b.md`.
 
 | 때 | 버전 ID | 무엇 | 웹 번들(앱 wasm · Skiko wasm) |
 |---|---|---|---|
 | 2026-11-05 첫 배포 | `d8180b4a-7277-424d-9486-a85f0d5be661` | 4b — 주소·secret·자산 26개 | 코드 `ef933cf` |
 | 2026-11-05 다시 배포 | `82f8b88c-f7b5-417f-99e1-4af467083d9a` | 4b-fixes B1(넓은 창에서도 Esc·시스템 뒤로 = 맨 위 칸 닫기), 메인 세션이 사용자 승인 범위 안에서 같은 명령으로. Worker 코드·secret 그대로 | 코드 `627126b` — `8369ce85609f0388a2ee.wasm` · `658820f72b4617efb380.wasm`(그대로), 자산 26개 |
+| 2026-11-05 다시 배포 | `040481c4-a8d6-4436-b13e-7c61765a812d` | 5b-prep 웹 고지(Emscripten·musl 원문, Kotlin·kotlinx 저작권자), 메인 세션이 같은 명령으로. Worker 코드·secret 그대로. 확인은 `docs/design/reports/phase5.md` 1.4 | 코드 `4a67af4` — `0418fc47762f9a61ad57.wasm` · `658820f72b4617efb380.wasm`(그대로), 자산 26개 |
 
 - 다시 배포한 뒤 확인(계정 명령 없이): `curl -sI https://animalshelter.mulddae.workers.dev/`가 200, 배포된 `animalshelter.js`가 가리키는 wasm 이름 = 로컬 dist, 바뀐 화면은 Playwright(`/api`는 표본 — 실호출 0). B1은 `docs/design/reports/phase4b.md` 10.2.
 
