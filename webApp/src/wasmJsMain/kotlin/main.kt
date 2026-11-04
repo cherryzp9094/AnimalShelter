@@ -4,9 +4,12 @@
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.cherryzp.animalshelter.App
+import com.cherryzp.animalshelter.PlatformHooks
 import com.cherryzp.animalshelter.data.api.ApiEndpoint
 import com.cherryzp.animalshelter.di.AppConfig
 import com.cherryzp.animalshelter.di.initKoin
+import com.cherryzp.animalshelter.navigation.BrowserHistoryNavigation
+import com.cherryzp.animalshelter.web.JsBrowserHistory
 import com.cherryzp.animalshelter.web.WebConfig
 
 /** 웹 진입점. 웹은 키 없이 중계 서버만 부른다(01-overview 7절). */
@@ -21,7 +24,9 @@ fun main() {
             relayBaseUrl = WebConfig.RELAY_BASE_URL
         )
     )
+    // 시작 스택은 Compose보다 먼저 정한다(기록의 state 또는 해시, 브리핑 W3)
+    val navigation = BrowserHistoryNavigation(JsBrowserHistory)
     ComposeViewport(viewportContainerId = "root") {
-        App()
+        App(PlatformHooks(navigation = navigation))
     }
 }

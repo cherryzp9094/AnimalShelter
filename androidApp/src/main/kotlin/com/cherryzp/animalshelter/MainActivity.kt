@@ -21,6 +21,6 @@ class MainActivity : ComponentActivity() {
                 isAppearanceLightNavigationBars = !lightIcons
             }
         }
-        setContent { App(systemBars) }
+        setContent { App(PlatformHooks(systemBars = systemBars)) }
     }
 }

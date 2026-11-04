@@ -34,28 +34,12 @@ import com.cherryzp.animalshelter.ui.list.AnimalListScreen
 import com.cherryzp.animalshelter.ui.photo.PhotoViewerScreen
 import com.cherryzp.animalshelter.ui.settings.SettingsScreen
 import com.cherryzp.animalshelter.ui.shelter.ShelterInfoScreen
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.modules.subclass
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-/**
- * back stack 저장 설정. 비JVM(wasmJs)은 리플렉션 직렬화가 없어서 키를 전부 등록한다(CMP Nav3 문서).
- * 키를 새로 만들면 여기에도 넣는다.
- */
+/** back stack 저장 설정. 비JVM(wasmJs)은 리플렉션 직렬화가 없어서 키를 전부 등록한다(CMP Nav3 문서 — [AppNavSerializersModule]). */
 internal val AppNavSavedStateConfiguration = SavedStateConfiguration {
-    serializersModule = SerializersModule {
-        polymorphic(NavKey::class) {
-            subclass(AnimalListKey::class)
-            subclass(FilterKey::class)
-            subclass(AnimalDetailKey::class)
-            subclass(PhotoViewerKey::class)
-            subclass(BookmarkListKey::class)
-            subclass(ShelterInfoKey::class)
-            subclass(SettingsKey::class)
-        }
-    }
+    serializersModule = AppNavSerializersModule
 }
 
 /** 앱 전체 최대 폭. 넘치면 가운데, 바깥은 `background`(03 0.4 extra-large). */
@@ -73,11 +57,16 @@ private val ShelterPaneWidth = 360.dp
  * - 필터·설정·사진 뷰어는 칸 메타데이터 없이 전체 화면
  * ViewModel은 entry 안에서 `koinViewModel()`(`rememberViewModelStoreNavEntryDecorator`가 entry별 범위를 준다).
  * 칸이 바뀌어도 그리드·페이저·스크롤 상태는 entry 안의 `remember…State`/`rememberSaveable`이 지킨다.
+ * [navigation]: 처음 back stack(저장된 상태가 없을 때)과 플랫폼 연결(웹 브라우저 기록 W3, Android App Links L3).
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun AppNavDisplay() {
-    val backStack = rememberNavBackStack(AppNavSavedStateConfiguration, AnimalListKey)
+fun AppNavDisplay(navigation: NavigationBinding = NavigationBinding.None) {
+    val backStack = rememberNavBackStack(
+        AppNavSavedStateConfiguration,
+        *navigation.initialStack.ifEmpty { listOf(AnimalListKey) }.toTypedArray()
+    )
+    navigation.Bind(backStack)
     val adaptiveInfo = currentWindowAdaptiveInfoV2()
     // 목록 칸 폭은 지시의 기본 폭으로 준다 — entry 메타데이터는 entry가 처음 만들어질 때 고정돼
     // 웹에서 창 크기만 바꾸면(재생성 없음) 예전 폭이 남는다. 상세는 남는 폭, 보호소는 메타데이터 360dp.
