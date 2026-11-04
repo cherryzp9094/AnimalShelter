@@ -2,6 +2,9 @@ package com.cherryzp.animalshelter.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 
 /** 화면 하나 = 키 하나. 근거: docs/design/03-screens.md 0.3. 화면 구현은 Phase 3. */
 @Serializable
@@ -50,3 +53,19 @@ data class ShelterInfoKey(
 
 @Serializable
 data object SettingsKey : AppKey
+
+/**
+ * 키 직렬화 모듈 — back stack 저장(`AppNavSavedStateConfiguration`)과 웹 기록의 `state`(W3)가 같이 쓴다.
+ * 비JVM(wasmJs)은 리플렉션 직렬화가 없어 키를 전부 등록한다. 키를 새로 만들면 여기에도 넣는다.
+ */
+internal val AppNavSerializersModule = SerializersModule {
+    polymorphic(NavKey::class) {
+        subclass(AnimalListKey::class)
+        subclass(FilterKey::class)
+        subclass(AnimalDetailKey::class)
+        subclass(PhotoViewerKey::class)
+        subclass(BookmarkListKey::class)
+        subclass(ShelterInfoKey::class)
+        subclass(SettingsKey::class)
+    }
+}
