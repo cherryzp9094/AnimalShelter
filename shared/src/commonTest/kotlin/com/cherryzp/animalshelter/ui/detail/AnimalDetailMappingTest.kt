@@ -4,6 +4,8 @@ import com.cherryzp.animalshelter.data.api.ApiEndpoint
 import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.Neutered
+import com.cherryzp.animalshelter.model.Promotion
+import com.cherryzp.animalshelter.model.PromotionType
 import com.cherryzp.animalshelter.model.Sex
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.choice_no
@@ -13,6 +15,7 @@ import com.cherryzp.animalshelter.resources.label_happen_place
 import com.cherryzp.animalshelter.resources.label_neuter
 import com.cherryzp.animalshelter.resources.label_sex
 import com.cherryzp.animalshelter.resources.label_weight
+import com.cherryzp.animalshelter.resources.promo_period
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
 import com.cherryzp.animalshelter.resources.weight_kg
@@ -85,6 +88,24 @@ class AnimalDetailMappingTest {
         assertEquals(
             listOf(uiText(Res.string.weight_kg, "5")),
             weightRow(testAnimal())?.values
+        )
+    }
+
+    private fun promoPeriod(start: String?, end: String?): UiText? = testAnimal().copy(
+        promotions = listOf(Promotion(PromotionType.ADOPTION_PROCESS, start = start, end = end))
+    ).toDetailUi(today, ApiEndpoint.Fixture).promotions.single().period
+
+    @Test
+    fun `홍보 기간 YYYYMMDD는 날짜 형식으로(L3)`() {
+        assertEquals(
+            uiText(Res.string.promo_period, "2026-01-01", "2027-03-15"),
+            promoPeriod("20260101", "20270315")
+        )
+        assertEquals(UiText.Raw("2026-01-01"), promoPeriod("20260101", null))
+        assertEquals(UiText.Raw("상시"), promoPeriod("상시", null))
+        assertEquals(
+            uiText(Res.string.promo_period, "2026-01-01", "2026-12-31"),
+            promoPeriod("2026-01-01", "20261231")
         )
     }
 }

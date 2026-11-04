@@ -233,8 +233,8 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
             orgName = shelter.orgName.clean()
         ).takeIf { it.name != null || it.tel != null || it.address != null || it.regNo != null },
         promotions = promotions.map { promo ->
-            val start = promo.start.clean()
-            val end = promo.end.clean()
+            val start = promo.start.promoDateText()
+            val end = promo.end.promoDateText()
             PromotionUi(
                 type = promo.type.toUiText(),
                 title = promo.title.clean(),
@@ -249,6 +249,14 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
             )
         }
     )
+}
+
+/**
+ * 홍보 기간 날짜 한쪽: `YYYYMMDD`로 읽히면 "2026-01-01"(5a-live M6 — 다른 날짜와 같은 형식), 아니면 원문.
+ * 공고 기간과 달리 해가 같아도 끝을 줄이지 않는다(기간이 길다). 모델(`Promotion.start`·`end`)은 원문 그대로다.
+ */
+private fun String?.promoDateText(): String? = clean()?.let { text ->
+    LocalDate.Formats.ISO_BASIC.parseOrNull(text)?.isoText() ?: text
 }
 
 /** 보호소 좌표 → 지도 대상. 좌표가 없으면 null(지도 버튼 숨김). */
