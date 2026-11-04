@@ -24,7 +24,9 @@ import androidx.compose.runtime.snapshots.Snapshot
 // 객체가 lookahead가 없는 곳으로 간다. 그 뒤 측정 결과는 `approachLayoutInfo`에만 들어가 `layoutInfo`·
 // `canScrollForward/Backward`·첫 보이는 항목이 굳고(`LazyGridState.kt:657`), 사용자 스크롤 대신
 // `scrollDeltaBetweenPasses`로 측정한다(`LazyGrid.kt:384-389`) — 웹에서 두 칸 → 한 칸으로 창을 줄이면 스크롤·다음 쪽·
-// 사진 넘기기·상단 바 복귀가 멈췄다. Android는 창 크기가 바뀌면 Activity를 다시 만들어 무관하다.
+// 사진 넘기기·상단 바 복귀가 멈췄다. Android도 크기만 바뀌면(방향·밀도·테마 그대로 — 멀티 윈도 경계 끌기·데스크톱 창
+// 조절, release APK는 자원 크기 한정자가 없어 더 넓게) Activity를 다시 만들지 않아 같은 경로이고, 이 도우미가 함께 막는다
+// (4a-fixes2 검토 12.3 ①).
 //
 // 그래서 "두 칸 장면 안"(`LocalListDetailSceneScope.current != null`)이 바뀌면 상태를 같은 위치로 새로 만든다.
 // 저장·복원은 그 경계와 무관한 `rememberSaveable` 하나가 맡고, 저장할 때 그 순간의 상태에서 위치를 읽는다 —
@@ -110,10 +112,12 @@ fun rememberPanePagerState(pageCount: () -> Int): PagerState {
     val state = remember(position, inPane) {
         Snapshot.withoutReadObservation {
             val previous = position.current
+            // 쪽 안 위치는 생성자가 받는 [-0.5, 0.5]로 자른다 — 라이브러리 `DefaultPagerState.Saver`와 같다(5a K2)
             PagerState(
                 currentPage = previous?.currentPage ?: position.page,
                 currentPageOffsetFraction =
-                    previous?.currentPageOffsetFraction ?: position.offsetFraction
+                    (previous?.currentPageOffsetFraction ?: position.offsetFraction)
+                        .coerceIn(-0.5f, 0.5f)
             ) { currentPageCount() }
         }
     }

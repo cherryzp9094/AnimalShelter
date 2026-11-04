@@ -83,6 +83,7 @@ import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
 import com.cherryzp.animalshelter.ui.common.TestTags
+import com.cherryzp.animalshelter.ui.common.rememberPanePagerState
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.preview.PreviewData
@@ -380,6 +381,8 @@ private fun DetailContent(
     val heightCompact = !currentWindowAdaptiveInfoV2().windowSizeClass
         .isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
     val photoTitle = detail.titleParts.map { it.resolve() }.joinToString(PART_SEPARATOR)
+    // 사진 쪽 상태는 단 갈래(1단·2단) 위에서 한 번 — 갈래마다 만들면 칸 폭이 600dp를 넘나들 때 첫 사진으로 돌아간다(5a K1)
+    val pagerState = rememberPanePagerState { detail.photoUrls.size }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val photoMax: Dp =
             if (heightCompact) maxHeight * COMPACT_HEIGHT_PHOTO_FRACTION else PhotoMaxSide
@@ -428,14 +431,20 @@ private fun DetailContent(
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.width(leftWidth)
                         ) {
-                            PhotoPager(detail.photoUrls, photoTitle, photoMax, onOpenPhoto)
+                            PhotoPager(
+                                detail.photoUrls,
+                                photoTitle,
+                                photoMax,
+                                pagerState,
+                                onOpenPhoto
+                            )
                             SummarySection(detail, nameLineModifier = nameLineModifier)
                         }
                         body(Modifier.weight(1f))
                     }
                 }
             } else {
-                PhotoPager(detail.photoUrls, photoTitle, photoMax, onOpenPhoto)
+                PhotoPager(detail.photoUrls, photoTitle, photoMax, pagerState, onOpenPhoto)
                 Column(
                     verticalArrangement = Arrangement.spacedBy(24.dp),
                     modifier = Modifier.widthIn(max = ContentMaxWidth).fillMaxWidth()

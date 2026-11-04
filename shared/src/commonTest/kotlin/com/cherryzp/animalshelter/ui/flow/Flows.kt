@@ -13,6 +13,7 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -732,4 +733,70 @@ suspend fun ComposeUiTest.bookmarksBarReturnsAfterPaneShrinkFlow(fakes: FlowFake
 
     fakes.bookmarks.bookmarks.value = fakes.bookmarks.bookmarks.value.take(3)
     awaitBarExpanded(bar, expanded)
+}
+
+/** T13 창: 한 칸 700×800(상세 칸이 600dp 이상이라 2단) ↔ 590×800(600 미만이라 1단). */
+const val COLUMN_WIDE_WIDTH_DP = 700
+const val COLUMN_HEIGHT_DP = 800
+private const val COLUMN_NARROW_WIDTH_DP = 590
+
+/** 사진 설명 앞부분("사진 n/m") — 쪽마다(0부터). */
+private suspend fun photoTexts(count: Int): List<String> =
+    (1..count).map { getString(Res.string.photo_a11y, it, count, "") }
+
+/**
+ * [texts]의 [index]번째 쪽이 지금 쪽인가 — 그 설명 노드의 왼쪽 끝이 페이저(가로 스크롤 노드)의 왼쪽 끝과 1dp 안으로
+ * 같다. 다른 쪽이 그려져 있어도 된다(웹은 끌기로 초점을 받은 쪽을 남겨 둔다).
+ */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.isCurrentPhoto(texts: List<String>, index: Int): Boolean {
+    val page = hasContentDescription(texts[index], substring = true)
+    if (onAllNodes(page).fetchSemanticsNodes().isEmpty()) return false
+    val anyPhoto = texts.map {
+        hasContentDescription(it, substring = true)
+    }.reduce { a, b -> a or b }
+    val pager = SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange) and
+        hasAnyDescendant(anyPhoto)
+    if (onAllNodes(pager).fetchSemanticsNodes().isEmpty()) return false
+    val pagerLeft = onNode(pager).getUnclippedBoundsInRoot().left
+    return abs((onNode(page).getUnclippedBoundsInRoot().left - pagerLeft).value) <= 1f
+}
+
+/**
+ * T13(5a K1, 4a-fixes2 검토 12.3 ②): 한 칸 700×800에서 사진 2장 동물의 상세(2단)를 열어 2/2로 넘긴 뒤 창을 590×800
+ * (1단) → 700×800(2단)으로 바꿔도 2/2가 남는다. 고치기 전에는 `PhotoPager`가 단마다 다른 자리에서 상태를 새로 만들어
+ * 첫 사진으로 돌아갔다. 넘기기는 T12처럼 끌기, 기기(세로 411dp)에서는 시작점이 화면 안(사진 왼쪽에서 300dp 이내).
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.photoPageKeptAcrossColumnChangeFlow(fakes: FlowFakes) {
+    val withPhotos = flowAnimal("P").copy(photos = listOf("photo-1", "photo-2"))
+    fakes.animals.results.value =
+        listOf3().copy(items = listOf(withPhotos, flowAnimal("B"), flowAnimal("C")))
+    val texts = photoTexts(2)
+    val first = texts[0]
+
+    awaitTag(TestTags.card("P")).performClick()
+    awaitCondition("상세 사진 1/2") {
+        onAllNodes(
+            hasContentDescription(first, substring = true)
+        ).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitIdle()
+    onNode(hasContentDescription(first, substring = true)).performTouchInput {
+        val startX = min(width - 1f, 300.dp.toPx())
+        swipe(
+            start = Offset(startX, centerY),
+            end = Offset(8.dp.toPx(), centerY),
+            durationMillis = 200
+        )
+    }
+    awaitCondition("2단에서 사진이 2/2로 넘어감") { isCurrentPhoto(texts, 1) }
+
+    resizeWindow(fakes, COLUMN_NARROW_WIDTH_DP, COLUMN_HEIGHT_DP)
+    awaitIdle()
+    assertTrue(isCurrentPhoto(texts, 1), "2단 → 1단으로 바꾼 뒤 사진이 2/2가 아니다(첫 사진으로 돌아감)")
+
+    resizeWindow(fakes, COLUMN_WIDE_WIDTH_DP, COLUMN_HEIGHT_DP)
+    awaitIdle()
+    assertTrue(isCurrentPhoto(texts, 1), "1단 → 2단으로 되돌린 뒤 사진이 2/2가 아니다(첫 사진으로 돌아감)")
 }

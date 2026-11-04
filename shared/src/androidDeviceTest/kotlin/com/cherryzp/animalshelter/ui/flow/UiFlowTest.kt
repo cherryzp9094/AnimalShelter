@@ -141,4 +141,11 @@ class UiFlowTest {
         widthDp = BOOKMARKS_WIDE_DP,
         heightDp = BOOKMARKS_WIDE_DP
     ) { bookmarksBarReturnsAfterPaneShrinkFlow(it) }
+
+    /** T13 상세를 연 채 창이 바뀌어 1단 ↔ 2단이 되어도 보던 사진 쪽이 남는다(5a K1). */
+    @Test
+    fun t13PhotoPageKeptAcrossColumnChange() = runFlowTest(
+        widthDp = COLUMN_WIDE_WIDTH_DP,
+        heightDp = COLUMN_HEIGHT_DP
+    ) { photoPageKeptAcrossColumnChangeFlow(it) }
 }

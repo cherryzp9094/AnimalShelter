@@ -136,6 +136,13 @@ class UiFlowTest {
         heightDp = BOOKMARKS_WIDE_DP
     ) { bookmarksBarReturnsAfterPaneShrinkFlow(it) }
 
+    /** T13 상세를 연 채 창이 바뀌어 1단 ↔ 2단이 되어도 보던 사진 쪽이 남는다(5a K1). */
+    @Test
+    fun t13PhotoPageKeptAcrossColumnChange() = runFlowTest(
+        widthDp = COLUMN_WIDE_WIDTH_DP,
+        heightDp = COLUMN_HEIGHT_DP
+    ) { photoPageKeptAcrossColumnChangeFlow(it) }
+
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).
 }
