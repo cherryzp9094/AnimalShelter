@@ -159,6 +159,10 @@ class UiFlowTest {
     @Test
     fun t14ViewerPhotoButtonsPage() = runFlowTest { viewerPhotoButtonsFlow(it) }
 
+    /** T16 설정 > 오픈소스 라이선스 → 묶음·Apache 전문 → 뒤로 설정(5a O1). */
+    @Test
+    fun t16LicensesFromSettings() = runFlowTest { licensesFlow(it) }
+
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).
 }

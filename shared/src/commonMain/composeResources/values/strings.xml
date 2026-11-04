@@ -216,6 +216,13 @@
     <string name="theme_dark">다크</string>
     <string name="setting_about">정보</string>
     <string name="about_version">버전 %1$s</string>
+    <string name="about_licenses">오픈소스 라이선스</string>
+    <string name="licenses_intro">이 앱에 들어 있는 오픈소스와 그 라이선스예요.</string>
+    <string name="license_show_text">전문 보기</string>
+    <string name="license_hide_text">전문 접기</string>
+    <string name="license_android_only">Android 앱에만</string>
+    <string name="license_web_only">웹 앱에만</string>
+    <string name="licenses_web_components">웹 앱에만 들어 있는 구성 요소</string>
     <string name="setting_endpoint">API 연결(디버그)</string>
     <string name="endpoint_direct">공공데이터 API 직접</string>
     <string name="endpoint_relay">중계 서버 %1$s</string>

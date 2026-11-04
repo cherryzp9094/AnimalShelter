@@ -48,6 +48,37 @@ class WebRoutesTest {
     }
 
     @Test
+    fun `오픈소스 라이선스는 설정 아래 주소, 해시는 목록·설정·라이선스 스택`() {
+        assertEquals("#/settings/licenses", WebRoutes.hashOf(LicensesKey))
+        assertEquals(
+            "#/settings/licenses",
+            WebRoutes.hashOf(listOf(list, SettingsKey, LicensesKey))
+        )
+        assertEquals(
+            listOf(list, SettingsKey, LicensesKey),
+            WebRoutes.stackFromHash("#/settings/licenses")
+        )
+        listOf("#/settings/licenses/", "#/settings/licenses/x", "#/settings/x", "#/licenses")
+            .forEach { assertEquals(listOf(list), WebRoutes.stackFromHash(it), it) }
+    }
+
+    @Test
+    fun `라이선스 화면이 든 기록 state 왕복과 주소 진입 뒤 앱 안 뒤로`() {
+        val stack = listOf(list, SettingsKey, LicensesKey)
+        assertEquals(
+            HistoryEntry(2, stack),
+            decodeHistoryState(encodeHistoryState(HistoryEntry(2, stack)))
+        )
+
+        // 주소로 들어오면 깊이 0 — 앱 안 뒤로(설정)는 기록을 쌓지 않고 바꾼다(브라우저 뒤로는 온 곳으로)
+        val (sync, start) = WebHistorySync.start(null, "#/settings/licenses")
+        assertEquals(HistoryEntry(0, stack), start.entry())
+        val back = sync.onAppChanged(listOf(list, SettingsKey))
+        assertIs<HistoryCommand.Replace>(back)
+        assertEquals("#/settings", back.url)
+    }
+
+    @Test
     fun `형식이 맞지 않는 해시는 목록`() {
         listOf(
             "",

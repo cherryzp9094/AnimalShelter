@@ -1,5 +1,6 @@
 package com.cherryzp.animalshelter.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.model.ThemeMode
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.about_licenses
 import com.cherryzp.animalshelter.resources.about_version
 import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.app_name
@@ -69,6 +72,7 @@ private val ContentMaxWidth = 720.dp
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBack: () -> Unit,
+    onOpenLicenses: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -78,12 +82,13 @@ fun SettingsScreen(
         onLayoutSelected = viewModel::onLayoutSelected,
         onThemeSelected = viewModel::onThemeSelected,
         onEndpointSelected = viewModel::onEndpointSelected,
+        onOpenLicenses = onOpenLicenses,
         modifier = modifier
     )
 }
 
 /**
- * 설정(상태만, 03 2.7·브리핑 B13): 목록 보기 · 테마 · 정보 · (디버그만) API 연결.
+ * 설정(상태만, 03 2.7·브리핑 B13): 목록 보기 · 테마 · 정보(버전 · 오픈소스 라이선스 · 출처) · (디버그만) API 연결.
  * 라디오 묶음은 `selectableGroup`, 줄 전체가 누르는 곳(48dp 이상).
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,6 +99,7 @@ fun SettingsScreen(
     onLayoutSelected: (ListLayout) -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
     onEndpointSelected: (EndpointChoice) -> Unit,
+    onOpenLicenses: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -200,6 +206,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    NavigationRow(stringResource(Res.string.about_licenses), onOpenLicenses)
                     SourceText(Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 }
             }
@@ -239,6 +246,30 @@ private fun RadioRow(label: String, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
+/** 다른 화면을 여는 줄(5a O1): 글 `bodyLarge` + 끝 화살표(장식), 줄 전체가 누르는 곳(48dp 이상, `Role.Button`). */
+@Composable
+private fun NavigationRow(label: String, onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f).padding(vertical = 8.dp)
+        )
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 @Composable
 private fun Hint(text: String) {
     Text(
@@ -262,7 +293,8 @@ private fun SettingsDebugPreview() {
             onBack = {},
             onLayoutSelected = {},
             onThemeSelected = {},
-            onEndpointSelected = {}
+            onEndpointSelected = {},
+            onOpenLicenses = {}
         )
     }
 }
@@ -276,7 +308,8 @@ private fun SettingsReleasePreview() {
             onBack = {},
             onLayoutSelected = {},
             onThemeSelected = {},
-            onEndpointSelected = {}
+            onEndpointSelected = {},
+            onOpenLicenses = {}
         )
     }
 }

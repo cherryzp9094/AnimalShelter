@@ -15,6 +15,7 @@ object TestTags {
     const val LIST_TOP_BAR = "list_top_bar"
     const val BOOKMARKS_TOP_BAR = "bookmarks_top_bar"
     const val ANIMAL_GRID = "animal_grid"
+    const val LICENSES_SCROLL = "licenses_scroll"
 
     fun card(desertionNo: String): String = "card:$desertionNo"
 
@@ -22,6 +23,9 @@ object TestTags {
 
     /** 상세 요약 격자의 항목(0부터, 3e E1). */
     fun summaryItem(index: Int): String = "summary_item:$index"
+
+    /** 라이선스 화면 묶음의 [전문 보기]/[전문 접기](5a O1). */
+    fun licenseToggle(groupKey: String): String = "license_toggle:$groupKey"
 
     /** 필터 세그먼트 하나: 묶음 이름 + 값(`null`이면 "all"). */
     fun choice(group: String, value: Any?): String = "choice:$group:${value ?: "all"}"

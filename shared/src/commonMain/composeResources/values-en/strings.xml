@@ -222,6 +222,13 @@
     <string name="theme_dark">Dark</string>
     <string name="setting_about">About</string>
     <string name="about_version">Version %1$s</string>
+    <string name="about_licenses">Open-source licenses</string>
+    <string name="licenses_intro">Open-source software in this app and its licenses.</string>
+    <string name="license_show_text">Show full text</string>
+    <string name="license_hide_text">Hide full text</string>
+    <string name="license_android_only">Android app only</string>
+    <string name="license_web_only">Web app only</string>
+    <string name="licenses_web_components">Components in the web app only</string>
     <string name="setting_endpoint">API endpoint (debug)</string>
     <string name="endpoint_direct">Data API (direct)</string>
     <string name="endpoint_relay">Relay %1$s</string>

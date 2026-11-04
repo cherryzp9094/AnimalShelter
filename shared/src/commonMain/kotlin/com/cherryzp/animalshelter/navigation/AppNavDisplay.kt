@@ -40,6 +40,7 @@ import com.cherryzp.animalshelter.ui.common.LocalReducedMotion
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailScreen
 import com.cherryzp.animalshelter.ui.detail.DetailPlaceholder
 import com.cherryzp.animalshelter.ui.filter.FilterScreen
+import com.cherryzp.animalshelter.ui.licenses.LicensesScreen
 import com.cherryzp.animalshelter.ui.list.AnimalListScreen
 import com.cherryzp.animalshelter.ui.photo.PhotoViewerScreen
 import com.cherryzp.animalshelter.ui.settings.SettingsScreen
@@ -64,7 +65,7 @@ private val ShelterPaneWidth = 360.dp
  * - 목록·북마크 목록 = `listPane` + 상세 자리표시. 폭(창 폭 클래스마다 400·440·480dp)은 지시의
  *   `defaultPanePreferredWidth`로 — 창 크기가 바뀌면 바로 따라간다
  * - 상세 = `detailPane`, 보호소 정보 = `extraPane`(360dp — large 이상에서 세 번째 칸)
- * - 필터·설정·사진 뷰어는 칸 메타데이터 없이 전체 화면
+ * - 필터·설정·오픈소스 라이선스·사진 뷰어는 칸 메타데이터 없이 전체 화면
  * ViewModel은 entry 안에서 `koinViewModel()`(`rememberViewModelStoreNavEntryDecorator`가 entry별 범위를 준다).
  * 칸이 바뀌어도 그리드·페이저·스크롤 상태는 entry 안의 `remember…State`/`rememberSaveable`이 지킨다 — 칸 entry의
  * 그리드·페이저는 `ui/common/PaneLazyState.kt`의 도우미로(두 칸 → 한 칸 장면에서 굳지 않게, 4a-fixes 검토 G1).
@@ -158,9 +159,14 @@ private fun AppNavDisplay(
                 )
             }
             entry<SettingsKey> {
-                SettingsScreen(viewModel = koinViewModel(), onBack = {
-                    backStack.removeLastOrNull()
-                })
+                SettingsScreen(
+                    viewModel = koinViewModel(),
+                    onBack = { backStack.removeLastOrNull() },
+                    onOpenLicenses = { backStack.add(LicensesKey) }
+                )
+            }
+            entry<LicensesKey> {
+                LicensesScreen(onBack = { backStack.removeLastOrNull() })
             }
             entry<FilterKey> {
                 FilterScreen(viewModel = koinViewModel(), onBack = { backStack.removeLastOrNull() })

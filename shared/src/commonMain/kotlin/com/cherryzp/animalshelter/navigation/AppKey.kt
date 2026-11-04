@@ -54,6 +54,10 @@ data class ShelterInfoKey(
 @Serializable
 data object SettingsKey : AppKey
 
+/** 오픈소스 라이선스(5a O1) — 설정에서 push하는 전체 화면, 웹 `#/settings/licenses`. */
+@Serializable
+data object LicensesKey : AppKey
+
 /**
  * 키 직렬화 모듈 — back stack 저장(`AppNavSavedStateConfiguration`)과 웹 기록의 `state`(W3)가 같이 쓴다.
  * 비JVM(wasmJs)은 리플렉션 직렬화가 없어 키를 전부 등록한다. 키를 새로 만들면 여기에도 넣는다.
@@ -67,5 +71,6 @@ internal val AppNavSerializersModule = SerializersModule {
         subclass(BookmarkListKey::class)
         subclass(ShelterInfoKey::class)
         subclass(SettingsKey::class)
+        subclass(LicensesKey::class)
     }
 }

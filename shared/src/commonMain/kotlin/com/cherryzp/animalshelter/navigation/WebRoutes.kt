@@ -27,6 +27,7 @@ object WebRoutes {
         FilterKey -> "#/filter"
         BookmarkListKey -> "#/bookmarks"
         SettingsKey -> "#/settings"
+        LicensesKey -> "#/settings/licenses"
         else -> "#/"
     }
 
@@ -34,7 +35,8 @@ object WebRoutes {
     fun hashOf(stack: List<NavKey>): String = hashOf(stack.lastOrNull() ?: AnimalListKey)
 
     /**
-     * 해시 → 계층형 스택(W3): 상세 `[목록, 상세]`, 사진 `[목록, 상세, 사진]`, 북마크·필터·설정·보호소 `[목록, 그 화면]`.
+     * 해시 → 계층형 스택(W3): 상세 `[목록, 상세]`, 사진 `[목록, 상세, 사진]`, 북마크·필터·설정·보호소 `[목록, 그 화면]`,
+     * 오픈소스 라이선스 `[목록, 설정, 라이선스]`(5a O1).
      * 빈 해시·모르는 경로·형식 위반(구조번호 15자리 숫자, 사진 번호 0 이상 정수, 보호소 번호 숫자)은 목록.
      * 주소로 연 상세는 접수일이 없다(재조회 창 최대 3회, 02-data 6절), 사진은 `photos`가 비어 뷰어가 찾는다(W6).
      */
@@ -55,6 +57,8 @@ object WebRoutes {
             parts == listOf("bookmarks") -> listOf(list, BookmarkListKey)
 
             parts == listOf("settings") -> listOf(list, SettingsKey)
+
+            parts == listOf("settings", "licenses") -> listOf(list, SettingsKey, LicensesKey)
 
             parts.size == 2 && parts[0] == "animal" && desertionNo.matches(parts[1]) ->
                 listOf(list, AnimalDetailKey(parts[1]))

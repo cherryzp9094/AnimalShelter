@@ -44,7 +44,9 @@ import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
+import com.cherryzp.animalshelter.resources.about_licenses
 import com.cherryzp.animalshelter.resources.action_back
+import com.cherryzp.animalshelter.resources.action_more
 import com.cherryzp.animalshelter.resources.action_next_photo
 import com.cherryzp.animalshelter.resources.action_previous_photo
 import com.cherryzp.animalshelter.resources.action_sort
@@ -61,6 +63,7 @@ import com.cherryzp.animalshelter.resources.photo_counter
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
+import com.cherryzp.animalshelter.resources.title_settings
 import com.cherryzp.animalshelter.ui.common.TestTags
 import kotlin.math.abs
 import kotlin.math.min
@@ -70,7 +73,7 @@ import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
 // UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11,
-// 4a-fixes 검토 G1 T12). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -920,5 +923,43 @@ suspend fun ComposeUiTest.viewerPhotoButtonsFlow(fakes: FlowFakes) {
     onNode(previous).performClick()
     awaitCondition("뷰어 1 / 2로 돌아옴") {
         onAllNodes(hasText(firstCounter)).fetchSemanticsNodes().isNotEmpty()
+    }
+}
+
+/**
+ * T16(5a O1): 폰 창 — 목록 더 보기 → 설정 → 오픈소스 라이선스 → "Pretendard"·"Apache License 2.0" → Apache 묶음
+ * [전문 보기] → "Version 2.0, January 2004"가 든 전문 → 뒤로 → 설정.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.licensesFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    val settings = getString(Res.string.title_settings)
+    val licenses = getString(Res.string.about_licenses)
+
+    awaitTag(TestTags.card("A"))
+    onNode(hasContentDescription(getString(Res.string.action_more))).performClick()
+    awaitCondition("더 보기 메뉴의 설정") {
+        onAllNodes(hasText(settings)).fetchSemanticsNodes().isNotEmpty()
+    }
+    onNode(hasText(settings)).performClick()
+    awaitCondition("설정의 오픈소스 라이선스 줄") {
+        onAllNodes(hasText(licenses) and hasClickAction()).fetchSemanticsNodes().isNotEmpty()
+    }
+    onNode(hasText(licenses) and hasClickAction()).performScrollTo().performClick()
+
+    awaitCondition("라이선스 화면") {
+        onAllNodes(hasText("Pretendard")).fetchSemanticsNodes().isNotEmpty() &&
+            onAllNodes(hasText("Apache License 2.0")).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitTag(TestTags.licenseToggle("apache")).performScrollTo().performClick()
+    awaitCondition("Apache 전문") {
+        onAllNodes(hasText("Version 2.0, January 2004", substring = true))
+            .fetchSemanticsNodes().isNotEmpty()
+    }
+
+    onNode(hasContentDescription(getString(Res.string.action_back))).performClick()
+    awaitCondition("설정으로 돌아옴") {
+        onAllNodes(hasText(settings)).fetchSemanticsNodes().isNotEmpty() &&
+            onAllNodes(hasText("Pretendard")).fetchSemanticsNodes().isEmpty()
     }
 }

@@ -164,4 +164,8 @@ class UiFlowTest {
     /** T14 사진 뷰어 양옆 이전·다음 단추로 한 쪽씩, 끝 쪽에서는 없다(5a U2). */
     @Test
     fun t14ViewerPhotoButtonsPage() = runFlowTest { viewerPhotoButtonsFlow(it) }
+
+    /** T16 설정 > 오픈소스 라이선스 → 묶음·Apache 전문 → 뒤로 설정(5a O1). */
+    @Test
+    fun t16LicensesFromSettings() = runFlowTest { licensesFlow(it) }
 }
