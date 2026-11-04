@@ -185,7 +185,9 @@ suspend fun ComposeUiTest.detailTitleTwoColumnFlow(fakes: FlowFakes) {
     onNodeWithTag(TestTags.DETAIL_SCROLL).performTouchInput {
         swipeUp(startY = centerY, endY = centerY - 48.dp.toPx(), durationMillis = 500)
     }
-    awaitTag(TestTags.DETAIL_TITLE).assertIsDisplayed()
+    // 제목 노드는 보일 때만 있다(AnimatedVisibility). 기기(세로 411dp)에서는 1280 창의 상세 바가 화면 밖이라
+    // assertIsDisplayed 대신 노드가 생기는지로 본다
+    awaitTag(TestTags.DETAIL_TITLE)
 
     onNodeWithTag(TestTags.DETAIL_SCROLL).performTouchInput {
         swipeDown(startY = centerY, endY = centerY + 200.dp.toPx(), durationMillis = 500)
