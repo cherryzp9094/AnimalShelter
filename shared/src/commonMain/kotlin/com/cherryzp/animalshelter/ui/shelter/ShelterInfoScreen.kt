@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -252,7 +251,8 @@ private fun ShelterBody(
             }
         }
         if (info != null && info.facilities.isNotEmpty()) FacilitiesSection(info.facilities)
-        Button(onClick = onShowNotices, modifier = Modifier.fillMaxWidth()) {
+        // 전화(FilledTonal)보다 약하게 — 이 화면에서 가장 강한 행동은 전화다(R3)
+        OutlinedButton(onClick = onShowNotices, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(Res.string.action_shelter_notices))
         }
         if (info != null) DatesSection(info, state.isDataOld)

@@ -212,8 +212,8 @@ private fun SettingGroup(title: String, content: @Composable () -> Unit) {
     Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Text(
             text = title,
+            // 색은 지정하지 않는다(다른 화면 섹션 제목처럼 onSurface) — primary 글자는 누를 수 있는 것에만(R2)
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).semantics { heading() }
         )
         Column(Modifier.selectableGroup()) { content() }

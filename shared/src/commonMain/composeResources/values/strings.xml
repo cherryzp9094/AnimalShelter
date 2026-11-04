@@ -48,6 +48,7 @@
     </plurals>
     <string name="a11y_ends_today">오늘 공고 마감</string>
     <string name="a11y_bookmarked">북마크됨</string>
+    <string name="a11y_sort_to_latest">최신순으로 바꾸기</string>
     <string name="sex_male">수컷</string>
     <string name="sex_female">암컷</string>
     <string name="sex_unknown">성별 미상</string>
@@ -151,6 +152,7 @@
     <string name="promo_event">행사 안내</string>
     <string name="promo_period">기간 %1$s ~ %2$s</string>
     <string name="promo_condition">조건 및 제한</string>
+    <string name="promo_image_a11y">%1$s 안내 이미지</string>
     <string name="about_data_source">출처: 농림축산식품부 농림축산검역본부 국가동물보호정보시스템 · 공공데이터포털(15098931, 15098915)</string>
     <string name="disclaimer">공공데이터를 그대로 보여 드려요. 실제 상황과 다를 수 있으니 최신 정보는 보호소에 확인해 주세요.</string>
     <string name="today_hours">오늘 %1$s</string>

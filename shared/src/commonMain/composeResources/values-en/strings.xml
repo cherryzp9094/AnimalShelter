@@ -50,6 +50,7 @@
     </plurals>
     <string name="a11y_ends_today">Notice ends today</string>
     <string name="a11y_bookmarked">Bookmarked</string>
+    <string name="a11y_sort_to_latest">Switch to newest</string>
     <string name="sex_male">Male</string>
     <string name="sex_female">Female</string>
     <string name="sex_unknown">Unknown sex</string>
@@ -154,6 +155,7 @@
     <string name="promo_event">Events</string>
     <string name="promo_period">%1$s – %2$s</string>
     <string name="promo_condition">Conditions</string>
+    <string name="promo_image_a11y">Image: %1$s</string>
     <string name="about_data_source">Data: Animal Protection Management System (MAFRA/APQA) via data.go.kr (15098931, 15098915)</string>
     <string name="disclaimer">Shown as published in public data. It may differ from reality; please confirm with the shelter.</string>
     <string name="today_hours">Today %1$s</string>

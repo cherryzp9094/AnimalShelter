@@ -1,6 +1,8 @@
 package com.cherryzp.animalshelter.ui.flow
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -9,12 +11,14 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
@@ -27,11 +31,14 @@ import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.NoticeState
+import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
 import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.action_sort
 import com.cherryzp.animalshelter.resources.action_undo
 import com.cherryzp.animalshelter.resources.disclaimer
+import com.cherryzp.animalshelter.resources.empty_change_filter
 import com.cherryzp.animalshelter.resources.kind_cat
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
@@ -280,4 +287,29 @@ suspend fun ComposeUiTest.summaryGridFlow(fakes: FlowFakes) {
 
 private fun assertNear(a: Dp, b: Dp, what: String) {
     assertTrue(abs((a - b).value) <= 1f, "$what: $a ≠ $b")
+}
+
+/**
+ * T9(3e E8, R4): 요약 칩의 클릭 동작 이름 — 조건 칩 "조건 바꾸기", 마감 임박순 칩 "최신순으로 바꾸기". 칩마다 클릭 동작이
+ * 하나(안쪽 노드에 따로 없다)이고, 이름 있는 그 동작이 실제로 정렬을 바꾼다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.summaryChipActionLabelFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3().copy(sort = SortOrder.CLOSING_SOON)
+    val changeFilter = getString(Res.string.empty_change_filter)
+    val toLatest = getString(Res.string.a11y_sort_to_latest)
+    val sortChipText = getString(Res.string.sort_closing_soon)
+    val inChips = hasAnyAncestor(hasTestTag(TestTags.SUMMARY_CHIPS))
+
+    awaitCondition("마감 임박순 칩") {
+        onAllNodes(hasText(sortChipText) and inChips).fetchSemanticsNodes().isNotEmpty()
+    }
+    // 칩: 공고중 · 최근 1개월 · 마감 임박순 — 클릭 노드는 칩마다 하나(병합 전 트리에서도)
+    val clickNodes = onAllNodes(hasClickAction() and inChips, useUnmergedTree = true)
+        .fetchSemanticsNodes()
+    val labels = clickNodes.map { it.config.getOrNull(SemanticsActions.OnClick)?.label }
+    assertEquals(listOf(changeFilter, changeFilter, toLatest), labels)
+
+    onNode(hasText(sortChipText) and inChips).performSemanticsAction(SemanticsActions.OnClick)
+    awaitCondition("최신순으로 바뀜") { fakes.animals.sortCalls.lastOrNull() == SortOrder.LATEST }
 }

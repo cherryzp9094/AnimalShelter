@@ -71,4 +71,8 @@ class UiFlowTest {
         widthDp = WIDE_WIDTH_DP,
         heightDp = WIDE_HEIGHT_DP
     ) { summaryGridFlow(it) }
+
+    /** T9 요약 칩의 클릭 동작 이름과 동작 하나(3e E8). */
+    @Test
+    fun t9SummaryChipsHaveActionLabels() = runFlowTest { summaryChipActionLabelFlow(it) }
 }

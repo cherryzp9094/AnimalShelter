@@ -39,6 +39,7 @@ import com.cherryzp.animalshelter.resources.label_org_name
 import com.cherryzp.animalshelter.resources.label_shelter_address
 import com.cherryzp.animalshelter.resources.label_shelter_tel
 import com.cherryzp.animalshelter.resources.promo_condition
+import com.cherryzp.animalshelter.resources.promo_image_a11y
 import com.cherryzp.animalshelter.resources.section_found
 import com.cherryzp.animalshelter.resources.section_health
 import com.cherryzp.animalshelter.resources.section_notice
@@ -354,10 +355,12 @@ private fun PromotionCard(promo: PromotionUi) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(16.dp)
         ) {
+            val typeText = promo.type.resolve()
+            // 종류 라벨은 행동이 아니다 → onSurfaceVariant(R2 — primary 글자는 전화번호 링크에만)
             Text(
-                text = promo.type.resolve(),
+                text = typeText,
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             promo.title?.let { Text(text = it, style = MaterialTheme.typography.titleSmall) }
             promo.period?.let {
@@ -378,7 +381,11 @@ private fun PromotionCard(promo: PromotionUi) {
             promo.imageUrl?.let {
                 AsyncImage(
                     model = it,
-                    contentDescription = null,
+                    // 안내 제목, 없으면 종류 문구(R5)
+                    contentDescription = stringResource(
+                        Res.string.promo_image_a11y,
+                        promo.title ?: typeText
+                    ),
                     contentScale = ContentScale.FillWidth,
                     modifier = Modifier.fillMaxWidth().heightIn(max = 480.dp)
                 )
