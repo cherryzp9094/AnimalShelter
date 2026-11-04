@@ -22,11 +22,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -64,9 +66,11 @@ import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.action_call_shelter
 import com.cherryzp.animalshelter.resources.action_go_to_list
 import com.cherryzp.animalshelter.resources.action_retry
+import com.cherryzp.animalshelter.resources.action_share
 import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.detail_notice_gone
 import com.cherryzp.animalshelter.resources.error_network
+import com.cherryzp.animalshelter.resources.notice_until
 import com.cherryzp.animalshelter.ui.common.BookmarkToggleButton
 import com.cherryzp.animalshelter.ui.common.BottomBar
 import com.cherryzp.animalshelter.ui.common.BottomBarButtonHeight
@@ -121,6 +125,8 @@ fun AnimalDetailScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val detail = state.detail
     val title = detail?.titleParts?.map { it.resolve() }?.joinToString(PART_SEPARATOR)
+    // 공유 문구는 화면이 푼다(P4, S3) — ViewModel은 결과만 받는다
+    val noticeUntil = detail?.noticeEnd?.let { stringResource(Res.string.notice_until, it) }
     AnimalDetailScreen(
         state = state,
         showBack = showBack,
@@ -147,6 +153,13 @@ fun AnimalDetailScreen(
         onCopyAddress = { viewModel.onCopyResult(ExternalActions.copyText(it)) },
         onMessageShown = viewModel::onMessageShown,
         onMessageAction = viewModel::onMessageAction,
+        onShare = {
+            val url = state.shareUrl
+            if (detail != null && title != null && url != null) {
+                val text = shareText(title, detail.shelterLine, noticeUntil)
+                viewModel.onShareResult(ExternalActions.share(title, text, url))
+            }
+        },
         modifier = modifier
     )
 }
@@ -169,6 +182,7 @@ fun AnimalDetailScreen(
     onMessageShown: (id: Long) -> Unit,
     onMessageAction: (action: MessageAction, id: Long) -> Unit,
     modifier: Modifier = Modifier,
+    onShare: () -> Unit = {},
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -237,7 +251,13 @@ fun AnimalDetailScreen(
             )
         },
         bottomBar = {
-            if (tel != null) CallBar(onClick = { onDial(tel) })
+            val canShare = detail != null && state.shareUrl != null
+            if (tel != null || canShare) {
+                DetailBottomBar(
+                    onDial = tel?.let { { onDial(it) } },
+                    onShare = onShare.takeIf { canShare }
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -292,19 +312,39 @@ private class NameLineTracker {
     val isUnderBar: Boolean get() = lineBottom <= viewportTop
 }
 
-/** 하단 고정 바: 보호소에 전화하기(filled, 칸 폭 전체, 높이 48dp). 공유는 Phase 4a(같은 바). */
+/**
+ * 하단 고정 바(03 2.3, 4a S2): [보호소에 전화하기](filled, 남는 폭) + [공유](outlined, 공유 아이콘 18dp, 제 폭).
+ * 전화번호가 없으면 공유가 바 전체 폭, 공유 주소가 없으면 공유가 없다. 둘 다 높이 48dp, 사이 8dp(공용 [BottomBar]).
+ */
 @Composable
-private fun CallBar(onClick: () -> Unit) {
+private fun DetailBottomBar(onDial: (() -> Unit)?, onShare: (() -> Unit)?) {
     BottomBar {
-        Button(
-            onClick = onClick,
-            modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
-        ) {
-            Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(18.dp))
-            Text(
-                text = stringResource(Res.string.action_call_shelter),
-                modifier = Modifier.padding(start = 8.dp)
-            )
+        if (onDial != null) {
+            Button(
+                onClick = onDial,
+                modifier = Modifier.weight(1f).heightIn(min = BottomBarButtonHeight)
+            ) {
+                Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(
+                    text = stringResource(Res.string.action_call_shelter),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+        if (onShare != null) {
+            val width = if (onDial == null) Modifier.weight(1f) else Modifier
+            OutlinedButton(
+                onClick = onShare,
+                modifier = width
+                    .heightIn(min = BottomBarButtonHeight)
+                    .testTag(TestTags.DETAIL_SHARE)
+            ) {
+                Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                Text(
+                    text = stringResource(Res.string.action_share),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
         }
     }
 }

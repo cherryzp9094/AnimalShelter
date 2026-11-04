@@ -19,6 +19,16 @@ private external fun navigateTo(url: String)
 )
 private external fun writeClipboard(text: String): Boolean
 
+// 공유 시트(navigator.share)가 있고 canShare가 거절하지 않으면 부른다. 결과(취소 포함)는 기다리지 않는다.
+@OptIn(ExperimentalWasmJsInterop::class)
+@JsFun(
+    "(title, text, url) => { if (!navigator.share) return false; " +
+        "const data = { title, text, url }; " +
+        "if (navigator.canShare && !navigator.canShare(data)) return false; " +
+        "navigator.share(data).catch(() => {}); return true; }"
+)
+private external fun webShare(title: String, text: String, url: String): Boolean
+
 actual object ExternalActions {
     // 휴대폰 브라우저는 전화 앱을, 데스크톱은 연결된 앱(있으면)을 연다. 브라우저는 결과를 알려 주지 않는다.
     actual fun dial(tel: String): Boolean {
@@ -33,4 +43,10 @@ actual object ExternalActions {
 
     actual fun copyText(text: String): CopyFeedback =
         if (writeClipboard(text)) CopyFeedback.NEEDS_APP_MESSAGE else CopyFeedback.FAILED
+
+    actual fun share(title: String, text: String, url: String): ShareResult = when {
+        webShare(title, text, url) -> ShareResult.SHEET_SHOWN
+        writeClipboard("$text\n$url") -> ShareResult.COPIED
+        else -> ShareResult.FAILED
+    }
 }

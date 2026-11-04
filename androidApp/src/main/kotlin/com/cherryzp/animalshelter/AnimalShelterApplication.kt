@@ -21,7 +21,9 @@ class AnimalShelterApplication : Application() {
                 isDebug = BuildConfig.DEBUG,
                 versionName = BuildConfig.VERSION_NAME,
                 // 디버그 설정의 "중계 서버" 선택지(에뮬레이터 기본 http://10.0.2.2:8788)
-                relayBaseUrl = BuildConfig.RELAY_BASE_URL
+                relayBaseUrl = BuildConfig.RELAY_BASE_URL,
+                // 공유 링크 앞부분(Gradle shareHost, 4a L1·S4). 비면 공유 버튼이 없다
+                shareBaseUrl = BuildConfig.SHARE_BASE_URL
             )
         ) {
             androidContext(this@AnimalShelterApplication)

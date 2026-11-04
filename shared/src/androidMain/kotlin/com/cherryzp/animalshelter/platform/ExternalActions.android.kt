@@ -38,6 +38,18 @@ actual object ExternalActions {
         }
     }
 
+    actual fun share(title: String, text: String, url: String): ShareResult {
+        val send = Intent(Intent.ACTION_SEND)
+            .setType("text/plain")
+            .putExtra(Intent.EXTRA_TEXT, "$text\n$url")
+            .putExtra(Intent.EXTRA_TITLE, title)
+        return if (start(Intent.createChooser(send, null))) {
+            ShareResult.SHEET_SHOWN
+        } else {
+            ShareResult.FAILED
+        }
+    }
+
     private fun start(intent: Intent): Boolean = try {
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         true

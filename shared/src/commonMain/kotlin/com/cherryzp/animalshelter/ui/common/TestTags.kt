@@ -9,6 +9,7 @@ object TestTags {
     const val DETAIL_BOOKMARK = "detail_bookmark"
     const val DETAIL_TITLE = "detail_title"
     const val DETAIL_SCROLL = "detail_scroll"
+    const val DETAIL_SHARE = "detail_share"
     const val FILTER_APPLY = "filter_apply"
     const val SUMMARY_CHIPS = "summary_chips"
     const val LIST_TOP_BAR = "list_top_bar"

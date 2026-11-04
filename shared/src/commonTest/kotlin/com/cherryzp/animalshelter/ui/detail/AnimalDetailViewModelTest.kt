@@ -18,6 +18,7 @@ import com.cherryzp.animalshelter.fake.testShelterInfo
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.navigation.AnimalDetailKey
 import com.cherryzp.animalshelter.platform.CopyFeedback
+import com.cherryzp.animalshelter.platform.ShareResult
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.address_copied
 import com.cherryzp.animalshelter.resources.bookmark_added
@@ -27,6 +28,7 @@ import com.cherryzp.animalshelter.resources.date_range
 import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.resources.external_open_failed
 import com.cherryzp.animalshelter.resources.hours_range
+import com.cherryzp.animalshelter.resources.share_copied
 import com.cherryzp.animalshelter.resources.today_hours
 import com.cherryzp.animalshelter.testing.FakeClock
 import com.cherryzp.animalshelter.testing.content
@@ -62,12 +64,18 @@ class AnimalDetailViewModelTest {
         results: SearchResults = SearchResults(),
         val bookmarkFake: FakeBookmarkRepository = FakeBookmarkRepository(),
         bookmarks: BookmarkRepository = bookmarkFake,
+        shareBaseUrl: String? = null,
         configure: FakeAnimalRepository.() -> Unit = {},
     ) {
         val animals = FakeAnimalRepository(results).apply(configure)
         val shelters = FakeShelterRepository()
         val settings = FakeSettingsRepository()
-        val config = AppConfig(ApiEndpoint.Fixture, isDebug = false, versionName = "test")
+        val config = AppConfig(
+            ApiEndpoint.Fixture,
+            isDebug = false,
+            versionName = "test",
+            shareBaseUrl = shareBaseUrl
+        )
         val vm = AnimalDetailViewModel(
             key = key,
             animals = animals,
@@ -325,5 +333,58 @@ class AnimalDetailViewModelTest {
             listOf(uiText(Res.string.date_range, "2026-11-03", "11-13")),
             period.values
         )
+    }
+
+    @Test
+    fun `공유 주소가 있으면 동물이 보일 때 공유 링크, 없으면 null`() = runVmTest {
+        val shared = start(
+            Env(
+                results = SearchResults(items = listOf(animal)),
+                shareBaseUrl = "https://a.example/"
+            )
+        )
+        assertEquals("https://a.example/a/$no", shared.state.shareUrl)
+
+        val none = start(Env(results = SearchResults(items = listOf(animal)), shareBaseUrl = " "))
+        assertNull(none.state.shareUrl)
+        val noConfig = start(Env(results = SearchResults(items = listOf(animal))))
+        assertNull(noConfig.state.shareUrl)
+    }
+
+    @Test
+    fun `공유 결과 — 복사면 안내, 실패면 열 앱 없음, 시트는 조용히`() = runVmTest {
+        val env = start(Env(results = SearchResults(items = listOf(animal))))
+
+        env.vm.onShareResult(ShareResult.SHEET_SHOWN)
+        advanceUntilIdle()
+        assertNull(env.state.message)
+        env.vm.onShareResult(ShareResult.COPIED)
+        advanceUntilIdle()
+        assertEquals(UiMessage(uiText(Res.string.share_copied)), env.state.message.content())
+        env.vm.onShareResult(ShareResult.FAILED)
+        advanceUntilIdle()
+        assertEquals(
+            UiMessage(uiText(Res.string.external_open_failed)),
+            env.state.message.content()
+        )
+    }
+
+    @Test
+    fun `공유 본문은 제목 다음 줄에 보호소와 공고 종료일`() {
+        val ui = animal.copy(noticeStart = LocalDate(2026, 11, 3))
+            .toDetailUi(LocalDate(2026, 11, 4), ApiEndpoint.Fixture)
+        assertEquals("제주특별자치도 제2동물보호센터", ui.shelterLine?.replace(" · ", " "))
+        assertEquals("11-13", ui.noticeEnd)
+        assertEquals(
+            "2026-11-13",
+            animal.copy(
+                noticeStart = null
+            ).toDetailUi(LocalDate(2026, 11, 4), ApiEndpoint.Fixture).noticeEnd
+        )
+
+        assertEquals("제목\n보호소 · 공고 ~11-13", shareText("제목", "보호소", "공고 ~11-13"))
+        assertEquals("제목\n보호소", shareText("제목", "보호소", null))
+        assertEquals("제목\n공고 ~11-13", shareText("제목", null, "공고 ~11-13"))
+        assertEquals("제목", shareText("제목", " ", null))
     }
 }

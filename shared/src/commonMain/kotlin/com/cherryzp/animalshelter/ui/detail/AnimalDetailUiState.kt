@@ -14,6 +14,8 @@ import com.cherryzp.animalshelter.ui.common.UiText
  * @property error 보일 것이 없을 때만(가운데 오류). 보이는 것이 있으면 스낵바(`message`)
  * @property shelterToday 보호소 정보 캐시가 있으면 오늘 운영시간 부분(B7)
  * @property map 보호소 좌표가 있을 때만
+ * @property shareUrl 공유 링크(`<shareBaseUrl>/a/<구조번호>`, 4a S4). 공유 주소가 없으면(Android `shareHost` 없음) null —
+ *   공유 버튼이 없다
  */
 @Immutable
 data class AnimalDetailUiState(
@@ -27,13 +29,16 @@ data class AnimalDetailUiState(
     val shelterToday: List<UiText> = emptyList(),
     val map: MapTarget? = null,
     val message: UiMessage? = null,
+    val shareUrl: String? = null,
 )
 
 /**
  * 상세에 보일 한 마리(03 2.3 섹션 1~8). 행은 값이 있는 것만 — 매퍼([toDetailUi])가 뺀다.
  * @property photoUrls 화면용 URL(엔드포인트 반영)
  * @property photoOriginals 정규화한 원본 URL — 사진 뷰어 키에 싣는다(B1)
- * @property titleParts 카드 제목 부분(P10) — 사진 뷰어 제목·접근성
+ * @property titleParts 카드 제목 부분(P10) — 사진 뷰어 제목·접근성·공유 제목
+ * @property shelterLine 카드의 보호소 줄(공유 본문, S3)
+ * @property noticeEnd 공고 종료일 글자(공고 기간의 끝과 같은 꼴 — 공유 본문 `notice_until`, S3)
  * @property name 요약 제목(품종명)
  * @property kindLabel 보조 제목(축종)
  */
@@ -43,6 +48,8 @@ data class AnimalDetailUi(
     val photoUrls: List<String>,
     val photoOriginals: List<String>,
     val titleParts: List<UiText>,
+    val shelterLine: String? = null,
+    val noticeEnd: String? = null,
     val name: String?,
     val kindLabel: UiText?,
     val summary: List<DetailRow>,

@@ -108,6 +108,7 @@
     <string name="error_network">네트워크에 연결할 수 없어요.</string>
     <string name="error_parse">응답을 읽지 못했어요.</string>
     <string name="action_call_shelter">보호소에 전화하기</string>
+    <string name="action_share">공유</string>
     <string name="action_open_map">지도에서 보기</string>
     <string name="action_shelter_info">보호소 정보</string>
     <string name="action_go_to_list">목록으로</string>
@@ -161,6 +162,8 @@
     <string name="hours_range">%1$s~%2$s</string>
     <string name="hours_all_day">24시간</string>
     <string name="address_copied">주소를 복사했어요.</string>
+    <string name="share_copied">링크를 복사했어요.</string>
+    <string name="notice_until">공고 ~%1$s</string>
     <string name="action_copy_address">주소 복사</string>
     <string name="external_open_failed">열 수 있는 앱이 없어요.</string>
     <string name="title_photos">사진</string>

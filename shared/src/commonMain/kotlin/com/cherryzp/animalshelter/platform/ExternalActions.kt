@@ -16,4 +16,13 @@ expect object ExternalActions {
 
     /** 글자를 클립보드에 복사한다. 앱이 확인 문구를 내야 하는지를 돌려준다. */
     fun copyText(text: String): CopyFeedback
+
+    /**
+     * 공유(4a S1). Android는 공유 시트(`ACTION_SEND` 본문 + 줄바꿈 + 주소, `EXTRA_TITLE` 제목), 웹은
+     * `navigator.share({title, text, url})`(결과·취소는 기다리지 않는다), 없으면 클립보드에 본문 + 주소.
+     */
+    fun share(title: String, text: String, url: String): ShareResult
 }
+
+/** [ExternalActions.share]의 결과. [COPIED]면 화면이 `share_copied`, [FAILED]면 `external_open_failed`. */
+enum class ShareResult { SHEET_SHOWN, COPIED, FAILED }

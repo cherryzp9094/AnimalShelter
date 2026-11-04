@@ -15,12 +15,14 @@ import com.cherryzp.animalshelter.model.ShelterInfo
 import com.cherryzp.animalshelter.model.todayInSeoul
 import com.cherryzp.animalshelter.navigation.AnimalDetailKey
 import com.cherryzp.animalshelter.platform.CopyFeedback
+import com.cherryzp.animalshelter.platform.ShareResult
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.address_copied
 import com.cherryzp.animalshelter.resources.bookmark_added
 import com.cherryzp.animalshelter.resources.bookmark_removed
 import com.cherryzp.animalshelter.resources.bookmark_save_failed
 import com.cherryzp.animalshelter.resources.external_open_failed
+import com.cherryzp.animalshelter.resources.share_copied
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
@@ -78,6 +80,10 @@ class AnimalDetailViewModel(
     )
 
     private val local = MutableStateFlow(Local())
+
+    /** 공유 링크(S4) — 공유 주소가 없으면 null(공유 버튼 없음). */
+    private val shareUrl: String? = config.shareBaseUrl?.trim()?.trimEnd('/')
+        ?.takeIf(String::isNotEmpty)?.let { "$it/a/${key.desertionNo}" }
     private val messages = MessageIds()
     private var loadJob: Job? = null
 
@@ -115,7 +121,8 @@ class AnimalDetailViewModel(
             canRetry = error?.canRetry() == true,
             shelterToday = info?.todayParts(today).orEmpty(),
             map = info?.mapTarget(),
-            message = local.message
+            message = local.message,
+            shareUrl = shareUrl.takeIf { local.animal != null }
         )
     }.stateIn(
         scope = viewModelScope,
@@ -165,6 +172,19 @@ class AnimalDetailViewModel(
             )
 
             CopyFeedback.FAILED -> showMessage(
+                messages.create(uiText(Res.string.external_open_failed))
+            )
+        }
+    }
+
+    /** 공유 결과(S3): 클립보드에 복사했으면 `share_copied`, 못 했으면 `external_open_failed`. 시트는 조용히. */
+    fun onShareResult(result: ShareResult) {
+        when (result) {
+            ShareResult.SHEET_SHOWN -> Unit
+
+            ShareResult.COPIED -> showMessage(messages.create(uiText(Res.string.share_copied)))
+
+            ShareResult.FAILED -> showMessage(
                 messages.create(uiText(Res.string.external_open_failed))
             )
         }

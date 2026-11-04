@@ -49,11 +49,13 @@ import com.cherryzp.animalshelter.resources.promo_volunteer
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
 import com.cherryzp.animalshelter.resources.weight_kg
+import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.collapseSpaces
 import com.cherryzp.animalshelter.ui.common.formatWeight
 import com.cherryzp.animalshelter.ui.common.meaningfulText
 import com.cherryzp.animalshelter.ui.common.pluralText
+import com.cherryzp.animalshelter.ui.common.shelterLine
 import com.cherryzp.animalshelter.ui.common.titleParts
 import com.cherryzp.animalshelter.ui.common.toStatusUi
 import com.cherryzp.animalshelter.ui.common.uiText
@@ -87,16 +89,31 @@ fun LocalDate.isoText(): String =
 
 /** 공고 기간 "2026-11-03 ~ 11-13" — 끝이 같은 해면 월-일만. 한쪽만 있으면 그것만. */
 fun noticePeriodText(start: LocalDate?, end: LocalDate?): UiText? = when {
-    start != null && end != null -> {
-        val endText = if (end.year == start.year) end.isoText().drop(5) else end.isoText()
-        uiText(Res.string.date_range, start.isoText(), endText)
-    }
+    start != null && end != null -> uiText(
+        Res.string.date_range,
+        start.isoText(),
+        noticeEndText(start, end)
+    )
 
     start != null -> UiText.Raw(start.isoText())
 
     end != null -> UiText.Raw(end.isoText())
 
     else -> null
+}
+
+/** 공고 기간의 끝 글자 — 시작과 같은 해면 월-일("11-13"), 아니면(시작이 없어도) 전체("2026-11-13"). 공유 본문도 쓴다(S3). */
+fun noticeEndText(start: LocalDate?, end: LocalDate): String =
+    if (start != null && end.year == start.year) end.isoText().drop(5) else end.isoText()
+
+/**
+ * 공유 본문(4a S3): 제목 \n 보호소 줄(+ 공고 종료일이 있으면 " · " + `notice_until`). 문구는 화면이 풀어 넘긴다(P4).
+ * 둘째 줄이 비면 제목만.
+ */
+fun shareText(title: String, shelterLine: String?, noticeUntil: String?): String {
+    val second = listOfNotNull(shelterLine?.takeIf(String::isNotBlank), noticeUntil)
+        .joinToString(PART_SEPARATOR)
+    return if (second.isEmpty()) title else "$title\n$second"
 }
 
 /** 수정 시각 원문 `2026-11-03 14:09:49.0` → "2026-11-03 14:09". 모양이 다르면 원문. */
@@ -167,6 +184,8 @@ fun Animal.toDetailUi(today: LocalDate, endpoint: ApiEndpoint): AnimalDetailUi {
         photoUrls = photos.map { ImageUrlPolicy.displayUrl(it, endpoint) },
         photoOriginals = photos.map(ImageUrlPolicy::normalize),
         titleParts = titleParts(),
+        shelterLine = shelterLine(),
+        noticeEnd = noticeEnd?.let { noticeEndText(noticeStart, it) },
         name = kindName.clean(),
         kindLabel = kind?.toUiText(),
         summary = buildList {
