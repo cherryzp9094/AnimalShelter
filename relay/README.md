@@ -77,6 +77,13 @@ Workers 무료: 하루 100,000 요청(정적 자산 요청은 제외), 요청당
 
 **배포됨 — `https://animalshelter.mulddae.workers.dev`**(2026-11-05, Worker `animalshelter`, 버전 `d8180b4a-7277-424d-9486-a85f0d5be661`, 자산 26개, secret `SERVICE_KEY` 하나). 배포 뒤 확인 D1~D11은 `docs/design/reports/phase4b.md`.
 
+| 때 | 버전 ID | 무엇 | 웹 번들(앱 wasm · Skiko wasm) |
+|---|---|---|---|
+| 2026-11-05 첫 배포 | `d8180b4a-7277-424d-9486-a85f0d5be661` | 4b — 주소·secret·자산 26개 | 코드 `ef933cf` |
+| 2026-11-05 다시 배포 | `82f8b88c-f7b5-417f-99e1-4af467083d9a` | 4b-fixes B1(넓은 창에서도 Esc·시스템 뒤로 = 맨 위 칸 닫기), 메인 세션이 사용자 승인 범위 안에서 같은 명령으로. Worker 코드·secret 그대로 | 코드 `627126b` — `8369ce85609f0388a2ee.wasm` · `658820f72b4617efb380.wasm`(그대로), 자산 26개 |
+
+- 다시 배포한 뒤 확인(계정 명령 없이): `curl -sI https://animalshelter.mulddae.workers.dev/`가 200, 배포된 `animalshelter.js`가 가리키는 wasm 이름 = 로컬 dist, 바뀐 화면은 Playwright(`/api`는 표본 — 실호출 0). B1은 `docs/design/reports/phase4b.md` 10.2.
+
 - 계정 명령(`whoami`·`secret`·`deploy`·`deployments`·`rollback`·`delete`·`tail`)은 메인 세션·설계 담당이 **사용자 앞에서만** 한다(`docs/design/briefs/phase4b-deploy.md` 3절). 이 맥의 wrangler 로그인을 쓴다(`account_id` 없음).
 - 인증키: 값을 화면에 내지 않고 `local.properties`에서 파이프로 — `sed -n 's/^SERVICE_KEY=//p' ../local.properties | npx wrangler secret put SERVICE_KEY`(stdin이 터미널이 아니면 끝 공백·줄바꿈을 지우고 읽는다). 확인은 `npx wrangler secret list` — 이름만. `relay/.dev.vars`는 로컬 `wrangler dev`만 읽고 배포에는 올라가지 않는다.
 - 다시 배포: 저장소 루트에서 `./gradlew :webApp:wasmJsBrowserDistribution -PrelayBaseUrl=` → `./gradlew --stop`(기본 번들은 `localhost:8788`을 부른다 — 올리기 전 `grep -rlF localhost:8788 ../webApp/build/dist/wasmJs/productionExecutable | wc -l`이 0) → `cd relay && env -u CLAUDECODE npx wrangler deploy`(`env -u CLAUDECODE`: 에이전트 환경이면 wrangler가 `workers.dev` 하위 도메인을 묻지 않고 등록하는 갈래가 있다 — 4b 2절 결과 7). 출력의 버전 ID를 적는다.

@@ -94,6 +94,16 @@ Worker 하나가 웹 앱과 중계를 함께 낸다(같은 origin — 번들은 
 
 - 배포 주소: **https://animalshelter.mulddae.workers.dev**(Cloudflare Worker `animalshelter`, 2026-11-05 — 확인 기록 [`docs/design/reports/phase4b.md`](docs/design/reports/phase4b.md)). 공유 링크는 `https://animalshelter.mulddae.workers.dev/a/<구조번호>`이고, Android 앱이 있으면 App Links로 앱 상세가 열린다.
 
+## 알려진 한계
+
+2026-11-05 기준이다. `v2.0.0`도 이대로 낸다(5b — [`docs/design/briefs/phase5b-release.md`](docs/design/briefs/phase5b-release.md) 0.1).
+
+- **웹 화면 읽기**: 웹에서 메뉴·대화상자(필터의 지역 드롭다운 같은 메뉴, 정렬·더 보기 메뉴, 날짜 대화상자)를 한 번 열고 닫으면, 새로고침 전까지 화면 읽기 프로그램(VoiceOver 등)이 본 화면을 읽지 못한다. 보이는 화면·마우스·키보드 조작과 Android 앱은 정상이다. Compose Multiplatform 1.12.2 웹의 결함이고 1.13.0에서 고쳐졌다 — 안정판이 나오면 올린다(2026-11-05 현재 `1.13.0-beta02`). 웹의 Tab·읽기 순서가 본문 → 하단 바 → 상단 바인 것도 같은 웹 한계다([`03-screens.md`](docs/design/03-screens.md) 0.2·4절 21, [`reports/phase5a.md`](docs/design/reports/phase5a.md) 14.4).
+- **영어 화면의 카드**: 영어(보조 언어)로 보면 2열 카드의 둘째 줄(성별 · 나이 · 체중)이 폰 폭에서 자주 잘려 "…"로 끝난다(360dp 약 83%, 411dp 약 16%). 상세 화면에는 모두 나온다(카드의 화면 읽기 문장에도 성별·나이는 있다). 짧은 영어 문구는 이후 단계다([`reports/phase5a.md`](docs/design/reports/phase5a.md) N15).
+- **웹 개인 정보 보호 창의 북마크**: 브라우저 저장소(OPFS)를 쓸 수 없는 창(Safari 개인 정보 보호 창 등)에서는 북마크를 저장하지 못하고 "북마크를 저장하지 못했어요."가 뜬다. 필터의 지역 목록·보호소 정보는 그 창이 열려 있는 동안 기억해 그대로 뜬다.
+- **옛 Safari(18.2~18.x)**: OPFS 파일 쓰기(`createWritable`)가 Safari 26부터로 알려져 있어, 그 전 판에서는 북마크가 저장되지 않고 같은 안내가 뜬다. Chrome에서 그 메서드를 지운 흉내로만 확인했다(실제 기기는 5b에서 — 있으면).
+- **웹 브라우저 요건**: WasmGC가 되는 브라우저만 — Chrome·Edge 119+, Firefox 120+, Safari 18.2+. 그 밖에서는 "이 브라우저에서는 열 수 없어요." 안내가 뜬다([`01-overview.md`](docs/design/01-overview.md) 2절).
+
 ## 설계 문서
 
 - [`docs/design/`](docs/design/) — [`01-overview.md`](docs/design/01-overview.md)(정체성·모듈·아키텍처) · [`02-data.md`](docs/design/02-data.md)(API·모델·저장소·중계) · [`03-screens.md`](docs/design/03-screens.md)(화면·문구) · [`04-plan.md`](docs/design/04-plan.md)(단계) · [`05-service.md`](docs/design/05-service.md)(사용자·정보 구조·공유) · [`06-design-direction.md`](docs/design/06-design-direction.md)(디자인 방향).
