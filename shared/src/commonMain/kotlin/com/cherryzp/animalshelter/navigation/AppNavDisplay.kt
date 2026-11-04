@@ -66,7 +66,8 @@ private val ShelterPaneWidth = 360.dp
  * - 상세 = `detailPane`, 보호소 정보 = `extraPane`(360dp — large 이상에서 세 번째 칸)
  * - 필터·설정·사진 뷰어는 칸 메타데이터 없이 전체 화면
  * ViewModel은 entry 안에서 `koinViewModel()`(`rememberViewModelStoreNavEntryDecorator`가 entry별 범위를 준다).
- * 칸이 바뀌어도 그리드·페이저·스크롤 상태는 entry 안의 `remember…State`/`rememberSaveable`이 지킨다.
+ * 칸이 바뀌어도 그리드·페이저·스크롤 상태는 entry 안의 `remember…State`/`rememberSaveable`이 지킨다 — 칸 entry의
+ * 그리드·페이저는 `ui/common/PaneLazyState.kt`의 도우미로(두 칸 → 한 칸 장면에서 굳지 않게, 4a-fixes 검토 G1).
  * [navigation]: 처음 back stack(저장된 상태가 없을 때)과 플랫폼 연결(웹 브라우저 기록 W3, Android App Links L3).
  */
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -112,7 +113,8 @@ private fun AppNavDisplay(
     listDetailStrategy: SceneStrategy<NavKey>,
     listPaneMetadata: Map<String, Any>,
 ) {
-    // 모션 줄이기(M2)면 화면 전환 없음, 아니면 Nav3 기본 전환(P13)
+    // 모션 줄이기(M2)면 화면 전환 없음, 아니면 Nav3 기본 전환(P13) — Android는 페이드(700ms), 웹은 CMP 기본이 전환
+    // 없음(navigation3-ui `NavDisplay.web.kt`의 `EnterTransition.None`/`ExitTransition.None`)이라 이 분기와 무관하게 바로 바뀐다
     val reducedMotion = LocalReducedMotion.current
     NavDisplay(
         modifier = Modifier.widthIn(max = AppMaxWidth).fillMaxHeight(),

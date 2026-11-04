@@ -9,8 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 
 /**
- * 시스템 바 아이콘 색 훅(C4). 플랫폼 API가 필요해 expect를 늘리지 않고 `App(systemBars = …)` 인자로 받는다 —
- * Android `MainActivity`가 `WindowInsetsControllerCompat`로 구현하고, 웹·테스트는 [NoOp].
+ * 시스템 바 색 훅(C4). 플랫폼 API가 필요해 expect를 늘리지 않고 `App(systemBars = …)` 인자로 받는다 —
+ * Android `MainActivity`가 `WindowInsetsControllerCompat`로 아이콘 색을, 웹은 `ThemeColorSystemBars`가 브라우저 테마 색
+ * (`<meta name="theme-color">` — 4a 검토 F5)을 맞추고, 테스트는 [NoOp].
  * `ComponentActivity.enableEdgeToEdge()`는 시스템 테마만 보므로 설정의 테마(라이트/다크)와 검은 사진 뷰어를 따로 맞춘다.
  */
 fun interface SystemBarsHook {
