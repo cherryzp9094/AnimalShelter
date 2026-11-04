@@ -46,6 +46,7 @@ import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.a11y_days_left
 import com.cherryzp.animalshelter.resources.a11y_loading
 import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
 import com.cherryzp.animalshelter.resources.about_licenses
@@ -67,6 +68,7 @@ import com.cherryzp.animalshelter.resources.photo_counter
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
+import com.cherryzp.animalshelter.resources.status_protecting
 import com.cherryzp.animalshelter.resources.title_settings
 import com.cherryzp.animalshelter.ui.common.TestTags
 import kotlin.math.abs
@@ -74,10 +76,12 @@ import kotlin.math.min
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Instant
+import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
 // UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11,
-// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16, 5a-live-fixes L5 T17). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16, 5a-live-fixes L5 T17·L6 T18). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -1002,4 +1006,28 @@ suspend fun ComposeUiTest.breedPickHidesKeyboardFlow(fakes: FlowFakes) {
     awaitTag(TestTags.FILTER_APPLY).performClick()
     awaitCondition("검색 조건 반영") { fakes.animals.searchCalls.lastOrNull()?.kindCode == "000054" }
     assertEquals(AnimalKind.DOG, fakes.animals.searchCalls.last().kind)
+}
+
+/**
+ * T18(5a-live-fixes L6, M5): 상세 상태 배지는 문장을 글 의미로 낸다 — 공고중 D-4는 "공고 4일 남음", 보호중은
+ * `status_protecting`. 웹(CMP 1.12.2)은 역할 없는 칸의 설명을 접근성 이름으로 쓰지 않아 글로 줘야 읽힌다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.detailBadgeTextFlow(fakes: FlowFakes) {
+    val noticing = flowAnimal("A").copy(noticeEnd = LocalDate(2026, 11, 8))
+    val protecting = flowAnimal("B").copy(noticeEnd = LocalDate(2026, 11, 1))
+    fakes.animals.results.value = listOf3().copy(items = listOf(noticing, protecting))
+
+    awaitTag(TestTags.card("A")).performClick()
+    val daysLeft = getPluralString(Res.plurals.a11y_days_left, 4, 4)
+    awaitCondition("배지 글 $daysLeft") {
+        onAllNodes(hasText(daysLeft)).fetchSemanticsNodes().isNotEmpty()
+    }
+
+    onNode(hasContentDescription(getString(Res.string.action_back))).performClick()
+    awaitTag(TestTags.card("B")).performClick()
+    val protectingText = getString(Res.string.status_protecting)
+    awaitCondition("배지 글 $protectingText") {
+        onAllNodes(hasText(protectingText)).fetchSemanticsNodes().isNotEmpty()
+    }
 }

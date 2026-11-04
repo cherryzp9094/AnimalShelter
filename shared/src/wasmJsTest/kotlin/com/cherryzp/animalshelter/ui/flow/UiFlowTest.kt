@@ -167,6 +167,10 @@ class UiFlowTest {
     @Test
     fun t17BreedPickHidesKeyboard() = runFlowTest { breedPickHidesKeyboardFlow(it) }
 
+    /** T18 상세 상태 배지 문장은 글 의미(5a-live-fixes L6). */
+    @Test
+    fun t18DetailBadgeIsText() = runFlowTest { detailBadgeTextFlow(it) }
+
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).
 }

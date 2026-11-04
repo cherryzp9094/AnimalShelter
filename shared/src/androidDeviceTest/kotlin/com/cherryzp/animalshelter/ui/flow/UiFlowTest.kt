@@ -172,4 +172,8 @@ class UiFlowTest {
     /** T17 품종을 메뉴에서 고르면 키보드를 닫는다(5a-live-fixes L5). */
     @Test
     fun t17BreedPickHidesKeyboard() = runFlowTest { breedPickHidesKeyboardFlow(it) }
+
+    /** T18 상세 상태 배지 문장은 글 의미(5a-live-fixes L6). */
+    @Test
+    fun t18DetailBadgeIsText() = runFlowTest { detailBadgeTextFlow(it) }
 }
