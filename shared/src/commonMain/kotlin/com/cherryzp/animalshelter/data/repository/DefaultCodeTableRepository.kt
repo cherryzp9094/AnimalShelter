@@ -50,17 +50,27 @@ internal class DefaultCodeTableRepository(
 
     override suspend fun refresh(table: CodeTable) {
         outcomes.update { it - table }
-        when (table) {
-            CodeTable.Sido -> refreshTable(table, sidoSpec())
+        refreshByTable(table, onlyIfStale = false)
+    }
 
-            is CodeTable.Sigungu -> refreshTable(table, sigunguSpec(table.sidoCode))
+    /** 스트림이 거는 갱신과 같은 길(테스트용): 이미 신선하면 받지 않는다. */
+    internal suspend fun refreshIfStale(table: CodeTable) {
+        refreshByTable(table, onlyIfStale = true)
+    }
+
+    private suspend fun refreshByTable(table: CodeTable, onlyIfStale: Boolean) {
+        when (table) {
+            CodeTable.Sido -> refreshTable(table, sidoSpec(), onlyIfStale)
+
+            is CodeTable.Sigungu -> refreshTable(table, sigunguSpec(table.sidoCode), onlyIfStale)
 
             is CodeTable.Shelters -> refreshTable(
                 table,
-                sheltersSpec(table.sidoCode, table.sigunguCode)
+                sheltersSpec(table.sidoCode, table.sigunguCode),
+                onlyIfStale
             )
 
-            is CodeTable.Kinds -> refreshTable(table, kindsSpec(table.kind))
+            is CodeTable.Kinds -> refreshTable(table, kindsSpec(table.kind), onlyIfStale)
         }
     }
 
@@ -102,7 +112,7 @@ internal class DefaultCodeTableRepository(
         val cached = spec.read(store.data.first())
         if (cached == null || !cached.isFresh(clock)) {
             outcomes.update { it - table }
-            appScope.launch { refreshTable(table, spec) }
+            appScope.launch { refreshTable(table, spec, onlyIfStale = true) }
         }
         val states = combine(
             store.data.map(spec.read).distinctUntilChanged(),
@@ -132,8 +142,23 @@ internal class DefaultCodeTableRepository(
         else -> CacheState(null, fresh = false, error = null)
     }
 
-    private suspend fun <T> refreshTable(table: CodeTable, spec: TableSpec<T>) {
+    /**
+     * 표 하나를 받아 저장한다(같은 표는 동시에 하나만).
+     *
+     * [onlyIfStale]이면 single-flight 블록 **안에서** 저장소를 다시 읽어 이미 신선하면 받지 않는다(3e 검토 N3).
+     * 스트림은 모으기 시작할 때 본 사본으로 갱신을 거는데, 앞 갱신이 저장하기 직전의 사본을 본 스트림이
+     * 그 갱신이 끝난 뒤에 블록에 닿으면 같은 표를 한 번 더 받았다. 저장은 앞 갱신이 끝나기 전에 끝나므로
+     * 여기서 다시 읽으면 늘 그 결과가 보인다. 사용자 다시 시도([refresh])는 늘 받는다.
+     */
+    private suspend fun <T> refreshTable(
+        table: CodeTable,
+        spec: TableSpec<T>,
+        onlyIfStale: Boolean,
+    ) {
         val outcome = singleFlight.run(table) {
+            if (onlyIfStale && spec.read(store.data.first())?.isFresh(clock) == true) {
+                return@run RefreshOutcome.Saved
+            }
             when (val result = spec.fetch()) {
                 is ApiResult.Failure -> RefreshOutcome.Failed(result.error)
 

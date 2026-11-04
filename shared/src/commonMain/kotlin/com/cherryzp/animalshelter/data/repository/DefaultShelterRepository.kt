@@ -32,7 +32,7 @@ internal class DefaultShelterRepository(
         val cached = store.data.first().table
         if (cached == null || !cached.isFresh(clock)) {
             outcome.value = null
-            appScope.launch { refreshAll() }
+            appScope.launch { refreshAll(onlyIfStale = true) }
         }
         val states =
             combine(store.data.map { it.table }.distinctUntilChanged(), outcome) { table, last ->
@@ -43,7 +43,12 @@ internal class DefaultShelterRepository(
 
     override suspend fun refresh() {
         outcome.value = null
-        refreshAll()
+        refreshAll(onlyIfStale = false)
+    }
+
+    /** 스트림이 거는 갱신과 같은 길(테스트용): 이미 신선하면 받지 않는다. */
+    internal suspend fun refreshIfStale() {
+        refreshAll(onlyIfStale = true)
     }
 
     private fun toState(
@@ -64,8 +69,15 @@ internal class DefaultShelterRepository(
         else -> CacheState(null, fresh = false, error = null)
     }
 
-    private suspend fun refreshAll() {
+    /**
+     * 전체를 받아 저장한다(동시에 하나만). [onlyIfStale]이면 single-flight 블록 안에서 저장소를 다시 읽어
+     * 이미 신선하면 받지 않는다 — 코드표와 같은 이유(3e 검토 N3, `DefaultCodeTableRepository.refreshTable`).
+     */
+    private suspend fun refreshAll(onlyIfStale: Boolean) {
         outcome.value = singleFlight.run(Unit) {
+            if (onlyIfStale && store.data.first().table?.isFresh(clock) == true) {
+                return@run RefreshOutcome.Saved
+            }
             when (val result = api.getAllShelterInfo()) {
                 is ApiResult.Failure -> RefreshOutcome.Failed(result.error)
 

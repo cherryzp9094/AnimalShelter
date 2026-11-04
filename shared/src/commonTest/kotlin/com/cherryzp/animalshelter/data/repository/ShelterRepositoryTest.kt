@@ -73,4 +73,45 @@ class ShelterRepositoryTest {
             assertEquals(2, harness.urls.size)
         }
     }
+
+    @Test
+    fun `스트림 경로의 갱신은 사본이 신선하면 받지 않는다`() = runTest {
+        withTestStores { stores ->
+            val harness = ApiTestHarness(clock = clock) { respond(ApiFixtures.shelterInfoV2) }
+            val repo = DefaultShelterRepository(harness.api, stores.shelters(), clock, appScope)
+            repo.refresh() // 끝까지 기다린다(진행 중인 갱신에 합쳐지지 않게)
+
+            repo.refreshIfStale()
+
+            assertEquals(1, harness.urls.size)
+        }
+    }
+
+    @Test
+    fun `스트림 경로의 갱신은 사본이 만료면 받는다`() = runTest {
+        withTestStores { stores ->
+            val harness = ApiTestHarness(clock = clock) { respond(ApiFixtures.shelterInfoV2) }
+            val repo = DefaultShelterRepository(harness.api, stores.shelters(), clock, appScope)
+            repo.refresh() // 끝까지 기다린다(진행 중인 갱신에 합쳐지지 않게)
+            clock.advance(8.days)
+
+            repo.refreshIfStale()
+
+            assertEquals(2, harness.urls.size)
+            assertEquals(true, repo.getShelterInfoStream("348535202400001").first().fresh)
+        }
+    }
+
+    @Test
+    fun `refresh는 사본이 신선해도 받는다`() = runTest {
+        withTestStores { stores ->
+            val harness = ApiTestHarness(clock = clock) { respond(ApiFixtures.shelterInfoV2) }
+            val repo = DefaultShelterRepository(harness.api, stores.shelters(), clock, appScope)
+            repo.refresh() // 끝까지 기다린다(진행 중인 갱신에 합쳐지지 않게)
+
+            repo.refresh()
+
+            assertEquals(2, harness.urls.size)
+        }
+    }
 }
