@@ -65,7 +65,8 @@ private val AppMaxWidth = 1600.dp
 private val ShelterPaneWidth = 360.dp
 
 /**
- * 앱 탐색(03 0.3·0.4, 브리핑 B14). 지시는 `calculatePaneScaffoldDirective`(expanded 2칸, large 이상 3칸).
+ * 앱 탐색(03 0.3·0.4, 브리핑 B14). 지시는 `calculatePaneScaffoldDirective`(expanded 2칸, large 이상 3칸)에
+ * 칸 수 상한 [maxPaneCount](창 높이 compact면 1칸)를 덮어쓴다.
  * - 목록·북마크 목록 = `listPane` + 상세 자리표시. 폭(창 폭 클래스마다 400·440·480dp)은 지시의
  *   `defaultPanePreferredWidth`로 — 창 크기가 바뀌면 바로 따라간다
  * - 상세 = `detailPane`, 보호소 정보 = `extraPane`(360dp — large 이상에서 세 번째 칸)
@@ -80,9 +81,13 @@ fun AppNavDisplay() {
     val adaptiveInfo = currentWindowAdaptiveInfoV2()
     // 목록 칸 폭은 지시의 기본 폭으로 준다 — entry 메타데이터는 entry가 처음 만들어질 때 고정돼
     // 웹에서 창 크기만 바꾸면(재생성 없음) 예전 폭이 남는다. 상세는 남는 폭, 보호소는 메타데이터 360dp.
-    val listPaneWidth = listPaneWidthDp(adaptiveInfo.windowSizeClass.minWidthDp)
-    val directive = calculatePaneScaffoldDirective(adaptiveInfo)
-        .copy(defaultPanePreferredWidth = listPaneWidth.dp)
+    // 창 높이가 compact(폰 가로)면 폭과 무관하게 한 칸(N1) — 기본 지시는 폭만 본다.
+    val sizeClass = adaptiveInfo.windowSizeClass
+    val listPaneWidth = listPaneWidthDp(sizeClass.minWidthDp)
+    val directive = calculatePaneScaffoldDirective(adaptiveInfo).copy(
+        maxHorizontalPartitions = maxPaneCount(sizeClass.minWidthDp, sizeClass.minHeightDp),
+        defaultPanePreferredWidth = listPaneWidth.dp
+    )
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
     val listPaneMetadata = remember {
         ListDetailSceneStrategy.listPane(detailPlaceholder = { DetailPlaceholder() })

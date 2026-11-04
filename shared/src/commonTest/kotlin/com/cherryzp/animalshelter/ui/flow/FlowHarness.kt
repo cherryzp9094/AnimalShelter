@@ -55,6 +55,10 @@ private const val PHONE_HEIGHT_DP = 760
 const val WIDE_WIDTH_DP = 1280
 const val WIDE_HEIGHT_DP = 900
 
+/** 폰 가로 흐름 창(폭 expanded·높이 compact — 3e E3). */
+const val LANDSCAPE_WIDTH_DP = 900
+const val LANDSCAPE_HEIGHT_DP = 400
+
 /** 기다림 상한(밀리초). 화면 전환·ViewModel 수집은 실제 시간으로 돈다. */
 const val FLOW_TIMEOUT_MILLIS = 10_000L
 

@@ -39,6 +39,18 @@ private fun isPaneExpanded(role: ThreePaneScaffoldRole): Boolean {
 }
 
 /**
+ * 칸 수 상한(03 0.4): 창 높이가 compact(< 480dp — 폰 가로)면 폭과 무관하게 1칸(Phase 3 검토 N1).
+ * 그 밖에는 `calculatePaneScaffoldDirective`와 같다 — 폭 expanded(840~1199) 2칸, large(≥ 1200) 이상 3칸, 그보다 좁으면 1칸.
+ * 지시의 `maxHorizontalPartitions`로 준다.
+ */
+fun maxPaneCount(windowWidthDp: Int, windowHeightDp: Int): Int = when {
+    windowHeightDp < WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND -> 1
+    windowWidthDp >= WindowSizeClass.WIDTH_DP_LARGE_LOWER_BOUND -> 3
+    windowWidthDp >= WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND -> 2
+    else -> 1
+}
+
+/**
  * 목록 칸 폭(03 0.4): 창 폭 클래스가 expanded(840~1199) 400dp · large(1200~1599) 440dp ·
  * extra-large(≥ 1600) 480dp. 한 칸(< 840)에서는 쓰이지 않는다.
  */

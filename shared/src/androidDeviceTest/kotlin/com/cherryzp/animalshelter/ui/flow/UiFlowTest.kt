@@ -46,4 +46,11 @@ class UiFlowTest {
     /** T6 정렬 메뉴는 지금 정렬을 selected로 알린다(3d 점검 A1). */
     @Test
     fun t6SortMenuMarksCurrentOrder() = runFlowTest { sortMenuSelectedFlow(it) }
+
+    /** T8 창 높이가 compact(폰 가로)면 폭과 무관하게 한 칸(3e E3). */
+    @Test
+    fun t8LandscapePhoneIsSinglePane() = runFlowTest(
+        widthDp = LANDSCAPE_WIDTH_DP,
+        heightDp = LANDSCAPE_HEIGHT_DP
+    ) { landscapeSinglePaneFlow(it) }
 }

@@ -36,7 +36,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
-// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -199,4 +199,17 @@ suspend fun ComposeUiTest.sortMenuSelectedFlow(fakes: FlowFakes) {
     awaitCondition("정렬 메뉴") { onAllNodes(hasText(latest)).fetchSemanticsNodes().isNotEmpty() }
     onNode(hasText(latest)).assertIsSelected()
     onNode(hasText(getString(Res.string.sort_closing_soon))).assertIsNotSelected()
+}
+
+/** T8(3e E3): 창 높이가 compact(폰 가로 900×400)면 폭이 expanded여도 한 칸 — 상세만 보이고 뒤로 화살표가 있다. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.landscapeSinglePaneFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    awaitCondition("목록 카드가 사라짐(상세만 보임)") {
+        onAllNodes(hasTestTag(TestTags.card("A"))).fetchSemanticsNodes().isEmpty()
+    }
+    onNode(hasContentDescription(getString(Res.string.action_back))).assertIsDisplayed()
 }
