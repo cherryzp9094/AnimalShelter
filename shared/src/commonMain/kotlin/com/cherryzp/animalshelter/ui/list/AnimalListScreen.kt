@@ -57,6 +57,7 @@ import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.listTopBarScrollBehavior
 import com.cherryzp.animalshelter.ui.common.pluralText
+import com.cherryzp.animalshelter.ui.common.resetToTop
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.preview.PreviewData
@@ -124,7 +125,9 @@ fun AnimalListScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val gridState = rememberLazyGridState()
-    val scrollBehavior = listTopBarScrollBehavior(gridState)
+    // 그리드 갈래(첫 로딩·빈 결과·오류 전체 화면이 아닐 때)인지 — 아니면 바를 맨 위 상태로(4a 검토 F2)
+    val gridShown = !state.isInitialLoading && state.fullScreen == null
+    val scrollBehavior = listTopBarScrollBehavior(gridState, gridShown)
 
     MessageSnackbarEffect(
         message = state.message,
@@ -144,11 +147,11 @@ fun AnimalListScreen(
         gridState.requestScrollToItem(0)
         expandTopBar = true
     }
-    // 프로그램 스크롤은 바에 전달되지 않는다 — 맨 위로 올릴 때 접힌 바(창 높이 compact)도 펼친다(N4).
-    // 컴포지션 중이 아니라 효과에서 쓴다
+    // 프로그램 스크롤은 바에 전달되지 않는다 — 맨 위로 올릴 때 바도 맨 위 상태로(N4: 접힌 바를 펼친다, 4a 검토 F2:
+    // pinned의 스크롤 색도 끈다). 컴포지션 중이 아니라 효과에서 쓴다
     LaunchedEffect(expandTopBar) {
         if (expandTopBar) {
-            scrollBehavior.state.heightOffset = 0f
+            scrollBehavior.state.resetToTop()
             expandTopBar = false
         }
     }

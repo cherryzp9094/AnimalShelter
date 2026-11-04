@@ -95,7 +95,8 @@ fun BookmarkListScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val gridState = rememberLazyGridState()
-    val scrollBehavior = listTopBarScrollBehavior(gridState)
+    // 비면 그리드가 없다 — 바를 맨 위 상태로(4a 검토 F2)
+    val scrollBehavior = listTopBarScrollBehavior(gridState, gridShown = !state.isEmpty)
     MessageSnackbarEffect(
         message = state.message,
         snackbarHostState = snackbarHostState,

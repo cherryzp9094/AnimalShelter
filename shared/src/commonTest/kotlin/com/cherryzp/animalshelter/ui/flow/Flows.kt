@@ -41,7 +41,9 @@ import com.cherryzp.animalshelter.resources.action_back
 import com.cherryzp.animalshelter.resources.action_sort
 import com.cherryzp.animalshelter.resources.action_undo
 import com.cherryzp.animalshelter.resources.disclaimer
+import com.cherryzp.animalshelter.resources.empty_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
+import com.cherryzp.animalshelter.resources.empty_results
 import com.cherryzp.animalshelter.resources.kind_cat
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
@@ -53,7 +55,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
-// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4 T10). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -449,3 +451,71 @@ suspend fun ComposeUiTest.portraitTopBarStaysFlow(fakes: FlowFakes) {
     awaitIdle()
     assertNear(heightOf(bar), expanded, "세로 상단 바 높이")
 }
+
+/**
+ * T10 북마크(4a 검토 F2): 폰 가로에서 바가 접힌 채 북마크가 줄어 그리드가 스크롤할 수 없게 되면 바가 다시 64dp, 다
+ * 지워 빈 안내만 남아도 64dp(제목·뒤로가 보인다).
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.landscapeBookmarksBarReturnsFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    manyResults().items.reversed().forEach { fakes.bookmarks.add(it) }
+
+    awaitTag(TestTags.OPEN_BOOKMARKS).performClick()
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+    val bar = TestTags.BOOKMARKS_TOP_BAR
+    val expanded = heightOf(bar)
+
+    dragGrid(-200f)
+    awaitBarCollapsed(bar, expanded)
+
+    // 카드의 북마크 버튼으로 지운 것과 같다(지우면 목록에서 바로 빠진다) — 3개면 한 줄이라 스크롤할 수 없다
+    fakes.bookmarks.bookmarks.value = fakes.bookmarks.bookmarks.value.take(3)
+    awaitBarExpanded(bar, expanded)
+
+    fakes.bookmarks.bookmarks.value = emptyList()
+    val emptyText = getString(Res.string.empty_bookmarks)
+    awaitCondition("빈 북마크 안내") { onAllNodes(hasText(emptyText)).fetchSemanticsNodes().isNotEmpty() }
+    awaitBarExpanded(bar, expanded)
+}
+
+/**
+ * T10 목록(4a 검토 F2): 폰 가로에서 바가 접힌 채 같은 조건의 결과가 줄어도(`queryKey`가 그대로 — 맨 위로 가는 효과가
+ * 돌지 않는다) 바가 숨은 채 갇히지 않는다.
+ * - 3개: 목록은 요약 칩·결과 헤더가 있어 900×400에서는 한 줄이어도 그리드가 아직 스크롤된다(웹 22px) — 그때는 끌어서
+ *   바를 꺼낼 수 있으므로, "바가 펼쳐졌거나 그리드가 스크롤된다"를 본다(브리핑의 "3개 → 64dp"는 이 창에서 성립하지
+ *   않는다)
+ * - 0개: 빈 결과 전체 화면(그리드 없음) — 바 64dp
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.landscapeListBarReturnsFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = manyResults()
+    awaitTag(TestTags.card(FIRST_MANY))
+    awaitIdle()
+    val bar = TestTags.LIST_TOP_BAR
+    val expanded = heightOf(bar)
+
+    dragGrid(-200f)
+    awaitBarCollapsed(bar, expanded)
+
+    val shrunk = fakes.animals.results.value
+    fakes.animals.results.value = shrunk.copy(items = shrunk.items.take(3), totalCount = 3)
+    awaitCondition("카드 3개만") {
+        onAllNodes(hasTestTag(TestTags.card("N004"))).fetchSemanticsNodes().isEmpty()
+    }
+    awaitCondition("바가 펼쳐졌거나 그리드가 아직 스크롤된다") {
+        abs((heightOf(bar) - expanded).value) <= BAR_TOLERANCE_DP || gridScrollMax() > 0f
+    }
+
+    fakes.animals.results.value = shrunk.copy(items = emptyList(), totalCount = 0)
+    val emptyText = getString(Res.string.empty_results)
+    awaitCondition("빈 결과 안내") { onAllNodes(hasText(emptyText)).fetchSemanticsNodes().isNotEmpty() }
+    awaitBarExpanded(bar, expanded)
+}
+
+/** 그리드의 세로 스크롤 범위 최댓값(px, 의미 트리). 0이면 스크롤할 수 없다. */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.gridScrollMax(): Float =
+    onAllNodes(hasTestTag(TestTags.ANIMAL_GRID)).fetchSemanticsNodes().firstOrNull()
+        ?.config?.getOrNull(SemanticsProperties.VerticalScrollAxisRange)?.maxValue?.invoke() ?: 0f

@@ -93,4 +93,18 @@ class UiFlowTest {
     /** T10 폰 세로 목록 상단 바는 pinned 그대로(4a N4). */
     @Test
     fun t10PortraitListTopBarStaysPinned() = runFlowTest { portraitTopBarStaysFlow(it) }
+
+    /** T10 폰 가로 북마크 목록이 줄거나 비면 접힌 바가 돌아온다(4a 검토 F2). */
+    @Test
+    fun t10LandscapeBookmarksBarReturnsWhenGridStopsScrolling() = runFlowTest(
+        widthDp = LANDSCAPE_WIDTH_DP,
+        heightDp = LANDSCAPE_HEIGHT_DP
+    ) { landscapeBookmarksBarReturnsFlow(it) }
+
+    /** T10 폰 가로 목록 결과가 줄면 접힌 바가 돌아온다(4a 검토 F2). */
+    @Test
+    fun t10LandscapeListBarReturnsWhenResultsShrink() = runFlowTest(
+        widthDp = LANDSCAPE_WIDTH_DP,
+        heightDp = LANDSCAPE_HEIGHT_DP
+    ) { landscapeListBarReturnsFlow(it) }
 }
