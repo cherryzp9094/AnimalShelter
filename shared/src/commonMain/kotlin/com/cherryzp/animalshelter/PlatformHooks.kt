@@ -9,10 +9,13 @@ import com.cherryzp.animalshelter.ui.common.SystemBarsHook
  *
  * @property systemBars 시스템 바 아이콘 색(C4). 웹·테스트는 NoOp
  * @property navigation 처음 back stack과 플랫폼 탐색 연결(웹 브라우저 기록 W3, Android App Links L3)
+ * @property reducedMotion 앱이 넣은 움직임을 끈다(웹 `prefers-reduced-motion`, M2 — `LocalReducedMotion`). Android는
+ *   Compose가 시스템 애니메이터 배율을 이미 따르므로 늘 false
  * @property onFirstFrame 테마를 읽고 첫 화면을 그린 뒤 한 번(웹은 로딩 화면을 없앤다, H2). Android는 쓰지 않는다
  */
 data class PlatformHooks(
     val systemBars: SystemBarsHook = SystemBarsHook.NoOp,
     val navigation: NavigationBinding = NavigationBinding.None,
+    val reducedMotion: Boolean = false,
     val onFirstFrame: () -> Unit = {},
 )

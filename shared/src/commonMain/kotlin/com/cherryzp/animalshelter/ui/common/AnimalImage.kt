@@ -47,7 +47,7 @@ fun AnimalImage(
         if (url != null) {
             var alignment by remember(url) { mutableStateOf<Alignment>(Alignment.Center) }
             AsyncImage(
-                model = url,
+                model = rememberImageModel(url),
                 contentDescription = null,
                 contentScale = contentScale,
                 alignment = alignment,

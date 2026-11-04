@@ -1,6 +1,8 @@
 package com.cherryzp.animalshelter.ui.detail
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -76,6 +78,7 @@ import com.cherryzp.animalshelter.ui.common.BottomBar
 import com.cherryzp.animalshelter.ui.common.BottomBarButtonHeight
 import com.cherryzp.animalshelter.ui.common.CenteredLoading
 import com.cherryzp.animalshelter.ui.common.FullScreenMessage
+import com.cherryzp.animalshelter.ui.common.LocalReducedMotion
 import com.cherryzp.animalshelter.ui.common.MessageAction
 import com.cherryzp.animalshelter.ui.common.MessageSnackbarEffect
 import com.cherryzp.animalshelter.ui.common.PART_SEPARATOR
@@ -214,10 +217,20 @@ fun AnimalDetailScreen(
                 title = {
                     // D6: 품종명 줄이 바 아래로 지나간 뒤에만(사진 아래 제목과 겹치지 않게). 2단은 스크롤하면(R9).
                     // 불투명도만 짧게(emil 점검): 나타날 때 150ms ease-out, 사라질 때 100ms — 움직임은 없다.
+                    // 모션 줄이기(M2)면 페이드 없이
+                    val reducedMotion = LocalReducedMotion.current
                     AnimatedVisibility(
                         visible = showTitle && detail != null,
-                        enter = fadeIn(tween(TITLE_FADE_IN_MILLIS, easing = LinearOutSlowInEasing)),
-                        exit = fadeOut(tween(TITLE_FADE_OUT_MILLIS))
+                        enter = if (reducedMotion) {
+                            EnterTransition.None
+                        } else {
+                            fadeIn(tween(TITLE_FADE_IN_MILLIS, easing = LinearOutSlowInEasing))
+                        },
+                        exit = if (reducedMotion) {
+                            ExitTransition.None
+                        } else {
+                            fadeOut(tween(TITLE_FADE_OUT_MILLIS))
+                        }
                     ) {
                         Text(
                             text = detail?.titleParts?.map { it.resolve() }

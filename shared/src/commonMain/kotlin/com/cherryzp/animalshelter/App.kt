@@ -26,6 +26,7 @@ import com.cherryzp.animalshelter.ui.common.DarkSystemBarRequests
 import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
 import com.cherryzp.animalshelter.ui.common.ImageUrlResolver
 import com.cherryzp.animalshelter.ui.common.LocalDarkSystemBarRequests
+import com.cherryzp.animalshelter.ui.common.LocalReducedMotion
 import com.cherryzp.animalshelter.ui.theme.AnimalShelterTheme
 import com.cherryzp.animalshelter.ui.theme.isDarkTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -79,7 +80,10 @@ fun App(hooks: PlatformHooks = PlatformHooks()) {
     val darkBarRequests = remember { DarkSystemBarRequests() }
     val lightIcons = dark || darkBarRequests.count > 0
     SideEffect { hooks.systemBars.setLightIcons(lightIcons) }
-    CompositionLocalProvider(LocalDarkSystemBarRequests provides darkBarRequests) {
+    CompositionLocalProvider(
+        LocalDarkSystemBarRequests provides darkBarRequests,
+        LocalReducedMotion provides hooks.reducedMotion
+    ) {
         AnimalShelterTheme(darkTheme = dark) {
             AppNavDisplay(hooks.navigation)
         }

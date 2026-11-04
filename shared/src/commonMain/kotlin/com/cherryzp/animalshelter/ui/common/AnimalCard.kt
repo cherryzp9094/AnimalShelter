@@ -2,6 +2,8 @@ package com.cherryzp.animalshelter.ui.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,9 +24,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -79,9 +91,16 @@ fun AnimalCard(
         happenPlace = if (large) ui.happenPlace else null
     )
     val twoLines = !large && LocalDensity.current.fontScale >= TWO_LINE_FONT_SCALE
+    // 키보드 초점 링(4a M1): 키보드 입력 모드에서 카드에 초점이 오면 바깥 3dp secondary 테두리를 2dp 띄워 그린다
+    // (Material Web 초점 링). 선택 표시(안쪽 2dp primary, D7)와 같이 보일 수 있다
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+    val keyboardMode = LocalInputModeManager.current.inputMode == InputMode.Keyboard
+    val ringColor = MaterialTheme.colorScheme.secondary
 
     Card(
         onClick = onClick,
+        interactionSource = interactionSource,
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
@@ -89,6 +108,7 @@ fun AnimalCard(
         elevation = CardDefaults.cardElevation(),
         border = if (selected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
         modifier = modifier
+            .focusRing(visible = focused && keyboardMode, color = ringColor)
             .testTag(TestTags.card(ui.desertionNo))
             .semantics(mergeDescendants = true) {
                 contentDescription = a11y
@@ -219,4 +239,23 @@ fun BookmarkButton(bookmarked: Boolean, onClick: () -> Unit, modifier: Modifier 
             )
         }
     }
+}
+
+/** 카드 모서리(12dp)에 맞춘 바깥 초점 링: 두께 [FocusRingWidth], 카드에서 [FocusRingGap] 띄운다(M1). */
+private val CardCorner = 12.dp
+private val FocusRingWidth = 3.dp
+private val FocusRingGap = 2.dp
+
+private fun Modifier.focusRing(visible: Boolean, color: Color): Modifier = drawWithContent {
+    drawContent()
+    if (!visible) return@drawWithContent
+    val stroke = FocusRingWidth.toPx()
+    val inset = FocusRingGap.toPx() + stroke / 2f // 선의 가운데까지
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(-inset, -inset),
+        size = Size(size.width + inset * 2f, size.height + inset * 2f),
+        cornerRadius = CornerRadius(CardCorner.toPx() + inset),
+        style = Stroke(width = stroke)
+    )
 }

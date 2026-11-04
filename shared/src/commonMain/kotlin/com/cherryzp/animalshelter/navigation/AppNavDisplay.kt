@@ -1,5 +1,10 @@
 package com.cherryzp.animalshelter.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,11 +27,16 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.navigation3.ui.defaultPredictivePopTransitionSpec
+import androidx.navigation3.ui.defaultTransitionSpec
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.cherryzp.animalshelter.data.api.toBasicString
 import com.cherryzp.animalshelter.ui.bookmarks.BookmarkListScreen
+import com.cherryzp.animalshelter.ui.common.LocalReducedMotion
 import com.cherryzp.animalshelter.ui.detail.AnimalDetailScreen
 import com.cherryzp.animalshelter.ui.detail.DetailPlaceholder
 import com.cherryzp.animalshelter.ui.filter.FilterScreen
@@ -102,10 +112,19 @@ private fun AppNavDisplay(
     listDetailStrategy: SceneStrategy<NavKey>,
     listPaneMetadata: Map<String, Any>,
 ) {
+    // 모션 줄이기(M2)면 화면 전환 없음, 아니면 Nav3 기본 전환(P13)
+    val reducedMotion = LocalReducedMotion.current
     NavDisplay(
         modifier = Modifier.widthIn(max = AppMaxWidth).fillMaxHeight(),
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
+        transitionSpec = if (reducedMotion) noTransition() else defaultTransitionSpec(),
+        popTransitionSpec = if (reducedMotion) noTransition() else defaultPopTransitionSpec(),
+        predictivePopTransitionSpec = if (reducedMotion) {
+            { _ -> EnterTransition.None togetherWith ExitTransition.None }
+        } else {
+            defaultPredictivePopTransitionSpec()
+        },
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
@@ -180,3 +199,7 @@ private fun AppNavDisplay(
         }
     )
 }
+
+/** 전환 없음(모션 줄이기, M2). */
+private fun noTransition(): AnimatedContentTransitionScope<Scene<NavKey>>.() -> ContentTransform =
+    { EnterTransition.None togetherWith ExitTransition.None }

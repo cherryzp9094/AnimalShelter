@@ -1,6 +1,7 @@
 // 웹 진입점 파일 이름은 Kotlin/Wasm 관례대로 main.kt로 둔다.
 @file:Suppress("ktlint:standard:filename")
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.cherryzp.animalshelter.App
@@ -28,6 +29,14 @@ private external fun notifyAppReady(reducedMotion: Boolean)
 @JsFun("() => window.matchMedia('(prefers-reduced-motion: reduce)').matches")
 private external fun prefersReducedMotion(): Boolean
 
+// 시스템 설정이 바뀌면 알린다(M2)
+@OptIn(ExperimentalWasmJsInterop::class)
+@JsFun(
+    "(callback) => window.matchMedia('(prefers-reduced-motion: reduce)')" +
+        ".addEventListener('change', (e) => callback(e.matches))"
+)
+private external fun listenReducedMotion(callback: (Boolean) -> Unit)
+
 /** 웹 진입점. 웹은 키 없이 중계 서버만 부른다(01-overview 7절). */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalResourceApi::class)
 fun main() {
@@ -49,9 +58,12 @@ fun main() {
         // 로딩 화면(index.html)을 없앤다 — 모션 줄이기면 페이드 없이(H2)
         onFirstFrame = { notifyAppReady(prefersReducedMotion()) }
     )
+    // 모션 줄이기(M2): 시작할 때 읽고 바뀌면 따라간다
+    val reducedMotion = mutableStateOf(prefersReducedMotion())
+    listenReducedMotion { reducedMotion.value = it }
     ComposeViewport(viewportContainerId = "root") {
         // 글꼴 둘을 받은 뒤 그린다 — 대체 글꼴이 먼저 보였다 바뀌지 않게(H2). 그동안은 로딩 화면이 덮고 있다
         val fonts = AppFontFiles.map { (font, weight) -> preloadFont(font, weight) }
-        if (fonts.all { it.value != null }) App(hooks)
+        if (fonts.all { it.value != null }) App(hooks.copy(reducedMotion = reducedMotion.value))
     }
 }

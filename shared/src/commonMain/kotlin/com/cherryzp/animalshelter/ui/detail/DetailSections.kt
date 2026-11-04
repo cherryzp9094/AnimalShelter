@@ -52,6 +52,7 @@ import com.cherryzp.animalshelter.ui.common.StatusBadge
 import com.cherryzp.animalshelter.ui.common.TestTags
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.copyOnLongPress
+import com.cherryzp.animalshelter.ui.common.rememberImageModel
 import com.cherryzp.animalshelter.ui.common.resolve
 import com.cherryzp.animalshelter.ui.theme.TABULAR_NUMBERS
 import org.jetbrains.compose.resources.stringResource
@@ -380,7 +381,7 @@ private fun PromotionCard(promo: PromotionUi) {
             promo.text?.let { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
             promo.imageUrl?.let {
                 AsyncImage(
-                    model = it,
+                    model = rememberImageModel(it),
                     // 안내 제목, 없으면 종류 문구(R5)
                     contentDescription = stringResource(
                         Res.string.promo_image_a11y,

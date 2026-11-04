@@ -6,8 +6,10 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.CoroutineScope
@@ -28,10 +30,13 @@ private val BounceEasing = CubicBezierEasing(0.23f, 1f, 0.32f, 1f)
 class PressBounce internal constructor(
     private val scale: Animatable<Float, AnimationVector1D>,
     private val scope: CoroutineScope,
+    private val reducedMotion: () -> Boolean,
 ) {
     val value: Float get() = scale.value
 
+    /** 모션 줄이기(M2)면 움직이지 않는다. */
     fun play() {
+        if (reducedMotion()) return
         scope.launch {
             scale.snapTo(1f)
             scale.animateTo(BOUNCE_SCALE, tween(BOUNCE_HALF_MILLIS, easing = BounceEasing))
@@ -43,7 +48,8 @@ class PressBounce internal constructor(
 @Composable
 fun rememberPressBounce(): PressBounce {
     val scope = rememberCoroutineScope()
-    return remember(scope) { PressBounce(Animatable(1f), scope) }
+    val reduced by rememberUpdatedState(LocalReducedMotion.current)
+    return remember(scope) { PressBounce(Animatable(1f), scope) { reduced } }
 }
 
 /** 그리기 단계에서만 읽는다(재구성 없음). */
