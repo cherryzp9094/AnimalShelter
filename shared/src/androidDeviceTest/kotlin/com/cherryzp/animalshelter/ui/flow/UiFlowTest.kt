@@ -176,4 +176,18 @@ class UiFlowTest {
     /** T18 상세 상태 배지 문장은 글 의미(5a-live-fixes L6). */
     @Test
     fun t18DetailBadgeIsText() = runFlowTest { detailBadgeTextFlow(it) }
+
+    /** T19 두 칸에서 시스템 뒤로는 상세를 닫고 자리표시(4b-fixes B1). */
+    @Test
+    fun t19TwoPaneSystemBackClosesDetail() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_HEIGHT_DP
+    ) { twoPaneSystemBackClosesDetailFlow(it) }
+
+    /** T19 두 칸에서 시스템 뒤로는 북마크 목록을 닫고 목록(4b-fixes B1). */
+    @Test
+    fun t19TwoPaneSystemBackClosesBookmarks() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_HEIGHT_DP
+    ) { twoPaneSystemBackClosesBookmarksFlow(it) }
 }

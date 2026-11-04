@@ -56,6 +56,7 @@ import com.cherryzp.animalshelter.resources.action_next_photo
 import com.cherryzp.animalshelter.resources.action_previous_photo
 import com.cherryzp.animalshelter.resources.action_sort
 import com.cherryzp.animalshelter.resources.action_undo
+import com.cherryzp.animalshelter.resources.detail_placeholder
 import com.cherryzp.animalshelter.resources.disclaimer
 import com.cherryzp.animalshelter.resources.empty_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
@@ -81,7 +82,8 @@ import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 
 // UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11,
-// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16, 5a-live-fixes L5 T17·L6 T18). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16, 5a-live-fixes L5 T17·L6 T18,
+// 4b-fixes B1 T19). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -1030,4 +1032,48 @@ suspend fun ComposeUiTest.detailBadgeTextFlow(fakes: FlowFakes) {
     awaitCondition("배지 글 $protectingText") {
         onAllNodes(hasText(protectingText)).fetchSemanticsNodes().isNotEmpty()
     }
+}
+
+/**
+ * T19 첫째(4b-fixes B1): 두 칸([WIDE_WIDTH_DP]×[WIDE_HEIGHT_DP])에서 카드 → [목록 | 상세] → **시스템 뒤로** →
+ * [목록 | 자리표시]. 두 칸의 [목록]과 [목록, 상세]는 scaffold 값이 같아 기본 `PopUntilScaffoldValueChange`면 뒤로를
+ * 받지 않았다(Android는 앱을 떠나고 웹 Esc는 무반응). 상세 표지는 북마크 단추 — 하네스에는 공유 주소가 없어 [공유]가
+ * 없다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.twoPaneSystemBackClosesDetailFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    val placeholder = getString(Res.string.detail_placeholder)
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    assertTrue(
+        onAllNodes(hasText(placeholder)).fetchSemanticsNodes().isEmpty(),
+        "상세를 열었는데 자리표시가 있다"
+    )
+
+    pressSystemBack(fakes)
+    awaitCondition("상세가 닫히고 자리표시") {
+        onAllNodes(hasTestTag(TestTags.DETAIL_BOOKMARK)).fetchSemanticsNodes().isEmpty() &&
+            onAllNodes(hasText(placeholder)).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitTag(TestTags.card("A"))
+    awaitTag(TestTags.card("B"))
+}
+
+/** T19 둘째(4b-fixes B1): 두 칸에서 목록 → 북마크 목록([북마크 | 자리표시]) → 시스템 뒤로 → 목록. */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.twoPaneSystemBackClosesBookmarksFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+
+    awaitTag(TestTags.card("A"))
+    awaitTag(TestTags.OPEN_BOOKMARKS).performClick()
+    awaitTag(TestTags.BOOKMARKS_TOP_BAR)
+
+    pressSystemBack(fakes)
+    awaitCondition("북마크 목록이 닫히고 목록") {
+        onAllNodes(hasTestTag(TestTags.BOOKMARKS_TOP_BAR)).fetchSemanticsNodes().isEmpty() &&
+            onAllNodes(hasTestTag(TestTags.LIST_TOP_BAR)).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitTag(TestTags.card("A"))
 }

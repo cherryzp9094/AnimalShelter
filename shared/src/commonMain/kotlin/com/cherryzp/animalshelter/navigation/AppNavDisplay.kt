@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
+import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
@@ -89,7 +90,12 @@ fun AppNavDisplay(navigation: NavigationBinding = NavigationBinding.None) {
         maxHorizontalPartitions = maxPaneCount(sizeClass.minWidthDp, sizeClass.minHeightDp),
         defaultPanePreferredWidth = listPaneWidth.dp
     )
-    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(directive = directive)
+    // 뒤로는 맨 위 목적지를 뺀다. 기본값 PopUntilScaffoldValueChange면 두 칸의 [목록]과 [목록, 상세]가 scaffold 값이
+    // 같아 뒤로를 받지 않는다 — Android는 앱을 떠나고 웹 Esc는 무반응(reports/phase4b.md 5절 B1).
+    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey>(
+        backNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
+        directive = directive
+    )
     val listPaneMetadata = remember {
         ListDetailSceneStrategy.listPane(detailPlaceholder = { DetailPlaceholder() })
     }

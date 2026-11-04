@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,6 +27,8 @@ import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import com.cherryzp.animalshelter.App
 import com.cherryzp.animalshelter.PlatformHooks
 import com.cherryzp.animalshelter.data.api.ApiEndpoint
@@ -104,7 +107,7 @@ class FakeKeyboardController : SoftwareKeyboardController {
 
 /**
  * 흐름 하나의 가짜 Repository들(네트워크 없음 — 테스트 동물은 사진이 없다)과 창 크기([window]),
- * 키보드 컨트롤러([keyboard]).
+ * 키보드 컨트롤러([keyboard]), 시스템 뒤로 입력([systemBack] — [pressSystemBack]이 쓴다).
  */
 class FlowFakes(
     val animals: FakeAnimalRepository = FakeAnimalRepository(),
@@ -115,6 +118,7 @@ class FlowFakes(
     val clock: FakeClock = FakeClock(),
     val window: FlowWindow = FlowWindow(),
     val keyboard: FakeKeyboardController = FakeKeyboardController(),
+    val systemBack: DirectNavigationEventInput = DirectNavigationEventInput(),
 )
 
 private fun flowModule(fakes: FlowFakes) = module {
@@ -142,8 +146,25 @@ private class FlowWindowInfo(private val size: () -> IntSize) : WindowInfo {
     override val containerSize: IntSize get() = size()
 }
 
+/**
+ * [input]을 지금 뒤로 이벤트 디스패처에 붙인다 — Android 시스템 뒤로·웹 Esc가 들어오는 길과 같다(4b-fixes B1 T19).
+ * 앱 안 ←(`action_back`)과 달리 NavDisplay·칸 장면의 뒤로 처리기를 거친다.
+ */
 @Composable
-private fun SizedApp(window: FlowWindow, keyboard: FakeKeyboardController, hooks: PlatformHooks) {
+private fun SystemBackInput(input: DirectNavigationEventInput) {
+    val dispatcher = checkNotNull(LocalNavigationEventDispatcherOwner.current) {
+        "테스트 환경에 NavigationEventDispatcherOwner가 없다"
+    }.navigationEventDispatcher
+    DisposableEffect(dispatcher, input) {
+        dispatcher.addInput(input)
+        onDispose { dispatcher.removeInput(input) }
+    }
+}
+
+@Composable
+private fun SizedApp(fakes: FlowFakes, hooks: PlatformHooks) {
+    val window = fakes.window
+    SystemBackInput(fakes.systemBack)
     val density = LocalDensity.current
     val windowInfo = remember(window, density) {
         FlowWindowInfo {
@@ -152,7 +173,7 @@ private fun SizedApp(window: FlowWindow, keyboard: FakeKeyboardController, hooks
     }
     CompositionLocalProvider(
         LocalWindowInfo provides windowInfo,
-        LocalSoftwareKeyboardController provides keyboard
+        LocalSoftwareKeyboardController provides fakes.keyboard
     ) {
         // 테스트 화면(브라우저 캔버스 1024px 폭, 기기 세로 411dp 폭)보다 커도 지정한 크기로 배치한다(왼쪽 위 기준) —
         // 줄이면 창 크기 클래스(1280)와 실제 칸 폭이 어긋나 두 칸 상세가 1단이 된다(3e). 넘친 부분은 보이지 않을 뿐이라
@@ -183,7 +204,7 @@ fun runFlowTest(
     fakes.window.heightDp = heightDp
     startKoin { modules(flowModule(fakes), viewModelModule) }
     try {
-        setContent { SizedApp(fakes.window, fakes.keyboard, hooks) }
+        setContent { SizedApp(fakes, hooks) }
         block(fakes)
     } finally {
         stopKoin()
@@ -200,6 +221,16 @@ suspend fun ComposeUiTest.resizeWindow(fakes: FlowFakes, widthDp: Int, heightDp:
         fakes.window.widthDp = widthDp
         fakes.window.heightDp = heightDp
     }
+    awaitIdle()
+}
+
+/**
+ * 시스템 뒤로 한 번(Android 뒤로 제스처·단추, 웹 Esc — 4b-fixes B1 T19). 하네스가 붙인 [FlowFakes.systemBack]으로
+ * 끝난 뒤로를 넣고 화면이 가라앉을 때까지 기다린다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.pressSystemBack(fakes: FlowFakes) {
+    runOnIdle { fakes.systemBack.backCompleted() }
     awaitIdle()
 }
 
