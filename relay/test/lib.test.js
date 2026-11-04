@@ -196,7 +196,9 @@ test("injectOg: head 맨 앞 base, OG·title 교체, body 첫 줄 replaceState, 
   assert.equal((out.match(/<base href="\/">/g) ?? []).length, 1);
   assert.equal((out.match(/history\.replaceState/g) ?? []).length, 1);
   assert.match(out, /<body>\n<script>history\.replaceState\(null, "", "\/#\/animal\/450650202602738"\)<\/script>/);
-  assert.equal((out.match(/<meta property="og:[a-z_:]*"/g) ?? []).length, 5);
+  assert.equal((out.match(/<meta property="og:[a-z_:]*"/g) ?? []).length, 7);
+  assert.ok(out.includes(`<meta property="og:type" content="website">`));
+  assert.ok(out.includes(`<meta property="og:locale" content="ko_KR">`));
   assert.equal((out.match(/<title>/g) ?? []).length, 1);
   assert.ok(!out.includes("<title>애니멀 쉘터</title>"));
   assert.ok(!out.includes(`<script>alert`));
@@ -204,6 +206,64 @@ test("injectOg: head 맨 앞 base, OG·title 교체, body 첫 줄 replaceState, 
   assert.ok(out.includes(`<meta name="robots" content="noindex">`));
   assert.ok(out.includes(`<meta name="twitter:card" content="summary_large_image">`));
   assert.ok(out.indexOf("<base") < out.indexOf('<meta charset'));
+});
+
+test("injectOg: index.html의 description·robots는 동물 것으로 바꿔 하나씩만", () => {
+  const html = `<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n<title>애니멀 쉘터</title>\n` +
+    `<meta name="description" content="앱 설명">\n<meta name="robots" content="noindex">\n` +
+    `<meta name="theme-color" content="#F6FAFE">\n</head>\n<body>\n</body>\n</html>`;
+  const meta = { title: "제목", description: "동물 설명 <b>", image: null, url: "https://relay.example/a/450650202602738" };
+  const out = lib.injectOg(html, meta, "450650202602738");
+  assert.equal((out.match(/<meta name="description"/g) ?? []).length, 1);
+  assert.ok(out.includes(`<meta name="description" content="동물 설명 &lt;b&gt;">`));
+  assert.ok(!out.includes("앱 설명"));
+  assert.equal((out.match(/<meta name="robots"/g) ?? []).length, 1);
+  assert.ok(out.includes(`<meta name="theme-color" content="#F6FAFE">`));
+  assert.equal((out.match(/<meta property="og:image"/g) ?? []).length, 0);
+  for (const name of ["og:type", "og:locale", "og:title", "og:description", "og:url", "og:site_name"]) {
+    assert.equal((out.match(new RegExp(`<meta property="${name}"`, "g")) ?? []).length, 1, name);
+  }
+});
+
+test("corsDecision: Origin 없음은 허용, 같은 origin 허용, 허용 목록은 루프백 Worker에서만", () => {
+  const allowed = "http://localhost:8080,http://127.0.0.1:8080";
+  const local = "http://127.0.0.1:8788/api/abandonmentPublicService_v2/sido_v2";
+  const deployed = "https://animalshelter.example/api/abandonmentPublicService_v2/sido_v2";
+  assert.equal(lib.corsDecision(null, local, allowed), "none");
+  assert.equal(lib.corsDecision("", deployed, allowed), "none");
+  assert.equal(lib.corsDecision("http://localhost:8080", local, allowed), "allow");
+  assert.equal(lib.corsDecision("http://localhost:8080", "http://localhost:8788/img/x", allowed), "allow");
+  assert.equal(lib.corsDecision("http://localhost:8080", "http://[::1]:8788/api/x", allowed), "allow");
+  assert.equal(lib.corsDecision("https://evil.example", local, allowed), "deny");
+  assert.equal(lib.corsDecision("http://localhost:8080", deployed, allowed), "deny");
+  assert.equal(lib.corsDecision("https://animalshelter.example", deployed, allowed), "allow");
+  assert.equal(lib.corsDecision("http://animalshelter.example", deployed, allowed), "deny");
+  assert.equal(lib.isLoopbackHost("127.0.0.1"), true);
+  assert.equal(lib.isLoopbackHost("localhost"), true);
+  assert.equal(lib.isLoopbackHost("[::1]"), true);
+  assert.equal(lib.isLoopbackHost("127.0.0.1.example"), false);
+});
+
+test("headHeaders: /api는 GET 헤더 + BYPASS, /a는 html 1시간", () => {
+  assert.deepEqual(lib.headHeaders("api"), {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Relay-Cache": "BYPASS",
+  });
+  assert.deepEqual(lib.headHeaders("share"), {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "public, max-age=3600",
+  });
+});
+
+test("assetlinks.json: 이 앱 패키지와 SHA-256 지문 하나(디버그 — 릴리즈는 Phase 5)", () => {
+  const links = JSON.parse(readFileSync(new URL("../assetlinks.json", import.meta.url), "utf8"));
+  assert.equal(links.length, 1);
+  assert.deepEqual(links[0].relation, ["delegate_permission/common.handle_all_urls"]);
+  assert.equal(links[0].target.namespace, "android_app");
+  assert.equal(links[0].target.package_name, "com.cherryzp.animalshelter");
+  assert.equal(links[0].target.sha256_cert_fingerprints.length, 1);
+  assert.match(links[0].target.sha256_cert_fingerprints[0], /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/);
 });
 
 test("isAllowedOrigin은 목록에 있는 것만", () => {

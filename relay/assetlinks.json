@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.cherryzp.animalshelter",
+      "sha256_cert_fingerprints": [
+        "E1:EE:E9:09:18:28:AC:D9:91:D6:42:68:FC:0E:79:08:22:68:12:32:A2:F8:96:32:A4:78:BF:A2:F5:76:3D:34"
+      ]
+    }
+  }
+]

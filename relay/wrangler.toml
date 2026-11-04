@@ -2,9 +2,12 @@
 name = "animalshelter-relay"
 main = "worker.js"
 compatibility_date = "2026-11-01"
+# 버전마다 공개 미리보기 주소를 만들지 않는다(4a R4). 계정·배포 설정(account_id·routes·workers_dev)은 4b에서.
+preview_urls = false
 
 [vars]
-# 로컬 개발용 허용 Origin(쉼표 구분). 배포(A안)는 웹 앱과 같은 origin이라 CORS가 필요 없다.
+# 로컬 개발용 허용 Origin(쉼표 구분). Worker가 루프백(127.0.0.1·localhost·[::1])에서 돌 때만 쓴다(4a R3) —
+# 배포(A안)는 웹 앱과 같은 origin만 허용하므로 이 값이 남아 있어도 localhost가 열리지 않는다.
 ALLOWED_ORIGINS = "http://localhost:8080,http://127.0.0.1:8080"
 
 [assets]

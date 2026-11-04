@@ -30,8 +30,11 @@ async function route(request, env, ctx) {
 
   if (corsPath) {
     const origin = request.headers.get("Origin");
-    if (origin && !lib.isAllowedOrigin(origin, env.ALLOWED_ORIGINS)) return jsonResponse(403, { relayError: "origin" });
-    const response = path.startsWith("/api/") ? await handleApi(url, env, ctx) : await handleImage(url);
+    if (lib.corsDecision(origin, request.url, env.ALLOWED_ORIGINS) === "deny") {
+      return jsonResponse(403, { relayError: "origin" });
+    }
+    const head = request.method === "HEAD";
+    const response = path.startsWith("/api/") ? await handleApi(url, env, ctx, head) : await handleImage(url);
     return withCors(response, origin);
   }
   if (path.startsWith("/a/")) return handleShare(request, url, env, ctx);
@@ -44,12 +47,14 @@ async function route(request, env, ctx) {
   return env.ASSETS.fetch(request);
 }
 
-async function handleApi(url, env, ctx) {
+async function handleApi(url, env, ctx, head) {
   const route = lib.parseApiPath(url.pathname);
   if (!route) return jsonResponse(404, { relayError: "route" });
   const query = lib.validateQuery(route.service, route.operation, url.searchParams);
   if (query.error) return jsonResponse(400, { relayError: query.error });
   if (!env.SERVICE_KEY) return jsonResponse(500, { relayError: "config" });
+  // HEAD는 업스트림·캐시를 보지 않는다(R1 — 미리보기 봇·점검 도구가 한도를 쓰지 않게)
+  if (head) return new Response(null, { headers: lib.headHeaders("api") });
 
   const ttl = lib.CACHE_TTL_SECONDS[route.operation];
   const cacheKey = ttl ? new Request(lib.cacheKeyUrl(url.origin, route.service, route.operation, query.params)) : null;
@@ -102,6 +107,8 @@ async function handleImage(url) {
 async function handleShare(request, url, env, ctx) {
   const desertionNo = lib.parseShareId(url.pathname);
   if (!desertionNo) return new Response("Not Found", { status: 404 });
+  // HEAD는 조회하지 않는다(R1)
+  if (request.method === "HEAD") return new Response(null, { headers: lib.headHeaders("share") });
 
   // 조회 결과(요약 JSON)만 1시간 캐시한다. HTML은 요청마다 조립한다(D14).
   const cacheKey = new Request(`${url.origin}/__share/${desertionNo}`);
@@ -185,7 +192,9 @@ function withCors(response, origin) {
 
 function preflight(request, env) {
   const origin = request.headers.get("Origin");
-  if (!origin || !lib.isAllowedOrigin(origin, env.ALLOWED_ORIGINS)) return jsonResponse(403, { relayError: "origin" });
+  if (!origin || lib.corsDecision(origin, request.url, env.ALLOWED_ORIGINS) !== "allow") {
+    return jsonResponse(403, { relayError: "origin" });
+  }
   const headers = {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "GET, OPTIONS",

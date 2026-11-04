@@ -269,19 +269,23 @@ export function escapeHtml(text) {
 }
 
 /**
- * index.html에 미리보기를 넣는다(D14): `<head>` 맨 앞에 `<base href="/">`와 OG 메타·`<title>`(기존 title은 뺀다),
- * `<body>` 첫 줄에 해시 라우팅으로 상세를 여는 `replaceState` 스크립트.
+ * index.html에 미리보기를 넣는다(D14, 4a R2): `<head>` 맨 앞에 `<base href="/">`와 OG 메타·`<title>`·
+ * `<meta name="description">`(동물 설명)·`robots`. index.html에 있던 `<title>`·`description`·`robots`는 뺀다 —
+ * 같은 이름 메타가 둘이 되지 않게. `<body>` 첫 줄에 해시 라우팅으로 상세를 여는 `replaceState` 스크립트.
  */
 export function injectOg(html, meta, desertionNo) {
   const e = escapeHtml;
   const tags = [
     `<base href="/">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:locale" content="ko_KR">`,
     `<meta property="og:title" content="${e(meta.title)}">`,
     `<meta property="og:description" content="${e(meta.description)}">`,
     meta.image ? `<meta property="og:image" content="${e(meta.image)}">` : null,
     `<meta property="og:url" content="${e(meta.url)}">`,
     `<meta property="og:site_name" content="${e(SITE_NAME)}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="description" content="${e(meta.description)}">`,
     `<meta name="robots" content="noindex">`,
     `<title>${e(meta.title)}</title>`,
   ].filter(Boolean).join("\n");
@@ -289,6 +293,7 @@ export function injectOg(html, meta, desertionNo) {
   const script = `<script>history.replaceState(null, "", "/#/animal/${id}")</script>`;
   return html
     .replace(/<title>[\s\S]*?<\/title>\s*/i, "")
+    .replace(/<meta\s+name="(description|robots)"[^>]*>\s*/gi, "")
     .replace(/<head([^>]*)>/i, (tag) => `${tag}\n${tags}`)
     .replace(/<body([^>]*)>/i, (tag) => `${tag}\n${script}`);
 }
@@ -296,4 +301,37 @@ export function injectOg(html, meta, desertionNo) {
 /** 허용 Origin인지(쉼표 구분 목록). */
 export function isAllowedOrigin(origin, allowedCsv) {
   return (allowedCsv ?? "").split(",").map((s) => s.trim()).filter(Boolean).includes(origin);
+}
+
+const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]"]);
+
+/** Worker가 루프백 주소(로컬 `wrangler dev`)에서 도는지 — 요청 주소의 호스트로 본다. */
+export function isLoopbackHost(hostname) {
+  return LOOPBACK_HOSTS.has(hostname);
+}
+
+/**
+ * `/api`·`/img`의 Origin 판정(4a R3): "none"(Origin 없음 — curl·Android·같은 origin GET, CORS 헤더 없이 허용) ·
+ * "allow" · "deny"(403). 허용 목록(`ALLOWED_ORIGINS`, 로컬 개발 8080 → 8788)은 **Worker가 루프백에서 돌 때만** 쓴다.
+ * 그 밖(배포)은 Worker 자신의 origin만 허용 — 배포에 localhost 허용이 남지 않고 설정을 바꿀 일이 없다.
+ */
+export function corsDecision(origin, requestUrl, allowedCsv) {
+  if (!origin) return "none";
+  const self = new URL(requestUrl);
+  if (origin === self.origin) return "allow";
+  if (isLoopbackHost(self.hostname) && isAllowedOrigin(origin, allowedCsv)) return "allow";
+  return "deny";
+}
+
+const JSON_CONTENT_TYPE = "application/json; charset=utf-8";
+
+/**
+ * HEAD 응답 헤더(4a R1 — 업스트림을 부르지 않는다). 경로·파라미터 검사는 GET과 같게 한 뒤 맞으면 이 헤더로 200, 본문 없음.
+ * `/api`는 GET과 같은 `Content-Type`·`Cache-Control: no-store`에 `X-Relay-Cache: BYPASS`, `/a`는 `text/html`·1시간.
+ */
+export function headHeaders(kind) {
+  if (kind === "api") {
+    return { "Content-Type": JSON_CONTENT_TYPE, "Cache-Control": "no-store", "X-Relay-Cache": "BYPASS" };
+  }
+  return { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=3600" };
 }
