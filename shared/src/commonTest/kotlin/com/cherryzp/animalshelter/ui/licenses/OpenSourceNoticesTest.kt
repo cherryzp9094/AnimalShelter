@@ -63,6 +63,13 @@ class OpenSourceNoticesTest {
     }
 
     @Test
+    fun `웹 묶음에 Emscripten과 musl libc가 라이선스 이름과 함께 있다`() {
+        val web = group("web").entries.associateBy { it.name }
+        assertEquals("MIT · NCSA", web["Emscripten"]?.license)
+        assertEquals("MIT", web["musl libc"]?.license)
+    }
+
+    @Test
     fun `전문은 60줄 안팎의 빈 줄에서 끊고 글은 잃지 않는다`() {
         val paragraphs = (1..5).map { p -> (1..30).joinToString("\n") { "p$p-$it" } }
         val chunks = chunkLines(paragraphs.joinToString("\n\n"))

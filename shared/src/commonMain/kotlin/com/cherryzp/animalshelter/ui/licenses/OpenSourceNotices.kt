@@ -8,7 +8,8 @@ import com.cherryzp.animalshelter.ui.common.uiText
 // 오픈소스 고지 목록(5a O1). 고유 이름·저작권자·라이선스 이름·주소·전문은 번역하지 않는 자료라 코드 상수와
 // `composeResources/files/licenses/`의 파일에 둔다(P12의 예외 — 화면 문구만 문자열 리소스). 버전은 적지 않는다
 // (버전은 `gradle/libs.versions.toml`). 근거: 2026-11-04 조사(`--offline` 의존성 트리 → POM `<licenses>`·
-// `<organization>`·`<developers>`, APK·웹 번들·skiko.wasm 안의 고지·표시 문자열). 저작권자 칸(5a-fixes F2)은 그
+// `<organization>`·`<developers>`, APK·웹 번들·skiko.wasm 안의 고지·표시 문자열), 2026-11-05 Emscripten·musl 원문
+// (5b-prep P1 — Emscripten 4.0.7의 LICENSE·musl COPYRIGHT). 저작권자 칸(5a-fixes F2)은 그
 // 프로젝트가 스스로 적은 저작권 줄의 이름(LICENSE·NOTICE·소스 머리 — 이 맥의 사본으로 확인한 것). 확인하지 못했으면
 // POM의 조직·팀 이름(… Team·… Project·… Contributors·회사 이름), POM `<developers>`의 개인 이름은 저작권 줄로
 // 확인될 때만 — 아니면 비운다(고지 화면에 저작권자 이름은 의무가 아니다).
@@ -187,7 +188,9 @@ internal val OpenSourceNotices: List<NoticeGroup> = listOf(
             ),
             NoticeEntry("expat", "https://libexpat.github.io/", license = "MIT"),
             NoticeEntry("zlib", "https://zlib.net/", license = "Zlib"),
-            NoticeEntry("Brotli", "https://github.com/google/brotli", license = "MIT")
+            NoticeEntry("Brotli", "https://github.com/google/brotli", license = "MIT"),
+            NoticeEntry("Emscripten", "https://emscripten.org/", license = "MIT · NCSA"),
+            NoticeEntry("musl libc", "https://musl.libc.org/", license = "MIT")
         )
     ),
     NoticeGroup(
