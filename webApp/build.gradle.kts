@@ -81,6 +81,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
                 implementation(libs.compose.ui)
+                // 첫 화면 전에 글꼴을 미리 받는다(preloadFont — 웹 전용 API, 4a H2). 카탈로그에 있던 것, 버전 그대로
+                implementation(libs.compose.components.resources)
             }
         }
     }

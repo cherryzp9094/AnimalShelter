@@ -11,6 +11,7 @@ import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.pretendard_regular
 import com.cherryzp.animalshelter.resources.pretendard_semibold
 import org.jetbrains.compose.resources.Font
+import org.jetbrains.compose.resources.FontResource
 
 /** 숫자 폭 고정(D-day·마리 수·날짜·체중·전화, 06 3.3). `TextStyle(fontFeatureSettings = TABULAR_NUMBERS)`. */
 const val TABULAR_NUMBERS = "tnum"
@@ -29,6 +30,15 @@ fun pretendardFontFamily(): FontFamily {
         FontFamily(regular, semiBoldW500, semiBold, semiBoldW700)
     }
 }
+
+/**
+ * 앱이 쓰는 글꼴 파일 둘(Regular W400·SemiBold W600, 순서대로) — 웹이 첫 화면 전에 미리 받는다(4a H2, `preloadFont`).
+ * `Res`는 `internal`이라 값만 내보낸다.
+ */
+val AppFontFiles: List<Pair<FontResource, FontWeight>> = listOf(
+    Res.font.pretendard_regular to FontWeight.W400,
+    Res.font.pretendard_semibold to FontWeight.W600
+)
 
 /**
  * 앱 글꼴 한곳(06 3절). M3 기본 스케일에 글꼴만 바꾸고 `bodyMedium` 줄 간격을 21sp(1.5배)로 둔다.

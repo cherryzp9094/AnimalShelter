@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.ImageLoader
@@ -65,6 +68,12 @@ fun App(hooks: PlatformHooks = PlatformHooks()) {
             Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
         }
         return
+    }
+    // 첫 화면(H2): 테마를 읽은 컴포지션이 적용된 뒤 다음 프레임에서 한 번 알린다 — 그때는 이 화면이 그려져 있다
+    val onFirstFrame by rememberUpdatedState(hooks.onFirstFrame)
+    LaunchedEffect(Unit) {
+        withFrameNanos { }
+        onFirstFrame()
     }
     val dark = mode.isDarkTheme()
     val darkBarRequests = remember { DarkSystemBarRequests() }

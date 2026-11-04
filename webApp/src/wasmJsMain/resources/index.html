@@ -4,18 +4,94 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>애니멀 쉘터</title>
+    <meta name="description" content="보호소에 들어온 유기동물 공고를 사진으로 찾아보는 앱이에요.">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#F6FAFE" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0F1417" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <style>
         html, body { height: 100%; margin: 0; }
+        /* 캔버스 앱이라 문서는 스크롤하지 않는다 — 마우스·터치패드에서 고무줄 되튐을 막는다(H5). 터치는 기본 그대로 */
+        @media (pointer: fine) { html, body { overscroll-behavior: none; } }
         body { background: #f6fafe; color: #171c1f; font-family: system-ui, sans-serif; }
         @media (prefers-color-scheme: dark) { body { background: #0f1417; color: #dee3e7; } }
         #root { position: relative; z-index: 1; width: 100%; height: 100%; }
-        #loading { position: fixed; inset: 0; display: grid; place-items: center; }
+        /* 로딩 화면(브리핑 H1): 브랜드 원색 바탕 + 흰 로고 + 작은 원형 표시. 캔버스보다 위, 첫 화면이 그려지면 앱이 없앤다(H2). */
+        #loading {
+            position: fixed; inset: 0; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+            padding: 24px; box-sizing: border-box;
+            background: #0a81ab; color: #ffffff; text-align: center;
+            transition: opacity 150ms ease-out;
+        }
+        #loading img { width: 160px; height: auto; }
+        #loading .spinner {
+            width: 24px; height: 24px; box-sizing: border-box;
+            border: 3px solid rgba(255, 255, 255, 0.35); border-top-color: #ffffff; border-radius: 50%;
+            animation: spin 900ms linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) {
+            #loading { transition: none; }
+            #loading .spinner { animation: none; }
+        }
+        #loading p { margin: 0; max-width: 32em; font-size: 16px; line-height: 1.5; }
+        #loading .lang-en { font-size: 14px; opacity: 0.9; }
+        #loading.failed .spinner { display: none; }
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
     </style>
 </head>
 <body>
-<!-- 로딩 문구는 Compose가 #root를 채우면 가려진다. 꾸밈은 Phase 4. -->
-<div id="loading">애니멀 쉘터를 불러오는 중…</div>
+<div id="loading">
+    <img src="logo_white.png" alt="애니멀 쉘터" width="160" height="143" fetchpriority="high">
+    <div class="spinner" aria-hidden="true"></div>
+    <div id="loading-status" role="status">
+        <span class="sr-only">애니멀 쉘터를 불러오는 중이에요</span>
+    </div>
+    <noscript>
+        <p>자바스크립트를 켜야 열 수 있어요.</p>
+        <p class="lang-en" lang="en">Please turn on JavaScript to use this app.</p>
+    </noscript>
+</div>
 <div id="root"></div>
+<script>
+    // 첫 화면 알림(H2)이 15초 안에 없거나 시작 전 스크립트 오류가 나면 안내로 바꾼다(H1).
+    (function () {
+        var ready = false;
+        function unsupported() {
+            if (ready) return;
+            var loading = document.getElementById("loading");
+            var status = document.getElementById("loading-status");
+            if (!loading || !status || loading.classList.contains("failed")) return;
+            loading.classList.add("failed");
+            status.innerHTML =
+                "<p>이 브라우저에서는 열 수 없어요. 최신 Chrome·Edge·Firefox, Safari 18.2 이상에서 열어 주세요.</p>" +
+                "<p class=\"lang-en\" lang=\"en\">This browser can’t open the app. " +
+                "Please use the latest Chrome, Edge or Firefox, or Safari 18.2 or later.</p>";
+        }
+        var timer = setTimeout(unsupported, 15000);
+        window.addEventListener("error", unsupported);
+        window.addEventListener("unhandledrejection", unsupported);
+        // 앱(:webApp)이 첫 화면을 그린 뒤 한 번 부른다. 모션 줄이기면 페이드 없이 바로 없앤다.
+        window.animalShelterReady = function (reducedMotion) {
+            if (ready) return;
+            ready = true;
+            clearTimeout(timer);
+            window.removeEventListener("error", unsupported);
+            window.removeEventListener("unhandledrejection", unsupported);
+            var loading = document.getElementById("loading");
+            if (!loading) return;
+            if (reducedMotion) { loading.remove(); return; }
+            loading.style.opacity = "0";
+            setTimeout(function () { loading.remove(); }, 160);
+        };
+    })();
+</script>
 <script src="animalshelter.js"></script>
 </body>
 </html>
