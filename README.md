@@ -92,7 +92,7 @@ npx wrangler dev        # http://127.0.0.1:8788 (에뮬레이터에서는 http:/
 
 Worker 하나가 웹 앱과 중계를 함께 낸다(같은 origin — 번들은 `-PrelayBaseUrl=`로 만든다). 절차는 [`relay/README.md`](relay/README.md)의 배포 절과 [`docs/design/briefs/phase4b-deploy.md`](docs/design/briefs/phase4b-deploy.md).
 
-- 배포 주소: (4b 배포 뒤에 채운다)
+- 배포 주소: **https://animalshelter.mulddae.workers.dev**(Cloudflare Worker `animalshelter`, 2026-11-05 — 확인 기록 [`docs/design/reports/phase4b.md`](docs/design/reports/phase4b.md)). 공유 링크는 `https://animalshelter.mulddae.workers.dev/a/<구조번호>`이고, Android 앱이 있으면 App Links로 앱 상세가 열린다.
 
 ## 설계 문서
 

@@ -14,7 +14,7 @@ Cloudflare Worker 하나가 웹 앱(정적 자산)과 함께 다음을 맡는다
 | `worker.js` | fetch 핸들러: 라우팅·업스트림 호출·캐시·CORS(I/O) |
 | `lib.js` | 순수 함수: 경로·파라미터 검사, 업스트림 주소, 사진 경로, 재조회 창, KST 날짜, 상태 판정, OG 문구, HTML 이스케이프·주입, Origin 판정 |
 | `test/lib.test.js` | `node --test`(네트워크 없음, 입력은 인라인 또는 `../docs/api/samples`) |
-| `wrangler.toml` | 이름 `animalshelter`·`workers_dev = true`(4b — 주소 `https://animalshelter.<계정 하위 도메인>.workers.dev`)·정적 자산·`run_worker_first`·observability 끔·`preview_urls = false`·로컬 포트 8788. `account_id`·`routes`는 없다(이 맥의 wrangler 로그인 계정) |
+| `wrangler.toml` | 이름 `animalshelter`·`workers_dev = true`(4b — 주소 `https://animalshelter.mulddae.workers.dev`)·정적 자산·`run_worker_first`·observability 끔·`preview_urls = false`·로컬 포트 8788. `account_id`·`routes`는 없다(이 맥의 wrangler 로그인 계정) |
 | `assetlinks.json` | App Links 검증 파일(패키지 `com.cherryzp.animalshelter`, 디버그 SHA-256 하나) |
 | `package.json`, `package-lock.json` | `wrangler` 4.156.2 고정(올릴 때는 설계 담당 승인) |
 | `.dev.vars.example` | 로컬 비밀값 자리(값 없음). 실제 `.dev.vars`는 git 제외 |
@@ -57,7 +57,7 @@ npx wrangler dev        # http://127.0.0.1:8788 (에뮬레이터에서는 http:/
 
 ## 캐시
 
-- `caches.default`. 확인용 헤더 `X-Relay-Cache: HIT | MISS | BYPASS`.
+- `caches.default`. 확인용 헤더 `X-Relay-Cache: HIT | MISS | BYPASS`. `workers.dev`에서도 된다(2026-11-05 배포 뒤 `sido_v2` 두 번이 MISS → HIT). 캐시는 **데이터센터마다 따로**다 — 같은 요청도 다른 데이터센터(이 맥은 HKG·NRT·KIX — 응답의 `cf-ray` 끝)에서는 MISS.
 - 코드표 4종(`sido_v2`·`sigungu_v2`·`shelter_v2`·`kind_v2`)·`shelterInfo_v2`: 1일. 키는 중계 자신의 주소(허용 파라미터만 이름순, 키 없음). 저장 조건: 업스트림 200 + 본문 앞 1KB의 `"resultCode":"00"` + `totalCount` > 0(오류·0건을 하루 동안 돌려주지 않게).
 - 목록(`abandonmentPublic_v2`): 캐시하지 않는다(`BYPASS`, 본문을 그대로 흘려보낸다).
 - `/a` 조회 결과: 1시간. 사진: 1일(Cloudflare 캐시).
@@ -75,7 +75,14 @@ Workers 무료: 하루 100,000 요청(정적 자산 요청은 제외), 요청당
 
 ## 배포
 
-`docs/design/briefs/phase4b-deploy.md` 3절 — 메인 세션이 사용자 앞에서 한다(계정 명령·비밀값·실제 주소·App Links 검증). 2026-11-05 사용자 결정: 이 맥의 wrangler 로그인을 쓰고, 인증키는 값을 화면에 내지 않고 `local.properties`에서 파이프로 `npx wrangler secret put SERVICE_KEY`에 넣는다(확인은 `npx wrangler secret list` — 이름만). `relay/.dev.vars`는 로컬 `wrangler dev`만 읽고 배포에는 올라가지 않는다. 주소·되돌리기는 배포 뒤 여기에 적는다.
+**배포됨 — `https://animalshelter.mulddae.workers.dev`**(2026-11-05, Worker `animalshelter`, 버전 `d8180b4a-7277-424d-9486-a85f0d5be661`, 자산 26개, secret `SERVICE_KEY` 하나). 배포 뒤 확인 D1~D11은 `docs/design/reports/phase4b.md`.
+
+- 계정 명령(`whoami`·`secret`·`deploy`·`deployments`·`rollback`·`delete`·`tail`)은 메인 세션·설계 담당이 **사용자 앞에서만** 한다(`docs/design/briefs/phase4b-deploy.md` 3절). 이 맥의 wrangler 로그인을 쓴다(`account_id` 없음).
+- 인증키: 값을 화면에 내지 않고 `local.properties`에서 파이프로 — `sed -n 's/^SERVICE_KEY=//p' ../local.properties | npx wrangler secret put SERVICE_KEY`(stdin이 터미널이 아니면 끝 공백·줄바꿈을 지우고 읽는다). 확인은 `npx wrangler secret list` — 이름만. `relay/.dev.vars`는 로컬 `wrangler dev`만 읽고 배포에는 올라가지 않는다.
+- 다시 배포: 저장소 루트에서 `./gradlew :webApp:wasmJsBrowserDistribution -PrelayBaseUrl=` → `./gradlew --stop`(기본 번들은 `localhost:8788`을 부른다 — 올리기 전 `grep -rlF localhost:8788 ../webApp/build/dist/wasmJs/productionExecutable | wc -l`이 0) → `cd relay && env -u CLAUDECODE npx wrangler deploy`(`env -u CLAUDECODE`: 에이전트 환경이면 wrangler가 `workers.dev` 하위 도메인을 묻지 않고 등록하는 갈래가 있다 — 4b 2절 결과 7). 출력의 버전 ID를 적는다.
+- 되돌리기: `npx wrangler deployments list` → `npx wrangler rollback [버전 ID]`. 지우기(`npx wrangler delete`)는 보낸 공유 링크·App Links가 모두 죽는다.
+- 주소를 바꾸지 않는다: 공유 링크 `/a/…`·App Links(`gradle.properties` `shareHost`)·`assetlinks.json`이 이 호스트에 묶여 있다.
+- 배포에서 본 것(로컬과 다른 점): 정적 HTML의 Content-Type은 `text/html`(charset 없음 — `<meta charset>`가 44바이트째라 괜찮다), Compose 문구 `.cvr`은 Content-Type 없음, 압축은 요청에 따라 zstd·br·gzip, 정적 자산은 `public, max-age=0, must-revalidate` + ETag(재방문 304).
 
 ## 보안 주의
 
