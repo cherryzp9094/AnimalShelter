@@ -163,6 +163,17 @@ class StoreTest {
     }
 
     @Test
+    fun `빈 북마크 파일은 손상이 아니다(웹 첫 방문)`() = runTest {
+        withTestStores { stores ->
+            stores.writeRaw("empty-bm.json", "")
+            val store = stores.bookmarks("empty-bm.json")
+
+            assertEquals(BookmarkData(), store.data.first())
+            assertFalse(store.recoveredFromCorruption.value)
+        }
+    }
+
+    @Test
     fun `깨진 북마크 파일은 빈 목록으로 복구하고 알림 상태를 켠다`() = runTest {
         withTestStores { stores ->
             stores.writeRaw("broken-bm.json", "{\"entries\":")
