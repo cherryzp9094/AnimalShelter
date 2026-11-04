@@ -520,13 +520,16 @@ private fun ComposeUiTest.gridScrollMax(): Float =
     onAllNodes(hasTestTag(TestTags.ANIMAL_GRID)).fetchSemanticsNodes().firstOrNull()
         ?.config?.getOrNull(SemanticsProperties.VerticalScrollAxisRange)?.maxValue?.invoke() ?: 0f
 
-/** 화면 전환 중을 볼 프레임 수(Android Nav3 기본 전환 — 페이드 700ms — 보다 훨씬 짧다). */
-private const val TRANSITION_PROBE_FRAMES = 3
+/**
+ * 화면 전환을 볼 프레임 수(10프레임 = 160ms). Android Nav3 기본 전환(페이드 700ms)보다 훨씬 짧고, 전환이 없을 때
+ * 바깥 화면이 빠지는 데 걸리는 몇 프레임(wasm 3프레임, Android 기기는 3프레임으로 모자랐다)보다 넉넉하다.
+ */
+private const val TRANSITION_PROBE_FRAMES = 10
 
 /**
- * T11(4a 검토 F4): 폰 세로(한 칸 — 상세가 목록을 덮는다)에서 카드를 누른 뒤 시계를 세 프레임만 돌린다.
+ * T11(4a 검토 F4): 폰 세로(한 칸 — 상세가 목록을 덮는다)에서 카드를 누른 뒤 시계를 [TRANSITION_PROBE_FRAMES]만 돌린다.
  * 모션 줄이기면 전환이 없어 목록 카드가 이미 없고 상세(뒤로 버튼)만 있다. 기본이면 전환 중이라 둘 다 있다.
- * 시계는 끝에 자동으로 되돌린다.
+ * 프레임마다 목록 카드가 있었는지를 실패 문구에 싣는다. 시계는 끝에 자동으로 되돌린다.
  *
  * 기본 모션 쪽은 Android에서만 뜻이 있다 — CMP 웹의 Nav3 기본 전환은 `EnterTransition.None`/`ExitTransition.None`
  * (navigation3-ui `NavDisplay.web.kt`)이라 웹은 모션 줄이기와 무관하게 전환이 없다.
@@ -540,16 +543,17 @@ suspend fun ComposeUiTest.screenTransitionFlow(fakes: FlowFakes, reducedMotion: 
     mainClock.autoAdvance = false
     try {
         onNodeWithTag(TestTags.card("B")).performClick()
-        repeat(TRANSITION_PROBE_FRAMES) { mainClock.advanceTimeByFrame() }
-        val listShown = onAllNodes(
-            hasTestTag(TestTags.card("B"))
-        ).fetchSemanticsNodes().isNotEmpty()
+        val listByFrame = (1..TRANSITION_PROBE_FRAMES).map {
+            mainClock.advanceTimeByFrame()
+            onAllNodes(hasTestTag(TestTags.card("B"))).fetchSemanticsNodes().isNotEmpty()
+        }
         val detailShown = onAllNodes(hasContentDescription(back)).fetchSemanticsNodes().isNotEmpty()
-        assertTrue(detailShown, "세 프레임 뒤 상세가 있다")
+        val trace = "프레임별 목록 카드: $listByFrame"
+        assertTrue(detailShown, "$TRANSITION_PROBE_FRAMES 프레임 뒤 상세가 있다")
         if (reducedMotion) {
-            assertTrue(!listShown, "모션 줄이기: 세 프레임 뒤 목록 카드가 없다(전환 없음)")
+            assertTrue(!listByFrame.last(), "모션 줄이기: 목록 카드가 없다(전환 없음) — $trace")
         } else {
-            assertTrue(listShown, "기본 모션: 세 프레임 뒤 목록 카드가 아직 있다(전환 중)")
+            assertTrue(listByFrame.last(), "기본 모션: 목록 카드가 아직 있다(전환 중) — $trace")
         }
     } finally {
         mainClock.autoAdvance = true
