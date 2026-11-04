@@ -19,12 +19,14 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
@@ -33,9 +35,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cherryzp.animalshelter.data.api.ApiError
 import com.cherryzp.animalshelter.data.repository.SearchResults
+import com.cherryzp.animalshelter.fake.loaded
 import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.AnimalKind
+import com.cherryzp.animalshelter.model.Kind
 import com.cherryzp.animalshelter.model.ListLayout
 import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.NoticeState
@@ -73,7 +77,7 @@ import kotlin.time.Instant
 import org.jetbrains.compose.resources.getString
 
 // UI 흐름 본문(브리핑 C6 T1~T3, 3d D6·D7 T4·T5, 3d 점검 A1 T6, 3e E1·E3·E8 T7~T9·E2 T4 두 단, 4a N4·4a 검토 F2 T10, 4a 검토 F4 T11,
-// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
+// 4a-fixes 검토 G1 T12, 5a K1 T13·U1·U2 T14·Y1·Y2 T15·O1 T16, 5a-live-fixes L5 T17). `@Test` 래퍼는 wasmJsTest·androidDeviceTest의 `UiFlowTest`.
 
 /** 사진 없는 테스트 동물(네트워크 금지). */
 private fun flowAnimal(no: String): Animal = testAnimal(desertionNo = no, photos = emptyList())
@@ -962,4 +966,40 @@ suspend fun ComposeUiTest.licensesFlow(fakes: FlowFakes) {
         onAllNodes(hasText(settings)).fetchSemanticsNodes().isNotEmpty() &&
             onAllNodes(hasText("Pretendard")).fetchSemanticsNodes().isEmpty()
     }
+}
+
+/**
+ * T17(5a-live-fixes L5, M13): 품종 칸에 입력해 거른 뒤 메뉴에서 고르면 키보드를 닫는다(가짜 컨트롤러의 `hide()`).
+ * 칸 글은 고른 이름, [검색하기]의 조건은 그 코드다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.breedPickHidesKeyboardFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    fakes.codeTables.kindsState(AnimalKind.DOG).value = loaded(
+        listOf(
+            Kind("000054", "골든 리트리버"),
+            Kind("000056", "그레이트 덴"),
+            Kind("000071", "래브라도 리트리버")
+        )
+    )
+
+    awaitTag(TestTags.OPEN_FILTER).performClick()
+    awaitTag(TestTags.choice("kind", AnimalKind.DOG)).performScrollTo().performClick()
+    awaitCondition("품종 칸이 켜짐") { onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isNotEmpty() }
+    val field = onNode(hasSetTextAction())
+    field.performScrollTo().performClick()
+    field.performTextInput("리트")
+    awaitCondition("메뉴에 골든 리트리버") {
+        onAllNodes(hasText("골든 리트리버") and hasClickAction()).fetchSemanticsNodes().isNotEmpty()
+    }
+    val hidesBefore = fakes.keyboard.hideCount
+    onNode(hasText("골든 리트리버") and hasClickAction()).performClick()
+
+    awaitCondition("키보드 닫기") { fakes.keyboard.hideCount > hidesBefore }
+    awaitCondition("칸 글이 골든 리트리버") {
+        onAllNodes(hasSetTextAction() and hasText("골든 리트리버")).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitTag(TestTags.FILTER_APPLY).performClick()
+    awaitCondition("검색 조건 반영") { fakes.animals.searchCalls.lastOrNull()?.kindCode == "000054" }
+    assertEquals(AnimalKind.DOG, fakes.animals.searchCalls.last().kind)
 }

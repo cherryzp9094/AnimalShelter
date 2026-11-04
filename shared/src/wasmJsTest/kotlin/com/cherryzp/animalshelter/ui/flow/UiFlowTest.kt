@@ -163,6 +163,10 @@ class UiFlowTest {
     @Test
     fun t16LicensesFromSettings() = runFlowTest { licensesFlow(it) }
 
+    /** T17 품종을 메뉴에서 고르면 키보드를 닫는다(5a-live-fixes L5). */
+    @Test
+    fun t17BreedPickHidesKeyboard() = runFlowTest { breedPickHidesKeyboardFlow(it) }
+
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).
 }

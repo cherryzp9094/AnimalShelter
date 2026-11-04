@@ -13,7 +13,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -85,7 +87,25 @@ class FlowWindow(widthDp: Int = PHONE_WIDTH_DP, heightDp: Int = PHONE_HEIGHT_DP)
         internal set
 }
 
-/** 흐름 하나의 가짜 Repository들(네트워크 없음 — 테스트 동물은 사진이 없다)과 창 크기([window]). */
+/**
+ * 가짜 키보드 컨트롤러(5a-live-fixes L5 T17). 하네스가 `LocalSoftwareKeyboardController`로 앱에 주고, `hide()`
+ * 횟수를 센다 — 품종을 메뉴에서 고르면 키보드를 닫는지 본다. `show()`는 아무것도 하지 않는다.
+ */
+class FakeKeyboardController : SoftwareKeyboardController {
+    var hideCount: Int = 0
+        private set
+
+    override fun show() = Unit
+
+    override fun hide() {
+        hideCount++
+    }
+}
+
+/**
+ * 흐름 하나의 가짜 Repository들(네트워크 없음 — 테스트 동물은 사진이 없다)과 창 크기([window]),
+ * 키보드 컨트롤러([keyboard]).
+ */
 class FlowFakes(
     val animals: FakeAnimalRepository = FakeAnimalRepository(),
     val bookmarks: FakeBookmarkRepository = FakeBookmarkRepository(),
@@ -94,6 +114,7 @@ class FlowFakes(
     val shelters: FakeShelterRepository = FakeShelterRepository(),
     val clock: FakeClock = FakeClock(),
     val window: FlowWindow = FlowWindow(),
+    val keyboard: FakeKeyboardController = FakeKeyboardController(),
 )
 
 private fun flowModule(fakes: FlowFakes) = module {
@@ -122,14 +143,17 @@ private class FlowWindowInfo(private val size: () -> IntSize) : WindowInfo {
 }
 
 @Composable
-private fun SizedApp(window: FlowWindow, hooks: PlatformHooks) {
+private fun SizedApp(window: FlowWindow, keyboard: FakeKeyboardController, hooks: PlatformHooks) {
     val density = LocalDensity.current
     val windowInfo = remember(window, density) {
         FlowWindowInfo {
             with(density) { IntSize(window.widthDp.dp.roundToPx(), window.heightDp.dp.roundToPx()) }
         }
     }
-    CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+    CompositionLocalProvider(
+        LocalWindowInfo provides windowInfo,
+        LocalSoftwareKeyboardController provides keyboard
+    ) {
         // 테스트 화면(브라우저 캔버스 1024px 폭, 기기 세로 411dp 폭)보다 커도 지정한 크기로 배치한다(왼쪽 위 기준) —
         // 줄이면 창 크기 클래스(1280)와 실제 칸 폭이 어긋나 두 칸 상세가 1단이 된다(3e). 넘친 부분은 보이지 않을 뿐이라
         // 그쪽 노드는 위치만 재고(`getUnclippedBoundsInRoot`) 누르지 않는다.
@@ -159,7 +183,7 @@ fun runFlowTest(
     fakes.window.heightDp = heightDp
     startKoin { modules(flowModule(fakes), viewModelModule) }
     try {
-        setContent { SizedApp(fakes.window, hooks) }
+        setContent { SizedApp(fakes.window, fakes.keyboard, hooks) }
         block(fakes)
     } finally {
         stopKoin()

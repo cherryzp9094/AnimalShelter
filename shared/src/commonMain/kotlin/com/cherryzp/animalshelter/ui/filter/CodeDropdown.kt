@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.cherryzp.animalshelter.data.repository.CacheState
 import com.cherryzp.animalshelter.resources.Res
@@ -36,6 +37,9 @@ import org.jetbrains.compose.resources.stringResource
  * 첫 항목은 "전체"(null). 코드표 상태 규칙은 셋·품종 모두 같다:
  * 첫 로딩 → 메뉴 안 진행 표시, 데이터 없이 실패 → `filter_codes_error` + 다시 시도,
  * 오래된 캐시 + 실패 → 칸 아래 `filter_codes_stale`(오래된 캐시도 먼저 보인다).
+ * 입력 칸에서 메뉴 항목(전체 포함)을 고르면 키보드를 닫는다 — 남은 키보드가 아래쪽 [검색하기]를 가려 그 자리를
+ * 누르면 키보드가 받았다(5a-live M13). 초점은 그대로 둔다(`clearFocus` 없음 — 웹 키보드 사용자가 자리를 잃지 않게).
+ * 바깥 누르기·뒤로로 메뉴만 닫을 때는 키보드를 건드리지 않는다(계속 입력할 수 있다).
  *
  * @param state null이면 위를 아직 고르지 않았다(비활성)
  * @param selectedName 지금 고른 이름. null = 전체
@@ -62,6 +66,7 @@ fun <T> CodeDropdown(
     val data = state?.data
     val error = state?.error
     val editable = query != null
+    val keyboard = LocalSoftwareKeyboardController.current
     val shown = when {
         data == null || !editable || query.isBlank() || query == selectedName -> data
         else -> data.filter { itemName(it).contains(query.trim(), ignoreCase = true) }
@@ -70,6 +75,12 @@ fun <T> CodeDropdown(
     fun close() {
         expanded = false
         if (editable) onQueryChange(selectedName.orEmpty())
+    }
+
+    fun pick(item: T?) {
+        onSelected(item)
+        expanded = false
+        if (editable) keyboard?.hide()
     }
 
     ExposedDropdownMenuBox(
@@ -166,21 +177,9 @@ fun <T> CodeDropdown(
                 }
 
                 else -> {
-                    DropdownMenuItem(
-                        text = { Text(allLabel) },
-                        onClick = {
-                            onSelected(null)
-                            expanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(allLabel) }, onClick = { pick(null) })
                     shown.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(itemName(item)) },
-                            onClick = {
-                                onSelected(item)
-                                expanded = false
-                            }
-                        )
+                        DropdownMenuItem(text = { Text(itemName(item)) }, onClick = { pick(item) })
                     }
                 }
             }

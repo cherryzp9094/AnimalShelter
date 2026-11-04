@@ -168,4 +168,8 @@ class UiFlowTest {
     /** T16 설정 > 오픈소스 라이선스 → 묶음·Apache 전문 → 뒤로 설정(5a O1). */
     @Test
     fun t16LicensesFromSettings() = runFlowTest { licensesFlow(it) }
+
+    /** T17 품종을 메뉴에서 고르면 키보드를 닫는다(5a-live-fixes L5). */
+    @Test
+    fun t17BreedPickHidesKeyboard() = runFlowTest { breedPickHidesKeyboardFlow(it) }
 }
