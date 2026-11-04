@@ -282,3 +282,49 @@ test("isAllowedOrigin은 목록에 있는 것만", () => {
   assert.equal(lib.isAllowedOrigin("https://evil.example", allowed), false);
   assert.equal(lib.isAllowedOrigin("http://localhost:8080", undefined), false);
 });
+
+test("summarize: photo는 popfile1~8 중 비지 않은 첫 값, 다 비면 null(5a-live M3)", () => {
+  const item = { ...items[0], popfile1: "  ", popfile2: " https://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/11/b.jpg " };
+  delete item.popfile3;
+  const summary = lib.summarize(item);
+  assert.equal(summary.photo, "https://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/11/b.jpg");
+  assert.equal("careOwnerNm" in summary, false);
+  const none = lib.summarize({ desertionNo: "1", popfile1: "", popfile8: " " });
+  assert.equal(none.photo, null);
+});
+
+test("shareMeta: popfile1이 비면 popfile2로 og:image(5a-live M3)", () => {
+  const item = { ...items[0], popfile1: "", popfile2: "https://openapi.animal.go.kr/openapi/service/rest/fileDownloadSrvc/files/shelter/2026/11/b.jpg" };
+  const meta = lib.shareMeta(lib.summarize(item), {
+    origin: "https://relay.example",
+    desertionNo: "450650202602738",
+    todayIso: "2026-11-03",
+  });
+  assert.equal(meta.image, "https://relay.example/img/shelter/2026/11/b.jpg");
+});
+
+test("injectOg: twitter:card는 사진이 있으면 summary_large_image, 없으면 summary(5a-live M12)", () => {
+  const html = "<html><head><meta charset=\"utf-8\"></head><body></body></html>";
+  const base = { title: "t", description: "d", url: "u" };
+  const withPhoto = lib.injectOg(html, { ...base, image: "https://relay.example/img/a.jpg" }, "450650202602738");
+  assert.ok(withPhoto.includes(`<meta name="twitter:card" content="summary_large_image">`));
+  const noPhoto = lib.injectOg(html, { ...base, image: null }, "450650202602738");
+  assert.ok(noPhoto.includes(`<meta name="twitter:card" content="summary">`));
+  assert.ok(!noPhoto.includes("summary_large_image"));
+  const missing = lib.shareMeta({ found: false }, { origin: "o", desertionNo: "1", todayIso: "2026-11-03" });
+  assert.ok(lib.injectOg(html, missing, "1").includes(`<meta name="twitter:card" content="summary">`));
+  const noPhotoSummary = lib.shareMeta(lib.summarize({ ...items[0], popfile1: "", popfile2: "" }), {
+    origin: "o", desertionNo: "450650202602738", todayIso: "2026-11-03",
+  });
+  assert.equal(noPhotoSummary.image, null);
+});
+
+test("weightText 범위형은 앞~뒤, 같으면 하나, 역순·무효는 null(5a-live M2, 앱 L1과 같은 규칙)", () => {
+  assert.equal(lib.weightText("2~2.5(Kg)"), "2~2.5kg");
+  assert.equal(lib.weightText("2 ~ 2.5(Kg)"), "2~2.5kg");
+  assert.equal(lib.weightText("2~2(Kg)"), "2kg");
+  assert.equal(lib.weightText("2.5~2(Kg)"), null);
+  assert.equal(lib.weightText("0~1(Kg)"), null);
+  assert.equal(lib.weightText("300~450(Kg)"), null);
+  assert.equal(lib.weightText("0(Kg)"), null);
+});

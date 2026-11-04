@@ -164,7 +164,10 @@ export function animalStatus(processState, noticeEdt, todayIso) {
   return { type: "unknown", raw: state || null };
 }
 
-/** 응답 item에서 미리보기에 필요한 값만(1시간 캐시하는 요약). 대표자 이름은 넣지 않는다. */
+/**
+ * 응답 item에서 미리보기에 필요한 값만(1시간 캐시하는 요약). 대표자 이름은 넣지 않는다.
+ * `photo`는 `popfile1`~`popfile8` 중 비지 않은 첫 값 — `popfile1`이 비고 `popfile2`만 있는 공고가 있다(5a-live M3).
+ */
 export function summarize(item) {
   const pick = (key) => {
     const value = item?.[key];
@@ -184,7 +187,7 @@ export function summarize(item) {
     colorCd: pick("colorCd"),
     weight: pick("weight"),
     specialMark: pick("specialMark"),
-    popfile1: pick("popfile1"),
+    photo: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => pick(`popfile${n}`)).find(Boolean) ?? null,
   };
 }
 
@@ -224,12 +227,23 @@ export function statusText(summary, todayIso) {
   return status.raw;
 }
 
-/** 체중 원문 "5(Kg)" → "5kg"(읽을 수 없으면 null). */
+/**
+ * 체중 원문 "5(Kg)" → "5kg", 범위형 "2~2.5(Kg)" → "2~2.5kg"(앱 `parseWeight`와 같은 규칙 — 02-data 5.1).
+ * 숫자마다 0 초과 100 이하, 범위는 앞 < 뒤(같으면 하나), 역순·한쪽 무효·읽을 수 없으면 null.
+ */
 export function weightText(weight) {
-  const match = /^([\d.,]+)/.exec(weight ?? "");
+  const match = /^([\d.,]+)\s*(?:~\s*([\d.,]+))?/.exec((weight ?? "").trim());
   if (!match) return null;
-  const value = Number(match[1].replace(/[.,]+/g, ".").replace(/^\.|\.$/g, ""));
-  return Number.isFinite(value) && value > 0 && value <= 100 ? `${value}kg` : null;
+  const number = (text) => {
+    const value = Number(text.replace(/[.,]+/g, ".").replace(/^\.|\.$/g, ""));
+    return Number.isFinite(value) && value > 0 && value <= 100 ? value : null;
+  };
+  const first = number(match[1]);
+  if (first === null) return null;
+  if (match[2] === undefined) return `${first}kg`;
+  const second = number(match[2]);
+  if (second === null || second < first) return null;
+  return second === first ? `${first}kg` : `${first}~${second}kg`;
 }
 
 /** 설명(05-service 5.1): 관할·보호소 · 상태 · 색 · 체중 · 특징 — 최신 정보는 보호소에 확인해 주세요. */
@@ -249,7 +263,7 @@ export function shareMeta(summary, { origin, desertionNo, todayIso }) {
   if (!summary.found) {
     return { title: "공고를 찾을 수 없어요", description: "공고가 지났거나 주소가 잘못됐을 수 있어요.", image: null, url };
   }
-  const photo = summary.popfile1 ?? "";
+  const photo = summary.photo ?? "";
   const filesAt = photo.indexOf("/fileDownloadSrvc/files/");
   const rest = filesAt >= 0 ? photo.slice(filesAt + "/fileDownloadSrvc/files/".length) : null;
   const image = rest && parseImagePath(rest)
@@ -270,7 +284,8 @@ export function escapeHtml(text) {
 
 /**
  * index.html에 미리보기를 넣는다(D14, 4a R2): `<head>`의 `<meta charset>` 바로 뒤(없으면 맨 앞)에 `<base href="/">`와 OG 메타·`<title>`·
- * `<meta name="description">`(동물 설명)·`robots`. index.html에 있던 `<title>`·`description`·`robots`는 뺀다 —
+ * `<meta name="description">`(동물 설명)·`robots`. `twitter:card`는 사진이 있으면 `summary_large_image`, 없으면 `summary`
+ * (5a-live M12 — 큰 이미지 카드에 이미지가 없으면 봇마다 빈 틀이 된다). index.html에 있던 `<title>`·`description`·`robots`는 뺀다 —
  * 같은 이름 메타가 둘이 되지 않게. `<body>` 첫 줄에 해시 라우팅으로 상세를 여는 `replaceState` 스크립트.
  */
 export function injectOg(html, meta, desertionNo) {
@@ -284,7 +299,7 @@ export function injectOg(html, meta, desertionNo) {
     meta.image ? `<meta property="og:image" content="${e(meta.image)}">` : null,
     `<meta property="og:url" content="${e(meta.url)}">`,
     `<meta property="og:site_name" content="${e(SITE_NAME)}">`,
-    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:card" content="${meta.image ? "summary_large_image" : "summary"}">`,
     `<meta name="description" content="${e(meta.description)}">`,
     `<meta name="robots" content="noindex">`,
     `<title>${e(meta.title)}</title>`,
