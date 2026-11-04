@@ -78,13 +78,20 @@ fun Animal.titleParts(): List<UiText> = buildList {
 fun Animal.breedText(): String? = kindName?.trim()?.takeIf { it.isNotEmpty() }
 
 /**
- * 카드 2행(중간 검토 F1): 성별 · 나이 · 체중([weightUiText]). 나이는 60일 미만이면
- * `age_under_two_months_short`("2개월 미만") 하나, 아니면 `age_year`(5a-live M7 — 연도는 올해·지난해라 더 알려
- * 주는 것이 없고, 덧붙이면 2열에서 "미만"과 체중이 잘렸다). 있는 것만. 사진이 보여 주지 못하는 성별·나이를
- * 품종과 다른 줄에 두어 2열에서도 잘리지 않게 한다. 제목([titleParts])은 그대로 연도와 "생후 2개월 미만"을 둘 다 둔다.
+ * 카드 2행(중간 검토 F1): 성별 · 나이 · 체중([weightUiText]). 있는 것만. 사진이 보여 주지 못하는 성별·나이를
+ * 품종과 다른 줄에 두어 2열에서도 잘리지 않게 한다.
+ * - 성별은 수컷·암컷만 — `Sex.UNKNOWN`("성별 미상")은 칸을 쓰지 않는다(5a-fixes3 N14). 제목([titleParts] —
+ *   카드 접근성 문장·사진 뷰어·공유 제목)과 상세 성별 행에는 그대로 "성별 미상"이 있다.
+ * - 나이는 60일 미만이면 `age_under_two_months_short`("60일 미만" — 원본 표기 `60일미만`과 같은 말) 하나, 아니면
+ *   `age_year`(5a-live M7 — 연도는 올해·지난해라 더 알려 주는 것이 없고, 덧붙이면 2열에서 "미만"과 체중이 잘렸다).
+ *   제목은 그대로 연도와 "생후 2개월 미만"을 둘 다 둔다.
+ * - 이유: 360dp 폰 2열 카드의 글 폭은 136dp다. bodySmall 12sp에 자간 0.4sp × 글자 수까지 넣어 재면
+ *   "암컷 · 2개월 미만 · 0.72kg"이 137.1dp로 넘쳤고, 원본 3,000건 중 17%의 2행이 넘쳤다(거의 절반이 성별 미상,
+ *   +26dp). 둘을 바꾸면 0.7%(범위 체중·10kg 이상 소수 둘째 자리)로 줄고 375dp 이상은 0이다
+ *   (`docs/design/reports/phase5a.md` 15.3). 폭을 다시 잴 때는 자간을 넣는다.
  */
 fun Animal.cardFactParts(): List<UiText> = buildList {
-    sex?.let { add(it.toUiText()) }
+    sex?.takeIf { it != Sex.UNKNOWN }?.let { add(it.toUiText()) }
     if (isUnderTwoMonths) {
         add(uiText(Res.string.age_under_two_months_short))
     } else {

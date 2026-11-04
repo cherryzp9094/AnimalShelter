@@ -9,11 +9,13 @@ import com.cherryzp.animalshelter.resources.age_under_two_months_short
 import com.cherryzp.animalshelter.resources.age_year
 import com.cherryzp.animalshelter.resources.sex_female
 import com.cherryzp.animalshelter.resources.sex_male
+import com.cherryzp.animalshelter.resources.sex_unknown
 import com.cherryzp.animalshelter.resources.weight_kg
 import com.cherryzp.animalshelter.resources.weight_kg_range
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.datetime.LocalDate
 
 /** 카드 글자 구성(중간 검토 F1): 1행 품종 / 2행 성별 · 나이 · 체중 / 3행 보호소 / (1열) 4행 색상 · 특징 · 5행 발견 장소. */
@@ -39,7 +41,7 @@ class AnimalCardMappingTest {
     }
 
     @Test
-    fun `2행은 60일 미만이면 나이 대신 2개월 미만 하나, 없는 부분은 뺀다(L2)`() {
+    fun `2행은 60일 미만이면 나이 대신 60일 미만 하나, 없는 부분은 뺀다(L2)`() {
         val baby = card(
             testAnimal(sex = Sex.FEMALE, birthYear = 2026, isUnderTwoMonths = true)
                 .copy(weightKg = 0.72)
@@ -56,6 +58,28 @@ class AnimalCardMappingTest {
             card(testAnimal(kindName = null, sex = null, birthYear = null).copy(weightKg = null))
         assertNull(bare.breed)
         assertEquals(emptyList(), bare.facts)
+    }
+
+    @Test
+    fun `2행은 성별 미상을 빼고 아는 성별만(N14)`() {
+        val baby = card(
+            testAnimal(sex = Sex.UNKNOWN, birthYear = 2026, isUnderTwoMonths = true)
+                .copy(weightKg = 0.72)
+        )
+        assertEquals(
+            listOf(
+                uiText(Res.string.age_under_two_months_short),
+                uiText(Res.string.weight_kg, "0.72")
+            ),
+            baby.facts
+        )
+        // 접근성 문장·제목(titleParts)은 그대로 "성별 미상"을 둔다.
+        assertTrue(uiText(Res.string.sex_unknown) in baby.titleParts)
+        val adult = card(testAnimal(sex = Sex.UNKNOWN, birthYear = 2024))
+        assertEquals(
+            listOf(uiText(Res.string.age_year, 2024), uiText(Res.string.weight_kg, "5")),
+            adult.facts
+        )
     }
 
     @Test
