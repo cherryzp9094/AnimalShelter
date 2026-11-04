@@ -18,6 +18,12 @@ val serviceKey: String =
 // 에뮬레이터에서 호스트의 중계 서버(wrangler dev)에 닿는 주소가 기본값이다.
 val relayBaseUrl: String = localProperties.getProperty("RELAY_BASE_URL") ?: "http://10.0.2.2:8788"
 
+// 공유 링크 호스트(gradle.properties의 shareHost, -PshareHost=…). 비면 App Links 호스트는 자리값
+// animalshelter.invalid(RFC 2606 — 검증이 늘 실패해 다른 링크를 가로채지 않는다)이고 공유 주소는 빈 값(공유 숨김).
+val shareHostProperty: String = providers.gradleProperty("shareHost").orNull.orEmpty().trim()
+val appLinkHost: String = shareHostProperty.ifEmpty { "animalshelter.invalid" }
+val shareBaseUrl: String = if (shareHostProperty.isEmpty()) "" else "https://$shareHostProperty"
+
 // 릴리스 서명. 로컬 전용 signing/keystore.properties(git 제외)가 있을 때만 붙는다. 없으면 서명 없는 release.
 val releaseSigning: Properties? = rootDir.resolve("signing/keystore.properties")
     .takeIf { it.isFile }
@@ -36,6 +42,9 @@ android {
 
         buildConfigField("String", "SERVICE_KEY", "\"$serviceKey\"")
         buildConfigField("String", "RELAY_BASE_URL", "\"$relayBaseUrl\"")
+        buildConfigField("String", "SHARE_HOST", "\"$appLinkHost\"")
+        buildConfigField("String", "SHARE_BASE_URL", "\"$shareBaseUrl\"")
+        manifestPlaceholders["shareHost"] = appLinkHost
     }
 
     buildFeatures {

@@ -21,6 +21,17 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- 공유 링크 https://<shareHost>/a/<구조번호> → 상세(4a L2). 호스트는 Gradle 속성 shareHost,
+                 비면 자리값 animalshelter.invalid. 링크마다 부른 앱의 작업 위에 열린다(launchMode 기본). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="${shareHost}"
+                    android:pathPrefix="/a/"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
     </application>
 
