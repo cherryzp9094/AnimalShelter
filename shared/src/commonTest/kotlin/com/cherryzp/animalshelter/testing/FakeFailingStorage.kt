@@ -22,9 +22,13 @@ import okio.IOException
 internal class FakeFailingStorage<T>(
     private val delegate: Storage<T>,
     private val failReads: Boolean = false,
-    private val failWrites: Boolean = true,
+    failWrites: Boolean = true,
     private val readError: () -> Exception = { IOException("가짜 저장소: 읽기 실패") },
 ) : Storage<T> {
+    /** 쓰기를 실패시킬지. 테스트가 도중에 끌 수 있다 — 실패 뒤 성공하는 쓰기(5b-prep P3). */
+    @Volatile
+    var failWrites: Boolean = failWrites
+
     /** 실패한 쓰기 시도 수(쓰기를 시도했는지 테스트가 본다). */
     @Volatile
     var failedWrites: Int = 0

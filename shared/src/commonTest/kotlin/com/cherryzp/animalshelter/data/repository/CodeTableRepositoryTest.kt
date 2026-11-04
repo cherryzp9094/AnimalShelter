@@ -328,4 +328,28 @@ class CodeTableRepositoryTest {
             assertEquals(10, repo.getSigunguStream("6110000").first().data?.size)
         }
     }
+
+    @Test
+    fun `쓰기가 실패한 뒤 되면 사본에만 있던 표도 파일에 남는다`() = runTest {
+        val writer = TestStores()
+        withTestStores(writer) { stores ->
+            val (store, storage) = failingStore(stores)
+            val (repo, _) = repository(store) { request ->
+                when {
+                    request.url.encodedPath.endsWith("sido_v2") -> respond(ApiFixtures.sidoV2)
+                    else -> respond(ApiFixtures.sigunguV2Seoul)
+                }
+            }
+            repo.getSidoStream().settledWithin() // 쓰기 실패 — 시도 표는 사본에만 있다
+            assertTrue(storage.failedWrites > 0)
+
+            storage.failWrites = false
+            repo.getSigunguStream("6110000").settledWithin() // 쓰기 성공 — 사본 기준이라 시도 표도 함께
+        }
+
+        // 쓴 DataStore를 닫은 뒤 가짜 없는 새 저장소로 같은 파일을 읽는다
+        val saved = withTestStores(TestStores(writer.suffix)) { it.codeTables().data.first() }
+        assertEquals(16, saved.sido?.items?.size)
+        assertEquals(10, saved.sigungu["6110000"]?.items?.size)
+    }
 }

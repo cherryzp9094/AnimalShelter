@@ -25,8 +25,9 @@ import androidx.compose.runtime.snapshots.Snapshot
 // `canScrollForward/Backward`·첫 보이는 항목이 굳고(`LazyGridState.kt:657`), 사용자 스크롤 대신
 // `scrollDeltaBetweenPasses`로 측정한다(`LazyGrid.kt:384-389`) — 웹에서 두 칸 → 한 칸으로 창을 줄이면 스크롤·다음 쪽·
 // 사진 넘기기·상단 바 복귀가 멈췄다. Android도 크기만 바뀌면(방향·밀도·테마 그대로 — 멀티 윈도 경계 끌기·데스크톱 창
-// 조절, release APK는 자원 크기 한정자가 없어 더 넓게) Activity를 다시 만들지 않아 같은 경로이고, 이 도우미가 함께 막는다
-// (4a-fixes2 검토 12.3 ①).
+// 조절) Activity를 다시 만들지 않아 같은 경로이고, 이 도우미가 함께 막는다(4a-fixes2 검토 12.3 ①). release APK도
+// 넓힐 때는 그 자리에서 바뀌지만, 화면 크기 등급이 작아지면(짧은 변 약 720·480dp 아래로) Activity를 다시 만든다 —
+// 그때 위치는 저장·복원이 지킨다(`03-screens.md` 0.4, `reports/phase5a.md` 3절 3).
 //
 // 그래서 "두 칸 장면 안"(`LocalListDetailSceneScope.current != null`)이 바뀌면 상태를 같은 위치로 새로 만든다.
 // 저장·복원은 그 경계와 무관한 `rememberSaveable` 하나가 맡고, 저장할 때 그 순간의 상태에서 위치를 읽는다 —

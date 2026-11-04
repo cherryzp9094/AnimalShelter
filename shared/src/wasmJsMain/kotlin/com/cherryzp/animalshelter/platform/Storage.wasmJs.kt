@@ -94,7 +94,12 @@ private class JsSafeStorage<T>(
     }
 }
 
-/** 직렬화기가 읽기에서 던진 `CorruptionException`을 기억한다(저장소마다 하나 — DataStore가 읽기를 차례로 한다). */
+/**
+ * 직렬화기가 읽기에서 던진 `CorruptionException`을 기억한다(저장소마다 하나). 읽기·쓰기의 차례는 `MirroredDataStore`의
+ * 잠금이 만든다. 읽기가 겹쳐도 섞이지 않는다 — wasm은 한 스레드이고, 직렬화기가 던진 뒤 `RestoringReadScope`의
+ * catch에 닿기까지 멈춤(`await`)이 없는 동기 구간이라 그 사이에 다른 읽기가 끼지 못한다(`reports/phase5a.md` 15.2 ①,
+ * `02-data.md` 8절).
+ */
 private class CapturingSerializer<T>(private val real: OkioSerializer<T>) : OkioSerializer<T> {
     var lastReadFailure: CorruptionException? = null
 
