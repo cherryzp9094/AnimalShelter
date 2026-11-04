@@ -8,8 +8,10 @@ import com.cherryzp.animalshelter.ui.common.uiText
 // 오픈소스 고지 목록(5a O1). 고유 이름·저작권자·라이선스 이름·주소·전문은 번역하지 않는 자료라 코드 상수와
 // `composeResources/files/licenses/`의 파일에 둔다(P12의 예외 — 화면 문구만 문자열 리소스). 버전은 적지 않는다
 // (버전은 `gradle/libs.versions.toml`). 근거: 2026-11-04 조사(`--offline` 의존성 트리 → POM `<licenses>`·
-// `<organization>`·`<developers>`, APK·웹 번들·skiko.wasm 안의 고지·표시 문자열). 저작권자는 POM의 organization이
-// 있으면 그것, 없으면 developers — POM에 없으면 비운다.
+// `<organization>`·`<developers>`, APK·웹 번들·skiko.wasm 안의 고지·표시 문자열). 저작권자 칸(5a-fixes F2)은 그
+// 프로젝트가 스스로 적은 저작권 줄의 이름(LICENSE·NOTICE·소스 머리 — 이 맥의 사본으로 확인한 것). 확인하지 못했으면
+// POM의 조직·팀 이름(… Team·… Project·… Contributors·회사 이름), POM `<developers>`의 개인 이름은 저작권 줄로
+// 확인될 때만 — 아니면 비운다(고지 화면에 저작권자 이름은 의무가 아니다).
 
 /** 그 구성 요소가 든 앱. */
 internal enum class NoticePlatform { BOTH, ANDROID, WEB }
@@ -86,23 +88,17 @@ internal val OpenSourceNotices: List<NoticeGroup> = listOf(
                 platform = NoticePlatform.ANDROID
             ),
             NoticeEntry("Okio", "https://github.com/square/okio", holder = SQUARE),
-            NoticeEntry("Koin", "https://insert-koin.io/", holder = "Arnaud Giuliani"),
+            NoticeEntry("Koin", "https://insert-koin.io/"),
             NoticeEntry("Coil", "https://github.com/coil-kt/coil", holder = "Coil Contributors"),
-            NoticeEntry(
-                "Stately",
-                "https://github.com/touchlab/Stately",
-                holder = "Kevin Galligan"
-            ),
+            NoticeEntry("Stately", "https://github.com/touchlab/Stately"),
             NoticeEntry(
                 "kaml",
                 "https://github.com/charleskorn/kaml",
-                holder = "Charles Korn",
                 platform = NoticePlatform.ANDROID
             ),
             NoticeEntry(
                 "snakeyaml-engine-kmp",
                 "https://github.com/krzema12/snakeyaml-engine-kmp",
-                holder = "Piotr Krzemiński",
                 platform = NoticePlatform.ANDROID
             ),
             NoticeEntry(
@@ -114,19 +110,24 @@ internal val OpenSourceNotices: List<NoticeGroup> = listOf(
             NoticeEntry(
                 "Guava ListenableFuture",
                 "https://github.com/google/guava",
-                holder = "Kevin Bourrillion",
+                holder = "The Guava Authors",
                 platform = NoticePlatform.ANDROID
             ),
             NoticeEntry(
                 "JSpecify",
                 "https://jspecify.dev/",
-                holder = "Kevin Bourrillion",
+                holder = "The JSpecify Authors",
                 platform = NoticePlatform.ANDROID
             ),
             NoticeEntry(
                 "urlencoder",
                 "https://github.com/ethauvin/urlencoder",
-                holder = "Erik C. Thauvin · Geert Bevin · Adam",
+                platform = NoticePlatform.ANDROID
+            ),
+            NoticeEntry(
+                "JetBrains Java Annotations",
+                "https://github.com/JetBrains/java-annotations",
+                holder = "JetBrains s.r.o.",
                 platform = NoticePlatform.ANDROID
             ),
             NoticeEntry(
@@ -218,7 +219,7 @@ internal val OpenSourceNotices: List<NoticeGroup> = listOf(
             NoticeEntry(
                 "Protocol Buffers (DataStore)",
                 "https://github.com/protocolbuffers/protobuf",
-                holder = AOSP,
+                holder = "Google Inc.",
                 platform = NoticePlatform.ANDROID
             )
         )
