@@ -60,7 +60,7 @@ npx wrangler dev --var IMAGE_ENGINE:fetch   # 사진 변환 엔진을 바꿔 띄
 - **HEAD**(4a): `/api`·`/a`의 HEAD는 업스트림을 부르지 않는다(캐시도 보지 않는다). 경로·파라미터 검사는 GET과 같아 잘못되면 같은 404/400, 맞으면 200 + GET의 헤더만(`/api`: `application/json; charset=utf-8`·`no-store`·`X-Relay-Cache: BYPASS`, `/a`: `text/html; charset=utf-8`·`public, max-age=3600`), 본문 없음. `/img`의 HEAD는 GET처럼 사진 서버를 부른다(한도 밖, 미리보기 봇이 형식을 본다) — `?size=`가 있어도 변환하지 않는다(`X-Relay-Image: original; reason=head`, 5c). 정적 자산의 HEAD는 Static Assets가 처리한다.
 - CORS(`/api`·`/img`만, 판정은 `lib.corsDecision`): Origin 없는 요청(curl·Android·같은 origin GET)은 CORS 헤더 없이 허용. Worker 자신의 origin이면 허용. `ALLOWED_ORIGINS`(로컬 개발 8080)는 **Worker가 루프백(`127.0.0.1`·`localhost`·`[::1]`)에서 돌 때만** 쓴다 — 배포에서는 그 목록이 남아 있어도 `localhost`가 열리지 않는다. 허용이면 `Access-Control-Allow-Origin`·`Vary: Origin`·`Access-Control-Expose-Headers: X-Relay-Cache, X-Relay-Image, X-Relay-Upstream-Cache`, 사전 요청은 204. 그 밖 Origin은 403.
 - 업스트림 실패·타임아웃: 502 `{"relayError":"upstream"}`.
-- `/img` 진단 헤더(5c): `X-Relay-Cache`(`HIT` 저장된 변형 · `MISS` 토큰 있음 · `BYPASS` 토큰 없음·HEAD), `X-Relay-Image`(`sq480; engine=binding`·`fit1080; engine=fetch`·`original`·`original; reason=…`), `X-Relay-Upstream-Cache`(원본 응답의 `cf-cache-status`, 없거나 HIT 변형이면 `-`). CORS `Access-Control-Expose-Headers`에 셋 다(`lib.EXPOSE_HEADERS`). 오류 메시지·URL은 헤더·로그에 쓰지 않는다(코드 숫자만).
+- `/img` 진단 헤더(5c): `X-Relay-Cache`(`HIT` 저장된 변형 · `MISS` 토큰 있음 · `BYPASS` 토큰 없음·HEAD), `X-Relay-Image`(`sq480; engine=binding`·`fit1080; engine=fetch`·`original`·`original; reason=…`), `X-Relay-Upstream-Cache`(원본 응답의 `cf-cache-status`, 없거나 HIT 변형이면 `-` — 로컬 `wrangler dev`는 하위 요청에 캐시 층이 없어 늘 `-`, 배포에서 `HIT`·`MISS`). CORS `Access-Control-Expose-Headers`에 셋 다(`lib.EXPOSE_HEADERS`). 오류 메시지·URL은 헤더·로그에 쓰지 않는다(코드 숫자만).
 - 공유 미리보기 `og:image`는 원본 `/img/<경로>` 그대로다(봇의 WebP 지원이 제각각, 공유마다 변환 수를 쓰지 않는다).
 
 ## 캐시
@@ -93,13 +93,14 @@ Cloudflare Images(5c): 무료 **5,000 고유 변환/달**(원본 사진 × 변�
 | 2026-11-05 첫 배포 | `d8180b4a-7277-424d-9486-a85f0d5be661` | 4b — 주소·secret·자산 26개 | 코드 `ef933cf` |
 | 2026-11-05 다시 배포 | `82f8b88c-f7b5-417f-99e1-4af467083d9a` | 4b-fixes B1(넓은 창에서도 Esc·시스템 뒤로 = 맨 위 칸 닫기), 메인 세션이 사용자 승인 범위 안에서 같은 명령으로. Worker 코드·secret 그대로 | 코드 `627126b` — `8369ce85609f0388a2ee.wasm` · `658820f72b4617efb380.wasm`(그대로), 자산 26개 |
 | 2026-11-05 다시 배포 | `040481c4-a8d6-4436-b13e-7c61765a812d` | 5b-prep 웹 고지(Emscripten·musl 원문, Kotlin·kotlinx 저작권자), 메인 세션이 같은 명령으로. Worker 코드·secret 그대로. 확인은 `docs/design/reports/phase5.md` 1.4 | 코드 `4a67af4` — `0418fc47762f9a61ad57.wasm` · `658820f72b4617efb380.wasm`(그대로), 자산 26개 |
+| 2026-11-07 다시 배포 | `0ce16eec-fb71-41e5-b375-e8eeb369c4d8` | 5c 웹 사진(`/img?size=` 변환 — 갈래 A+B `binding`, 바인딩이 `workers.dev`에서 된다), 메인 세션이 같은 명령으로. Worker 코드 바뀜(`image.js`·`[images]`·`IMAGE_ENGINE`), secret 그대로. 확인 D1~D8·측정 M2는 `docs/design/reports/phase5.md` 3절 | 코드 `1572c11` — `567493a9f4b5a91bd68d.wasm` · `658820f72b4617efb380.wasm`(그대로), 자산 26개 |
 
-- 다시 배포한 뒤 확인(계정 명령 없이): `curl -sI https://animalshelter.mulddae.workers.dev/`가 200, 배포된 `animalshelter.js`가 가리키는 wasm 이름 = 로컬 dist, 바뀐 화면은 Playwright(`/api`는 표본 — 실호출 0). B1은 `docs/design/reports/phase4b.md` 10.2.
+- 다시 배포한 뒤 확인(계정 명령 없이): `curl -sI https://animalshelter.mulddae.workers.dev/`가 200, 배포된 `animalshelter.js`가 가리키는 wasm 이름 = 로컬 dist, 바뀐 화면은 Playwright(`/api`는 표본 — 실호출 0). B1은 `docs/design/reports/phase4b.md` 10.2. 사진 변환(5c)은 `curl -sS -o /dev/null -D - "<주소>/img/shelter/2026/10/202611041511187.jpg?size=sq480"`가 200 `image/webp`·`x-relay-image: sq480; engine=binding`(D1), 같은 경로를 토큰 없이 부르면 `image/jpeg`·`BYPASS`·`original`(D5 — `og:image`가 쓰는 원본). 사진 요청이고 API는 0이다.
 
 - 계정 명령(`whoami`·`secret`·`deploy`·`deployments`·`rollback`·`delete`·`tail`)은 메인 세션·설계 담당이 **사용자 앞에서만** 한다(`docs/design/briefs/phase4b-deploy.md` 3절). 이 맥의 wrangler 로그인을 쓴다(`account_id` 없음).
 - 인증키: 값을 화면에 내지 않고 `local.properties`에서 파이프로 — `sed -n 's/^SERVICE_KEY=//p' ../local.properties | npx wrangler secret put SERVICE_KEY`(stdin이 터미널이 아니면 끝 공백·줄바꿈을 지우고 읽는다). 확인은 `npx wrangler secret list` — 이름만. `relay/.dev.vars`는 로컬 `wrangler dev`만 읽고 배포에는 올라가지 않는다.
 - 다시 배포: 저장소 루트에서 `./gradlew :webApp:wasmJsBrowserDistribution -PrelayBaseUrl=` → `./gradlew --stop`(기본 번들은 `localhost:8788`을 부른다 — 올리기 전 `grep -rlF localhost:8788 ../webApp/build/dist/wasmJs/productionExecutable | wc -l`이 0) → `cd relay && env -u CLAUDECODE npx wrangler deploy`(`env -u CLAUDECODE`: 에이전트 환경이면 wrangler가 `workers.dev` 하위 도메인을 묻지 않고 등록하는 갈래가 있다 — 4b 2절 결과 7). 출력의 버전 ID를 적는다.
-- 사진 변환 갈래(5c — 브리핑 6절): 배포 출력의 바인딩 표에 `env.IMAGES`(Images)·`env.IMAGE_ENGINE`("binding")이 있어야 한다.
+- 사진 변환 갈래(5c — 브리핑 6절): 배포 출력의 바인딩 표에 `env.IMAGES`(Images)·`env.IMAGE_ENGINE`("binding")이 있어야 한다. 2026-11-07 배포는 갈래 A+B(`binding`)였다 — B·C는 쓰지 않았다.
   - 갈래 B — 바인딩이 `workers.dev`에서 안 되면(`reason=no-binding`이거나 `sq480`·`fit1080`이 같은 `error-<n>`, 또는 배포가 `[images]` 때문에 실패): `wrangler.toml`의 `IMAGE_ENGINE = "fetch"`(배포가 실패했으면 `[images]` 두 줄도 주석) → 다시 배포. 기대는 `engine=fetch`.
   - 갈래 C — `fetch`도 `not-resized`·`error`면 `IMAGE_ENGINE = "off"` → 다시 배포. 카드·상세는 `_s` 자리표시 뒤에 원본이다.
 - 되돌리기: `npx wrangler deployments list` → `npx wrangler rollback [버전 ID]`. 지우기(`npx wrangler delete`)는 보낸 공유 링크·App Links가 모두 죽는다.
