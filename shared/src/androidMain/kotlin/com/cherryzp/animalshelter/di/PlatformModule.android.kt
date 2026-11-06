@@ -4,6 +4,7 @@ import coil3.disk.DiskCache
 import com.cherryzp.animalshelter.platform.DATASTORE_DIR
 import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
 import com.cherryzp.animalshelter.ui.common.ImageUrlResolver
+import com.cherryzp.animalshelter.ui.common.PhotoVariants
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import java.util.concurrent.TimeUnit
@@ -26,6 +27,8 @@ actual fun platformModule(): Module = module {
     }
     // Android의 사진 주소는 늘 절대 주소다(Direct·Fixture 원본, Relay는 http://10.0.2.2:8788 같은 base).
     single { ImageUrlResolver { it } }
+    // 사진 주소 변형 없음(5c — Android는 원본 그대로, 자리표시 없음)
+    single<PhotoVariants> { PhotoVariants.Original }
 }
 
 private const val IMAGE_DISK_CACHE_BYTES = 200L * 1024 * 1024

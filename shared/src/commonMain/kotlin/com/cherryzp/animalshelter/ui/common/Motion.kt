@@ -14,6 +14,9 @@ import coil3.request.crossfade
  */
 val LocalReducedMotion = compositionLocalOf { false }
 
+/** 사진 crossfade(06 5절). 로더 기본값(`App`)과 두 겹 사진의 아래 겹 빼기(`AnimalImage`, 5c)가 같이 쓴다. */
+internal const val PHOTO_CROSSFADE_MILLIS = 150
+
 /**
  * 사진 요청 모델(사진 세 곳 공용). 모션 줄이기면 crossfade를 끈 요청, 아니면 주소 그대로(로더 기본 crossfade 150ms).
  * 데이터는 같은 주소라 메모리 캐시·주소 매퍼는 그대로 쓴다.

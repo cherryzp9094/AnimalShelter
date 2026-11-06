@@ -3,6 +3,7 @@ package com.cherryzp.animalshelter.data.repository
 import com.cherryzp.animalshelter.data.api.ApiEndpoint
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /** 사진 URL 정책(02-data 5.3). */
 class ImageUrlPolicyTest {
@@ -53,5 +54,51 @@ class ImageUrlPolicyTest {
             "https://example.com/a.jpg",
             ImageUrlPolicy.displayUrl("https://example.com/a.jpg", ApiEndpoint.Relay("x"))
         )
+    }
+
+    @Test
+    fun `thumbnailOf - 원본 jpg·jpeg·png·대문자 확장자는 이름_s jpg로(5c)`() {
+        val base = https.removeSuffix("20261103141175.jpg")
+        assertEquals(
+            "${base}202611041511187_s.jpg",
+            ImageUrlPolicy.thumbnailOf("${base}202611041511187.jpg")
+        )
+        assertEquals(
+            "${base}202611042111228_s.jpg",
+            ImageUrlPolicy.thumbnailOf("${base}202611042111228.jpeg")
+        )
+        assertEquals("${base}x_s.jpg", ImageUrlPolicy.thumbnailOf("${base}x.png"))
+        assertEquals("${base}x_s.jpg", ImageUrlPolicy.thumbnailOf("${base}x.JPG"))
+        assertEquals(
+            "http://openapi.animal.go.kr/a/x_s.jpg",
+            ImageUrlPolicy.thumbnailOf("http://openapi.animal.go.kr/a/x.jpg")
+        )
+    }
+
+    @Test
+    fun `thumbnailOf - 대괄호 원문·인코딩, 중계 상대·절대 주소`() {
+        val base = https.removeSuffix("20261103141175.jpg")
+        assertEquals(
+            "${base}202611041011648[1]_s.jpg",
+            ImageUrlPolicy.thumbnailOf("${base}202611041011648[1].jpg")
+        )
+        assertEquals(
+            "/img/shelter/2026/10/202611041011648%5B1%5D_s.jpg",
+            ImageUrlPolicy.thumbnailOf("/img/shelter/2026/10/202611041011648%5B1%5D.jpg")
+        )
+        assertEquals(
+            "http://localhost:8788/img/shelter/2026/10/x_s.jpg",
+            ImageUrlPolicy.thumbnailOf("http://localhost:8788/img/shelter/2026/10/x.jpeg")
+        )
+    }
+
+    @Test
+    fun `thumbnailOf - 이미 _s·쿼리·확장자 없음은 null`() {
+        assertNull(ImageUrlPolicy.thumbnailOf("/img/shelter/2026/10/x_s.jpg"))
+        assertNull(ImageUrlPolicy.thumbnailOf("/img/shelter/2026/10/x.jpg?size=sq480"))
+        assertNull(ImageUrlPolicy.thumbnailOf("https://example.com/x.jpg#a"))
+        assertNull(ImageUrlPolicy.thumbnailOf("photo-1"))
+        assertNull(ImageUrlPolicy.thumbnailOf("https://example.com/x.gif"))
+        assertNull(ImageUrlPolicy.thumbnailOf("https://example.com/.jpg"))
     }
 }

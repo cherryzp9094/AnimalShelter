@@ -2,6 +2,8 @@ package com.cherryzp.animalshelter.di
 
 import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
 import com.cherryzp.animalshelter.ui.common.ImageUrlResolver
+import com.cherryzp.animalshelter.ui.common.PhotoVariants
+import com.cherryzp.animalshelter.ui.common.RelayPhotoVariants
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.js.Js
 import org.koin.core.module.Module
@@ -14,6 +16,8 @@ actual fun platformModule(): Module = module {
     single { ImageDiskCacheProvider { null } }
     // 같은 origin 중계면 사진 주소가 `/img/…` — 지금 페이지의 origin을 붙인다
     single { ImageUrlResolver { url -> if (url.startsWith("/")) pageOrigin() + url else url } }
+    // 사진(5c): 중계 `/img?size=` 변환 + 작은 사진 `_s` 자리표시
+    single<PhotoVariants> { RelayPhotoVariants }
 }
 
 @JsFun("() => window.location.origin")

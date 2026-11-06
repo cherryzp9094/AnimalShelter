@@ -49,6 +49,7 @@ import com.cherryzp.animalshelter.platform.PlatformInfo
 import com.cherryzp.animalshelter.testing.FakeClock
 import com.cherryzp.animalshelter.ui.common.ImageDiskCacheProvider
 import com.cherryzp.animalshelter.ui.common.ImageUrlResolver
+import com.cherryzp.animalshelter.ui.common.PhotoVariants
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
@@ -135,6 +136,7 @@ private fun flowModule(fakes: FlowFakes) = module {
     single<ShelterRepository> { fakes.shelters }
     single { ImageDiskCacheProvider { null } }
     single { ImageUrlResolver { it } }
+    single<PhotoVariants> { PhotoVariants.Original }
 }
 
 /**

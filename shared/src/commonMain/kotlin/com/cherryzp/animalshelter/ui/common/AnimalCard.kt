@@ -119,6 +119,7 @@ fun AnimalCard(
             val photoHeight = if (large) min(maxWidth, LargePhotoMaxHeight) else maxWidth
             AnimalImage(
                 url = ui.photoUrl,
+                frame = PhotoFrame.CARD,
                 modifier = Modifier.fillMaxWidth().height(photoHeight).clearAndSetSemantics {}
             )
             StatusBadge(

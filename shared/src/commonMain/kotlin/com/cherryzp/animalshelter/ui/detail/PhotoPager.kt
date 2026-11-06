@@ -40,6 +40,7 @@ import com.cherryzp.animalshelter.resources.photo_a11y
 import com.cherryzp.animalshelter.resources.title_photos
 import com.cherryzp.animalshelter.ui.common.AnimalImage
 import com.cherryzp.animalshelter.ui.common.LocalReducedMotion
+import com.cherryzp.animalshelter.ui.common.PhotoFrame
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -66,6 +67,7 @@ fun PhotoPager(
             if (urls.isEmpty()) {
                 AnimalImage(
                     url = null,
+                    frame = PhotoFrame.DETAIL,
                     contentScale = ContentScale.Fit,
                     background = background,
                     modifier = Modifier.size(side).clearAndSetSemantics {}
@@ -81,6 +83,7 @@ fun PhotoPager(
                 val description = stringResource(Res.string.photo_a11y, page + 1, urls.size, title)
                 AnimalImage(
                     url = urls[page],
+                    frame = PhotoFrame.DETAIL,
                     contentScale = ContentScale.Fit,
                     background = background,
                     modifier = Modifier

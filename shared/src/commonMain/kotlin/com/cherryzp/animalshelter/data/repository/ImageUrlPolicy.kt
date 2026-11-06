@@ -40,4 +40,22 @@ object ImageUrlPolicy {
         val rest = normalized.removePrefix(FILES_PREFIX).replace("[", "%5B").replace("]", "%5D")
         return "${endpoint.baseUrl.trimEnd('/')}/img/$rest"
     }
+
+    /** 작은 사진으로 바꿀 수 있는 주소: 마지막 조각이 `<이름>.<jpg|jpeg|png>`(대소문자 무시). */
+    private val THUMBNAIL_SOURCE =
+        Regex("""^(.*/)?([^/]+)\.(jpe?g|png)$""", RegexOption.IGNORE_CASE)
+
+    /**
+     * 사진 서버의 작은 사진(가로 120px, 평균 4.5KB) 주소(5c). `…/<이름>.<jpg|jpeg|png>` → `…/<이름>_s.jpg` —
+     * 원본 확장자와 무관하게 늘 `.jpg`다(같은 확장자 `_s.jpeg`·`_s.png`는 404). 사진 서버의 **비공식** 규칙이다 —
+     * survey 7절, 2026-11-06 실측 14/14·첫 화면 30/30이 200. 원본 주소와 중계 주소(`/img/…%5B1%5D.jpg`) 둘 다 받는다.
+     * 이름이 이미 `_s`로 끝나거나, 쿼리·조각(`?`·`#`)이 있거나, 형식이 맞지 않으면 null.
+     */
+    fun thumbnailOf(url: String): String? {
+        if ('?' in url || '#' in url) return null
+        val match = THUMBNAIL_SOURCE.matchEntire(url) ?: return null
+        val (prefix, name) = match.destructured
+        if (name.endsWith("_s", ignoreCase = true)) return null
+        return "$prefix${name}_s.jpg"
+    }
 }
