@@ -1,11 +1,16 @@
 // AnimalShelter 중계 Worker: 정적 웹 앱 + /api(공공데이터) + /img(사진) + /a/{id}(공유 미리보기) + assetlinks.
-// 규약: docs/design/02-data.md 7절. 순수 함수는 lib.js.
+// 규약: docs/design/02-data.md 7절. 순수 함수는 lib.js, /img 흐름(5c 변환·되돌아가기)은 image.js.
 // 주의: 업스트림 URL에는 serviceKey가 들어 있다 — console.log에 URL·env·업스트림 응답을 쓰지 않는다.
 import assetLinks from "./assetlinks.json";
+import * as image from "./image.js";
 import * as lib from "./lib.js";
 
 const TIMEOUT_MS = 20000;
 const JSON_TYPE = "application/json; charset=utf-8";
+/** 사진 변환 제한 시간(5c — 브리핑 1.2 (d) 3). */
+const TRANSFORM_TIMEOUT_MS = 10000;
+/** isolate 하나의 사진 변환 상태(9422 뒤 쉬는 시각 — 브리핑 F6·F7). */
+const imageState = { quotaUntil: 0 };
 
 export default {
   async fetch(request, env, ctx) {
@@ -45,7 +50,15 @@ async function route(request, env, ctx) {
       return jsonResponse(403, { relayError: "origin" });
     }
     const head = request.method === "HEAD";
-    const response = path.startsWith("/api/") ? await handleApi(url, env, ctx, head) : await handleImage(url);
+    const response = path.startsWith("/api/")
+      ? await handleApi(url, env, ctx, head)
+      : await image.handleImage(url, request.method, env, ctx, {
+        fetch: (input, init) => fetch(input, init),
+        cache: caches.default,
+        state: imageState,
+        now: () => Date.now(),
+        transformTimeoutMs: TRANSFORM_TIMEOUT_MS,
+      });
     return withCors(response, origin);
   }
   if (path.startsWith("/a/")) return handleShare(request, url, env, ctx);
@@ -94,25 +107,6 @@ async function handleApi(url, env, ctx, head) {
     ctx.waitUntil(caches.default.put(cacheKey, stored));
   }
   return apiResponse(upstream.status, text, "MISS");
-}
-
-async function handleImage(url) {
-  const image = lib.parseImagePath(url.pathname.slice("/img/".length));
-  if (!image) return new Response("Not Found", { status: 404 });
-  let upstream;
-  try {
-    upstream = await fetch(lib.imageUpstreamUrl(image.path), {
-      cf: { cacheTtl: 86400, cacheEverything: true },
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
-  } catch {
-    return jsonResponse(502, { relayError: "upstream" });
-  }
-  if (!upstream.ok) return new Response(null, { status: upstream.status === 404 ? 404 : 502 });
-  // 원본의 Content-Type(octet-stream)·Content-Disposition(attachment)은 옮기지 않는다.
-  return new Response(upstream.body, {
-    headers: { "Content-Type": image.contentType, "Cache-Control": "public, max-age=86400" },
-  });
 }
 
 async function handleShare(request, url, env, ctx) {
@@ -196,7 +190,7 @@ function withCors(response, origin) {
   if (!origin) return response;
   const headers = new Headers(response.headers);
   headers.set("Access-Control-Allow-Origin", origin);
-  headers.set("Access-Control-Expose-Headers", "X-Relay-Cache");
+  headers.set("Access-Control-Expose-Headers", lib.EXPOSE_HEADERS);
   headers.append("Vary", "Origin");
   return new Response(response.body, { status: response.status, headers });
 }

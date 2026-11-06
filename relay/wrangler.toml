@@ -14,6 +14,12 @@ preview_urls = false
 # 로컬 개발용 허용 Origin(쉼표 구분). Worker가 루프백(127.0.0.1·localhost·[::1])에서 돌 때만 쓴다(4a R3) —
 # 배포(A안)는 웹 앱과 같은 origin만 허용하므로 이 값이 남아 있어도 localhost가 열리지 않는다.
 ALLOWED_ORIGINS = "http://localhost:8080,http://127.0.0.1:8080"
+# 사진 변환(5c): binding(Images 바인딩, 기본) | fetch(cf.image — 바인딩이 workers.dev에서 안 될 때) | off(원본만)
+IMAGE_ENGINE = "binding"
+
+# Cloudflare Images 바인딩(5c). 무료 5,000 고유 변환/달 — 넘으면 9422, 중계는 원본으로 되돌아간다.
+[images]
+binding = "IMAGES"
 
 [assets]
 directory = "../webApp/build/dist/wasmJs/productionExecutable"

@@ -328,3 +328,14 @@ test("weightText 범위형은 앞~뒤, 같으면 하나, 역순·무효는 null(
   assert.equal(lib.weightText("300~450(Kg)"), null);
   assert.equal(lib.weightText("0(Kg)"), null);
 });
+
+test("R2 parseImagePath는 작은 사진 _s 이름도 받는다(규칙 그대로, 5c)", () => {
+  assert.deepEqual(lib.parseImagePath("shelter/2026/10/202611041011648%5B1%5D_s.jpg"), {
+    path: "shelter/2026/10/202611041011648[1]_s.jpg",
+    contentType: "image/jpeg",
+  });
+  assert.deepEqual(lib.parseImagePath("shelter/2026/10/202611041511187_s.jpg"), {
+    path: "shelter/2026/10/202611041511187_s.jpg",
+    contentType: "image/jpeg",
+  });
+});

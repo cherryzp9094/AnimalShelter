@@ -116,6 +116,80 @@ export function imageUpstreamUrl(path) {
   return FILES_BASE + path.replaceAll("[", "%5B").replaceAll("]", "%5D");
 }
 
+/**
+ * 사진 변환 크기(5c — 브리핑 1.2 (b)). 토큰은 둘뿐이다 — 사진 한 장의 고유 변환이 많아야 둘(무료 5,000/달, 1.3).
+ * `sq480`: 카드(표시 폭 ≤ 680px). 정사각 480 자르기 — `crop`은 키우지 않는다. gravity `y: 0.3`은 앱의 세로 사진 치우침
+ * `BiasAlignment(0f, -0.4f)`와 같다(넘치는 몫의 30%를 위에서 자른다). `mode`는 workerd `ImageTransform.gravity`가 요구한다.
+ * `fit1080`: 상세·넓은 카드. 1080 틀 안으로 줄이기만 한다.
+ */
+export const IMAGE_SIZES = {
+  sq480: { width: 480, height: 480, fit: "crop", gravity: { x: 0.5, y: 0.3, mode: "remainder" } },
+  fit1080: { width: 1080, height: 1080, fit: "scale-down" },
+};
+
+/** 변환 출력(두 토큰 공통). 웹 앱은 Skia로 디코딩한다 — WebP 됨, AVIF 안 됨(브리핑 1.1). */
+export const IMAGE_OUTPUT = { format: "image/webp", quality: 75 };
+
+/** 인코딩 판. 품질·형식·gravity를 바꾸면 올린다(Cache API는 배포를 넘어 남는다). */
+export const IMAGE_CACHE_VERSION = "v1";
+
+/** 바인딩 입력 한도(20MB — 보수적으로 10진). 넘으면 변환하지 않고 원본. */
+export const IMAGE_INPUT_MAX_BYTES = 20_000_000;
+
+/** 무료 할당량(9422) 뒤 그 isolate가 변환을 쉬는 시간. */
+export const IMAGE_QUOTA_PAUSE_MS = 10 * 60 * 1000;
+
+/** CORS로 브라우저에 보여 줄 진단 헤더(`/api`·`/img`). */
+export const EXPOSE_HEADERS = "X-Relay-Cache, X-Relay-Image, X-Relay-Upstream-Cache";
+
+/** 작은 사진(`<이름>_s.jpg`) 경로인지 — 사진 서버의 비공식 규칙(survey 7절). 변환 토큰을 붙이지 않는다. */
+export function isThumbnailPath(path) {
+  return /_s\.jpe?g$/i.test(path);
+}
+
+/**
+ * `/img` 쿼리의 `size`. 없으면 { token: null }(지금과 같다), 표의 값 하나면 { token },
+ * 둘 이상·표에 없는 값(빈 값·대문자 포함)·작은 사진 경로에 붙은 것은 { error: "param" }. 다른 쿼리 이름은 무시한다.
+ */
+export function parseImageSize(searchParams, path) {
+  const values = searchParams.getAll("size");
+  if (values.length === 0) return { token: null };
+  if (values.length > 1 || !Object.hasOwn(IMAGE_SIZES, values[0]) || isThumbnailPath(path)) return { error: "param" };
+  return { token: values[0] };
+}
+
+/** 변형 저장 키(중계 자신의 주소 아래 `__img/v1/<토큰>/<경로>`, 대괄호는 `%5B`·`%5D`). */
+export function imageCacheKeyUrl(origin, token, path) {
+  return `${origin}/__img/${IMAGE_CACHE_VERSION}/${token}/${path.replaceAll("[", "%5B").replaceAll("]", "%5D")}`;
+}
+
+/** `fetch` 엔진의 `cf.image`(바인딩과 같은 값, gravity는 좌표만). */
+export function cfImageOptions(token) {
+  const { width, height, fit, gravity } = IMAGE_SIZES[token];
+  const options = { width, height, fit };
+  if (gravity) options.gravity = { x: gravity.x, y: gravity.y };
+  return { ...options, format: "webp", quality: IMAGE_OUTPUT.quality };
+}
+
+/** `[vars] IMAGE_ENGINE`: 없거나 비면 binding, binding·fetch·off는 그대로, 모르는 값은 off. */
+export function imageEngine(value) {
+  if (value === undefined || value === null || value === "") return "binding";
+  return ["binding", "fetch", "off"].includes(value) ? value : "off";
+}
+
+/** 바인딩 예외 → 이유: 9422(이달 무료 할당량) → quota, 숫자 코드 → error-<n>, 그 밖 → error. 메시지는 보지 않는다. */
+export function transformFailureReason(error) {
+  const code = Number(error?.code);
+  if (!Number.isInteger(code) || code <= 0) return "error";
+  return code === 9422 ? "quota" : `error-${code}`;
+}
+
+/** `cf-resized` 헤더의 `err=<n>` → 숫자, 없으면 null. */
+export function cfResizedErrorCode(header) {
+  const match = /err=(\d+)/.exec(header ?? "");
+  return match ? Number(match[1]) : null;
+}
+
 /** `/a/{15자리}`(끝 `/` 허용) → 구조번호 또는 null. */
 export function parseShareId(pathname) {
   const match = /^\/a\/(\d{15})\/?$/.exec(pathname);
