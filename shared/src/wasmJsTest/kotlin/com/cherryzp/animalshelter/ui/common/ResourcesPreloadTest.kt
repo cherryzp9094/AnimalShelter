@@ -82,7 +82,7 @@ private fun FirstCompositionProbe(probe: FirstComposition) {
 private fun rememberWebResourcesReady(): Boolean {
     val icons = AppVectorIcons.map { preloadImageVector(it) }
     val strings = rememberStringResourcesReady()
-    return icons.all { it.value != null } && strings
+    return rememberStartGate(required = strings, optional = icons.all { it.value != null })
 }
 
 @OptIn(ExperimentalTestApi::class)

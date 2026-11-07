@@ -12,6 +12,7 @@ import com.cherryzp.animalshelter.di.AppConfig
 import com.cherryzp.animalshelter.di.initKoin
 import com.cherryzp.animalshelter.navigation.BrowserHistoryNavigation
 import com.cherryzp.animalshelter.ui.common.AppVectorIcons
+import com.cherryzp.animalshelter.ui.common.rememberStartGate
 import com.cherryzp.animalshelter.ui.common.rememberStringResourcesReady
 import com.cherryzp.animalshelter.ui.theme.AppFontFiles
 import com.cherryzp.animalshelter.web.JsBrowserHistory
@@ -84,7 +85,12 @@ fun main() {
         // 언어가 바뀌면 이 범위를 다시 그려 리소스 환경을 다시 읽는다 — 화면은 그대로 두고 새 언어 문구를 미리 읽는다
         languageChanges.value
         val strings = rememberStringResourcesReady()
-        if (fonts.all { it.value != null } && icons.all { it.value != null } && strings) {
+        // 아이콘은 글꼴·문구가 된 뒤 2초까지만 기다린다 — 못 받으면 그 아이콘만 빈 채로 연다. 한 번 열면 닫지 않는다(WS1)
+        val open = rememberStartGate(
+            required = fonts.all { it.value != null } && strings,
+            optional = icons.all { it.value != null }
+        )
+        if (open) {
             App(hooks.copy(reducedMotion = reducedMotion.value))
         }
     }
