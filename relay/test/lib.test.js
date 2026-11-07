@@ -339,3 +339,17 @@ test("R2 parseImagePath는 작은 사진 _s 이름도 받는다(규칙 그대로
     contentType: "image/jpeg",
   });
 });
+
+test("isEndedByDeath: 앱과 같은 경계값 표(5d RL1)", () => {
+  const hidden = ["종료(자연사)", "종료(안락사)", " 종료(자연사) ", "종료( 안락사 )", "종료(자연사"];
+  const shown = [
+    "종료(반환)", "종료(입양)", "종료(기증)", "종료(방사)", "종료", "종료()", "종료( )",
+    "종료(폐사)", "종료(사망)", "자연사", "보호중", "", "  ", null, undefined,
+  ];
+  for (const value of hidden) assert.equal(lib.isEndedByDeath(value), true, `숨겨야 한다: [${value}]`);
+  for (const value of shown) assert.equal(lib.isEndedByDeath(value), false, `보여야 한다: [${value}]`);
+  // 배지(statusText)와 같은 해석 — 숨기는 값은 "종료 · 자연사/안락사"로 읽는 값이다
+  for (const value of hidden) {
+    assert.match(lib.statusText({ processState: value }, "2026-11-07"), /^종료 · (자연사|안락사)$/);
+  }
+});

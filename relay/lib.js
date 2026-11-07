@@ -238,6 +238,18 @@ export function animalStatus(processState, noticeEdt, todayIso) {
   return { type: "unknown", raw: state || null };
 }
 
+/** 사망으로 끝난 종료 사유 — `processState` 괄호 안의 공식 값(앱 `DEATH_END_REASONS`와 같다, 5d). */
+const DEATH_END_REASONS = new Set(["자연사", "안락사"]);
+
+/**
+ * 사망 종료(`종료(자연사)`·`종료(안락사)`)인지(5d, 앱 `isEndedByDeath`와 같은 표). `animalStatus()`의 `ended` 갈래 해석을
+ * 그대로 쓴다 — 날짜·`endReason`은 보지 않고, 관찰되지 않은 사유는 추측하지 않는다.
+ */
+export function isEndedByDeath(processState) {
+  const status = animalStatus(processState, null, "");
+  return status.type === "ended" && DEATH_END_REASONS.has(status.reason);
+}
+
 /**
  * 응답 item에서 미리보기에 필요한 값만(1시간 캐시하는 요약). 대표자 이름은 넣지 않는다.
  * `photo`는 `popfile1`~`popfile8` 중 비지 않은 첫 값 — `popfile1`이 비고 `popfile2`만 있는 공고가 있다(5a-live M3).
