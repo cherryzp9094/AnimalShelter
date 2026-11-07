@@ -353,3 +353,38 @@ test("isEndedByDeath: 앱과 같은 경계값 표(5d RL1)", () => {
     assert.match(lib.statusText({ processState: value }, "2026-11-07"), /^종료 · (자연사|안락사)$/);
   }
 });
+
+const GENERIC_DESCRIPTION = lib.shareMeta(null, { origin: "o", desertionNo: "1", todayIso: "x" }).description;
+const HIDDEN_TITLE = "이 공고는 더 이상 볼 수 없어요";
+const shareArgs = { origin: "https://relay.example", desertionNo: "450650202602738", todayIso: "2026-11-07" };
+
+test("shareMeta: 사망 종료는 사진·동물 설명 없이 숨김 제목·일반 설명(5d RL2)", () => {
+  for (const processState of ["종료(자연사)", "종료(안락사)"]) {
+    const meta = lib.shareMeta(lib.summarize({ ...items[0], processState }), shareArgs);
+    assert.equal(meta.title, HIDDEN_TITLE, processState);
+    assert.equal(meta.image, null, processState);
+    assert.equal(meta.description, GENERIC_DESCRIPTION, processState);
+    assert.equal(meta.url, "https://relay.example/a/450650202602738");
+  }
+});
+
+test("injectOg: 사망 종료 메타는 og:image 없이 summary 카드, title 그 글, replaceState 그대로(5d RL3)", () => {
+  const html = `<html><head><meta charset="utf-8"><title>애니멀 쉘터</title></head><body></body></html>`;
+  const meta = lib.shareMeta(lib.summarize({ ...items[0], processState: "종료(자연사)" }), shareArgs);
+  const out = lib.injectOg(html, meta, "450650202602738");
+  assert.ok(!out.includes(`property="og:image"`));
+  assert.ok(out.includes(`<meta name="twitter:card" content="summary">`));
+  assert.ok(out.includes(`<title>${HIDDEN_TITLE}</title>`));
+  assert.ok(out.includes(`<meta property="og:title" content="${HIDDEN_TITLE}">`));
+  assert.ok(out.includes(`history.replaceState(null, "", "/#/animal/450650202602738")`));
+});
+
+test("shareMeta: 종료(입양)·보호중은 지금 그대로 동물 제목·사진(5d RL4)", () => {
+  for (const processState of ["종료(입양)", "보호중"]) {
+    const summary = lib.summarize({ ...items[0], processState });
+    const meta = lib.shareMeta(summary, shareArgs);
+    assert.equal(meta.title, lib.ogTitle(summary), processState);
+    assert.notEqual(meta.title, HIDDEN_TITLE);
+    assert.ok(meta.image?.startsWith("https://relay.example/img/"), processState);
+  }
+});

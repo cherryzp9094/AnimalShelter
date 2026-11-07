@@ -340,14 +340,24 @@ export function ogDescription(summary, todayIso) {
   return `${parts.join(" · ")} — 최신 정보는 보호소에 확인해 주세요`;
 }
 
-/** 미리보기 메타. summary가 null이면 일반 안내(업스트림 오류), found=false면 "찾을 수 없어요". */
+/** 미리보기 일반 설명(업스트림 오류·사망 종료). */
+const GENERIC_DESCRIPTION = "보호소에 들어온 유기동물 공고를 확인하세요. 최신 정보는 보호소에 확인해 주세요";
+
+/**
+ * 미리보기 메타. summary가 null이면 일반 안내(업스트림 오류), found=false면 "찾을 수 없어요".
+ * 사망 종료(5d)면 사진·동물 설명 없이 "이 공고는 더 이상 볼 수 없어요" — 서버는 사용자 필터를 몰라 앱의 기본값(숨김)을
+ * 따른다. 요약(1시간 캐시)의 `processState`로 HTML을 조립할 때 판정하므로 캐시 키·모양은 그대로다.
+ */
 export function shareMeta(summary, { origin, desertionNo, todayIso }) {
   const url = `${origin}/a/${desertionNo}`;
   if (!summary) {
-    return { title: SITE_NAME, description: "보호소에 들어온 유기동물 공고를 확인하세요. 최신 정보는 보호소에 확인해 주세요", image: null, url };
+    return { title: SITE_NAME, description: GENERIC_DESCRIPTION, image: null, url };
   }
   if (!summary.found) {
     return { title: "공고를 찾을 수 없어요", description: "공고가 지났거나 주소가 잘못됐을 수 있어요.", image: null, url };
+  }
+  if (isEndedByDeath(summary.processState)) {
+    return { title: "이 공고는 더 이상 볼 수 없어요", description: GENERIC_DESCRIPTION, image: null, url };
   }
   const photo = summary.photo ?? "";
   const filesAt = photo.indexOf("/fileDownloadSrvc/files/");
