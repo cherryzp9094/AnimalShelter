@@ -1,7 +1,10 @@
 package com.cherryzp.animalshelter.model
 
+import com.cherryzp.animalshelter.fake.testAnimal
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
@@ -44,6 +47,42 @@ class AnimalStatusTest {
         assertEquals(AnimalStatus.Unknown(null), animalStatusOf("", today, today))
         assertEquals(AnimalStatus.Unknown(null), animalStatusOf(null, today, today))
         assertEquals(AnimalStatus.Unknown("공고중"), animalStatusOf("공고중", today, today))
+    }
+
+    @Test
+    fun `사망 종료 판정 — 경계값 표(5d H1)`() {
+        val hidden = listOf(
+            "종료(자연사)",
+            "종료(안락사)",
+            " 종료(자연사) ",
+            "종료( 안락사 )",
+            "종료(자연사"
+        )
+        val shown = listOf(
+            "종료(반환)",
+            "종료(입양)",
+            "종료(기증)",
+            "종료(방사)",
+            "종료",
+            "종료()",
+            "종료( )",
+            "종료(폐사)",
+            "종료(사망)",
+            "자연사",
+            "보호중",
+            "",
+            "  ",
+            null
+        )
+        hidden.forEach { assertTrue(isEndedByDeath(it), "숨겨야 한다: [$it]") }
+        shown.forEach { assertFalse(isEndedByDeath(it), "보여야 한다: [$it]") }
+        // 배지와 같은 해석: 숨기는 값은 배지가 "종료 · 자연사/안락사"로 읽는 값이다
+        hidden.forEach {
+            val reason = (animalStatusOf(it, null, today) as AnimalStatus.Ended).reason
+            assertTrue(reason in DEATH_END_REASONS, "배지 사유: [$it] → $reason")
+        }
+        assertTrue(testAnimal(processState = "종료(안락사)").isEndedByDeath())
+        assertFalse(testAnimal(processState = "종료(입양)").isEndedByDeath())
     }
 
     @Test
