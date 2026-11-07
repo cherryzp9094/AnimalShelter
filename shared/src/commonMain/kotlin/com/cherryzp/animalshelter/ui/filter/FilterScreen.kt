@@ -3,6 +3,7 @@ package com.cherryzp.animalshelter.ui.filter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,10 +12,12 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,6 +63,8 @@ import com.cherryzp.animalshelter.resources.filter_breed
 import com.cherryzp.animalshelter.resources.filter_breed_hint_select_kind
 import com.cherryzp.animalshelter.resources.filter_breed_search
 import com.cherryzp.animalshelter.resources.filter_date
+import com.cherryzp.animalshelter.resources.filter_include_deaths
+import com.cherryzp.animalshelter.resources.filter_include_deaths_disabled
 import com.cherryzp.animalshelter.resources.filter_kind
 import com.cherryzp.animalshelter.resources.filter_neuter
 import com.cherryzp.animalshelter.resources.filter_region
@@ -112,6 +118,7 @@ fun FilterScreen(viewModel: FilterViewModel, onBack: () -> Unit, modifier: Modif
         onSigunguSelected = viewModel::onSigunguSelected,
         onShelterSelected = viewModel::onShelterSelected,
         onStateSelected = viewModel::onStateSelected,
+        onIncludeEndedByDeathChanged = viewModel::onIncludeEndedByDeathChanged,
         onSexSelected = viewModel::onSexSelected,
         onNeuteredSelected = viewModel::onNeuteredSelected,
         onRetryCodes = viewModel::onRetryCodes,
@@ -140,6 +147,7 @@ fun FilterScreen(
     onSigunguSelected: (Sigungu?) -> Unit,
     onShelterSelected: (ShelterCode?) -> Unit,
     onStateSelected: (NoticeState) -> Unit,
+    onIncludeEndedByDeathChanged: (Boolean) -> Unit,
     onSexSelected: (Sex?) -> Unit,
     onNeuteredSelected: (Neutered?) -> Unit,
     onRetryCodes: (CodeTable) -> Unit,
@@ -283,6 +291,16 @@ fun FilterScreen(
                             stringResource(Res.string.filter_state_closing_soon_hint)
                         )
                     }
+                    // 5d: 상태가 전체일 때만 고를 수 있다 — 아니면 값은 그대로 두고 막는다
+                    CheckRow(
+                        label = stringResource(Res.string.filter_include_deaths),
+                        checked = filter.includeEndedByDeath,
+                        enabled = state.canIncludeEndedByDeath,
+                        onCheckedChange = onIncludeEndedByDeathChanged
+                    )
+                    if (!state.canIncludeEndedByDeath) {
+                        Hint(stringResource(Res.string.filter_include_deaths_disabled))
+                    }
                 }
                 Section(Res.string.filter_sex) {
                     ChoiceRow(
@@ -336,6 +354,46 @@ private fun Hint(text: String) {
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
+
+/**
+ * 체크 줄(5d — 설정의 `RadioRow`와 같은 방식): 줄 전체가 누르는 곳(48dp 이상, 역할 체크박스 — 노드 하나), 앞에
+ * `Checkbox`(장식), 글 `bodyLarge`. 가로 여백은 섹션의 세그먼트·안내 글과 같다(줄 안 여백 없음).
+ */
+@Composable
+private fun CheckRow(
+    label: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .toggleable(
+                value = checked,
+                enabled = enabled,
+                role = Role.Checkbox,
+                onValueChange = onCheckedChange
+            )
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null, enabled = enabled)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DISABLED_CONTENT_ALPHA)
+            },
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+        )
+    }
+}
+
+/** M3 비활성 글자의 불투명도. */
+private const val DISABLED_CONTENT_ALPHA = 0.38f
 
 /** 하나만 고르는 세그먼트 버튼 줄(M3가 라디오 역할·`selectableGroup`을 준다). */
 @Composable
@@ -413,6 +471,7 @@ private fun FilterScreenPreview() {
             onSigunguSelected = {},
             onShelterSelected = {},
             onStateSelected = {},
+            onIncludeEndedByDeathChanged = {},
             onSexSelected = {},
             onNeuteredSelected = {},
             onRetryCodes = {},

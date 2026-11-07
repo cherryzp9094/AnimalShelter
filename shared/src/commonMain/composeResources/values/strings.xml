@@ -25,6 +25,7 @@
     <string name="sort_closing_soon">마감 임박순</string>
     <string name="sort_too_many">공고중인 동물이 너무 많아요. 지역이나 축종을 골라 주세요.</string>
     <string name="filter_none">전체</string>
+    <string name="chip_include_deaths">사망 포함</string>
     <string name="date_default">최근 1개월</string>
     <string name="date_range">%1$s ~ %2$s</string>
     <plurals name="list_total_count">
@@ -93,6 +94,8 @@
     <string name="state_protect">보호중</string>
     <string name="filter_state_hint">공고중: 공고 기간 중 · 보호중: 공고가 끝나고 보호소에 있음</string>
     <string name="filter_state_closing_soon_hint">마감 임박순에서는 공고중인 동물만 보여요.</string>
+    <string name="filter_include_deaths">사망으로 끝난 공고도 보기</string>
+    <string name="filter_include_deaths_disabled">상태가 전체일 때만 고를 수 있어요.</string>
     <string name="choice_all">전체</string>
     <string name="choice_unknown">미상</string>
     <string name="choice_yes">예</string>
@@ -120,6 +123,7 @@
     <string name="detail_status_ended_hint">보호가 끝났어요.</string>
     <string name="detail_notice_gone">공고가 더 이상 조회되지 않아요. 저장된 정보예요.</string>
     <string name="detail_not_found">이 공고를 찾을 수 없어요. 공고가 지났거나 주소가 잘못됐을 수 있어요.</string>
+    <string name="detail_hidden">이 공고는 더 이상 볼 수 없어요.</string>
     <string name="section_notice">공고</string>
     <string name="section_traits">특징</string>
     <string name="section_found">발견</string>

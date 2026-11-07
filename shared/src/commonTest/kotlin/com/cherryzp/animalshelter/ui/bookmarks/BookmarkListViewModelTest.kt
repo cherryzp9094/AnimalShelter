@@ -257,4 +257,17 @@ class BookmarkListViewModelTest {
         assertEquals(LocalDate(2026, 11, 3), saved.happenDate)
         assertEquals("새 이름", saved.kindName)
     }
+
+    @Test
+    fun `북마크는 사망 종료도 숨기지 않고 배지 그대로(5d U4)`() = runVmTest {
+        var now = clock.now()
+        val bookmarks = FakeBookmarkRepository { now.also { now += 1.minutes } }
+        bookmarks.add(testAnimal(desertionNo = "B", processState = "종료(자연사)"))
+        bookmarks.add(testAnimal(desertionNo = "A"))
+        val env = start(Env(bookmarks))
+
+        assertEquals(listOf("A", "B"), env.state.items.map { it.desertionNo })
+        assertEquals(StatusKind.ENDED, env.state.items.last().status.kind)
+        assertFalse(env.state.isEmpty)
+    }
 }

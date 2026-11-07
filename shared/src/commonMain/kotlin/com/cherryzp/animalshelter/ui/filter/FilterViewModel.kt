@@ -132,7 +132,8 @@ class FilterViewModel(
                 quickDate = quickDateOf(filter.dateFrom, filter.dateTo, today),
                 today = today,
                 showClosingSoonHint = closingSoon,
-                canApply = dateError == null
+                canApply = dateError == null,
+                canIncludeEndedByDeath = filter.state == NoticeState.ALL
             )
         }.stateIn(
             scope = viewModelScope,
@@ -212,6 +213,11 @@ class FilterViewModel(
 
     fun onStateSelected(state: NoticeState) {
         filter.update { it.copy(state = state) }
+    }
+
+    /** "사망으로 끝난 공고도 보기"(5d). 상태가 전체가 아니어도 값은 바꿔 둔다 — 화면이 그때는 줄을 막는다. */
+    fun onIncludeEndedByDeathChanged(include: Boolean) {
+        filter.update { it.copy(includeEndedByDeath = include) }
     }
 
     fun onSexSelected(sex: Sex?) {

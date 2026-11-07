@@ -287,7 +287,9 @@ class AnimalListViewModel(
                 if (r.sort == SortOrder.CLOSING_SOON) {
                     uiText(Res.string.list_noticing_count, formatCount(it))
                 } else {
-                    pluralText(Res.plurals.list_total_count, it, formatCount(it))
+                    // 받은 쪽에서 뺀 사망 종료만큼 줄인다 — 보이는 카드 수보다 작아지지 않는다(5d)
+                    val shown = (it - r.hidden.size).coerceAtLeast(r.items.size)
+                    pluralText(Res.plurals.list_total_count, shown, formatCount(shown))
                 }
             },
             items = r.items.map { it.toCardUi(today, endpoint, it.desertionNo in bookmarked) },

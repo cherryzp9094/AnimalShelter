@@ -15,8 +15,10 @@ import com.cherryzp.animalshelter.model.AnimalKind
 import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
+import com.cherryzp.animalshelter.model.showsEndedByDeath
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.a11y_sort_to_latest
+import com.cherryzp.animalshelter.resources.chip_include_deaths
 import com.cherryzp.animalshelter.resources.date_default
 import com.cherryzp.animalshelter.resources.date_last_30
 import com.cherryzp.animalshelter.resources.date_last_7
@@ -49,8 +51,9 @@ fun AnimalKind.chipText(): UiText = when (this) {
 }
 
 /**
- * 요약 칩(브리핑 A7): 있는 조건만, 순서 축종 · 품종 · 지역 · 상태 · 구조 날짜 · 성별 · 중성화 · 정렬.
- * 날짜 칩은 늘 있다(비면 "최근 1개월"). 축종·품종·지역·상태·성별·중성화가 하나도 없으면 맨 앞에 "전체".
+ * 요약 칩(브리핑 A7): 있는 조건만, 순서 축종 · 품종 · 지역 · 상태((5d) 사망 포함) · 구조 날짜 · 성별 · 중성화 · 정렬.
+ * 날짜 칩은 늘 있다(비면 "최근 1개월"). 축종·품종·지역·상태·사망 포함·성별·중성화가 하나도 없으면 맨 앞에 "전체".
+ * "사망 포함"은 필터 "사망으로 끝난 공고도 보기"를 켜고 상태가 전체일 때만이다(5d).
  * 마감 임박순이면 상태 칩은 "공고중"(조회가 공고중으로 고정된다)이고 끝에 "마감 임박순"(누르면 최신순).
  * 이름은 [SearchFilter]의 표시 이름만 쓴다 — 코드표를 부르지 않는다(03 4절 1번).
  */
@@ -63,8 +66,15 @@ fun summaryChips(filter: SearchFilter, sort: SortOrder, today: LocalDate): List<
         val state = if (closingSoon) NoticeState.NOTICE else filter.state
         when (state) {
             NoticeState.NOTICE -> add(uiText(Res.string.state_notice))
+
             NoticeState.PROTECT -> add(uiText(Res.string.state_protect))
-            NoticeState.ALL -> Unit
+
+            // 사망 포함(5d): 켬·상태 전체일 때만 상태 자리에. 마감 임박순은 공고중 고정이라 없다
+            NoticeState.ALL -> if (filter.showsEndedByDeath) {
+                add(
+                    uiText(Res.string.chip_include_deaths)
+                )
+            }
         }
     }
     val tail = buildList {

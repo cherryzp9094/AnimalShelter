@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
@@ -33,7 +35,9 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.cherryzp.animalshelter.data.api.ApiError
+import com.cherryzp.animalshelter.data.api.ApiResult
 import com.cherryzp.animalshelter.data.repository.SearchResults
 import com.cherryzp.animalshelter.fake.loaded
 import com.cherryzp.animalshelter.fake.testAnimal
@@ -45,6 +49,8 @@ import com.cherryzp.animalshelter.model.Neutered
 import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
+import com.cherryzp.animalshelter.navigation.AnimalDetailKey
+import com.cherryzp.animalshelter.navigation.AnimalListKey
 import com.cherryzp.animalshelter.resources.Res
 import com.cherryzp.animalshelter.resources.a11y_days_left
 import com.cherryzp.animalshelter.resources.a11y_loading
@@ -56,12 +62,16 @@ import com.cherryzp.animalshelter.resources.action_next_photo
 import com.cherryzp.animalshelter.resources.action_previous_photo
 import com.cherryzp.animalshelter.resources.action_sort
 import com.cherryzp.animalshelter.resources.action_undo
+import com.cherryzp.animalshelter.resources.chip_include_deaths
+import com.cherryzp.animalshelter.resources.detail_hidden
 import com.cherryzp.animalshelter.resources.detail_placeholder
 import com.cherryzp.animalshelter.resources.disclaimer
 import com.cherryzp.animalshelter.resources.empty_bookmarks
 import com.cherryzp.animalshelter.resources.empty_change_filter
 import com.cherryzp.animalshelter.resources.empty_results
 import com.cherryzp.animalshelter.resources.error_network
+import com.cherryzp.animalshelter.resources.filter_include_deaths
+import com.cherryzp.animalshelter.resources.filter_include_deaths_disabled
 import com.cherryzp.animalshelter.resources.kind_cat
 import com.cherryzp.animalshelter.resources.list_load_more_failed
 import com.cherryzp.animalshelter.resources.photo_a11y
@@ -69,6 +79,7 @@ import com.cherryzp.animalshelter.resources.photo_counter
 import com.cherryzp.animalshelter.resources.sort_closing_soon
 import com.cherryzp.animalshelter.resources.sort_latest
 import com.cherryzp.animalshelter.resources.state_notice
+import com.cherryzp.animalshelter.resources.status_ended_reason
 import com.cherryzp.animalshelter.resources.status_protecting
 import com.cherryzp.animalshelter.resources.title_settings
 import com.cherryzp.animalshelter.ui.common.TestTags
@@ -1076,4 +1087,158 @@ suspend fun ComposeUiTest.twoPaneSystemBackClosesBookmarksFlow(fakes: FlowFakes)
             onAllNodes(hasTestTag(TestTags.LIST_TOP_BAR)).fetchSemanticsNodes().isNotEmpty()
     }
     awaitTag(TestTags.card("A"))
+}
+
+// ── 5d: 사망 종료 — 기본 숨김, 북마크는 늘 보임, 필터 "사망으로 끝난 공고도 보기"(T20~T23) ──
+
+/** 사망 종료(자연사)인 사진 없는 테스트 동물. */
+private fun deadFlowAnimal(no: String): Animal = flowAnimal(no).copy(processState = "종료(자연사)")
+
+/** 트리(글·설명)에 [text]가 든 노드가 없는가. */
+@OptIn(ExperimentalTestApi::class)
+private fun ComposeUiTest.hasNoText(text: String): Boolean =
+    onAllNodes(hasText(text, substring = true)).fetchSemanticsNodes().isEmpty() &&
+        onAllNodes(hasContentDescription(text, substring = true)).fetchSemanticsNodes().isEmpty()
+
+/**
+ * T20(5d): 링크로 시작 `[목록, 상세(†)]` — 북마크 아님·필터 끔이면 `detail_hidden`, 북마크 단추 없음, 트리에 "자연사"
+ * 없음. 하네스에 [hooks]로 시작 스택을 준다(래퍼).
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.deepLinkDeadHiddenFlow(fakes: FlowFakes) {
+    val hidden = getString(Res.string.detail_hidden)
+
+    awaitCondition("숨김 문장 $hidden") {
+        onAllNodes(hasText(hidden)).fetchSemanticsNodes().isNotEmpty()
+    }
+    assertTrue(
+        onAllNodes(hasTestTag(TestTags.DETAIL_BOOKMARK)).fetchSemanticsNodes().isEmpty(),
+        "숨긴 상세에 북마크 단추가 있다"
+    )
+    assertTrue(hasNoText("자연사"), "숨긴 상세에 사유가 보인다")
+    assertTrue(fakes.bookmarks.updateCalls.isEmpty())
+}
+
+/** T20 시작 스택: 목록 위에 사망 종료 상세(날짜 없는 링크). */
+val deepLinkDeadStack: List<NavKey> = listOf(AnimalListKey, AnimalDetailKey(DEAD_NO))
+
+/**
+ * T20 가짜들: `getAnimal(DEAD_NO)`가 사망 종료. 시작 스택의 상세는 첫 구성에서 조회하므로 띄우기 전에 정한다(래퍼가
+ * `runFlowTest(fakes = …)`로 넘긴다).
+ */
+fun deepLinkDeadFakes(): FlowFakes = FlowFakes().apply {
+    val dead = deadFlowAnimal(DEAD_NO)
+    animals.animalResult = { no -> ApiResult.Success(dead.takeIf { no == DEAD_NO }) }
+}
+
+private const val DEAD_NO = "450650202609999"
+
+/**
+ * T21(5d): 북마크(스냅샷 보호중 X) → 북마크 목록 → X 카드 → 재조회가 X† → 상세가 보이고 배지 "종료 · 자연사" →
+ * 앱 안 ← → 북마크 목록에 X가 남아 있고 그 카드 문장에 "종료 · 자연사"(스냅샷 갱신). 북마크는 숨기지 않는다.
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.bookmarkedDeadStaysVisibleFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    val alive = flowAnimal("X")
+    fakes.bookmarks.add(alive)
+    fakes.animals.animalResult =
+        { no -> ApiResult.Success(deadFlowAnimal("X").takeIf { no == "X" }) }
+    val endedText = getString(Res.string.status_ended_reason, "자연사")
+
+    awaitTag(TestTags.OPEN_BOOKMARKS).performClick()
+    awaitTag(TestTags.card("X")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    awaitCondition("상세 배지 $endedText") {
+        onAllNodes(hasText(endedText)).fetchSemanticsNodes().isNotEmpty()
+    }
+    assertTrue(
+        onAllNodes(hasText(getString(Res.string.detail_hidden))).fetchSemanticsNodes().isEmpty(),
+        "북마크된 동물을 숨겼다"
+    )
+
+    onNode(hasContentDescription(getString(Res.string.action_back))).performClick()
+    awaitCondition("북마크 목록의 X 카드 문장에 $endedText") {
+        onAllNodes(
+            hasTestTag(TestTags.card("X")) and (
+                hasContentDescription(endedText, substring = true) or
+                    hasAnyDescendant(hasText(endedText))
+                )
+        ).fetchSemanticsNodes().isNotEmpty()
+    }
+    assertEquals(listOf("X"), fakes.bookmarks.bookmarks.value.map { it.animal.desertionNo })
+    assertEquals("종료(자연사)", fakes.bookmarks.bookmarks.value.single().animal.processState)
+}
+
+/**
+ * T22(5d): 두 칸 — 목록 [A, B] → B 열기 → 새로고침 흉내로 Fake 결과를 items [A]·hidden [B†]로 → 상세 칸
+ * `detail_hidden`, 카드 B 없음, A 있음(호출 0).
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.twoPaneHiddenAfterRefreshFlow(fakes: FlowFakes) {
+    val start = listOf3().copy(items = listOf(flowAnimal("A"), flowAnimal("B")))
+    fakes.animals.results.value = start
+    val hidden = getString(Res.string.detail_hidden)
+
+    awaitTag(TestTags.card("B")).performClick()
+    awaitTag(TestTags.DETAIL_BOOKMARK)
+    val calls = fakes.animals.getAnimalCalls.size
+
+    runOnIdle {
+        fakes.animals.results.value = start.copy(
+            items = listOf(flowAnimal("A")),
+            hidden = listOf(deadFlowAnimal("B"))
+        )
+    }
+    awaitCondition("상세 칸 숨김 문장") {
+        onAllNodes(hasText(hidden)).fetchSemanticsNodes().isNotEmpty()
+    }
+    awaitCondition("카드 B가 빠짐") {
+        onAllNodes(hasTestTag(TestTags.card("B"))).fetchSemanticsNodes().isEmpty()
+    }
+    awaitTag(TestTags.card("A"))
+    assertEquals(calls, fakes.animals.getAnimalCalls.size)
+}
+
+/**
+ * T23(5d): 필터 화면 — 상태 전체에서 체크 줄 "사망으로 끝난 공고도 보기"는 꺼져 있고 누를 수 있다 → 공고중이면 비활성 +
+ * 안내 글 → 전체 → 켬 → [검색하기] → 마지막 검색 조건에 켬, 목록 칩 "사망 포함".
+ */
+@OptIn(ExperimentalTestApi::class)
+suspend fun ComposeUiTest.includeDeathsFilterFlow(fakes: FlowFakes) {
+    fakes.animals.results.value = listOf3()
+    val label = getString(Res.string.filter_include_deaths)
+    val disabledHint = getString(Res.string.filter_include_deaths_disabled)
+    val chip = getString(Res.string.chip_include_deaths)
+    val row = hasText(label) and SemanticsMatcher.keyIsDefined(SemanticsProperties.ToggleableState)
+
+    awaitTag(TestTags.OPEN_FILTER).performClick()
+    awaitCondition("체크 줄 $label") { onAllNodes(row).fetchSemanticsNodes().isNotEmpty() }
+    onNode(row).performScrollTo().assertIsOff().assertIsEnabled()
+
+    onNodeWithTag(TestTags.choice("state", NoticeState.NOTICE)).performScrollTo().performClick()
+    awaitCondition("비활성 안내 $disabledHint") {
+        onAllNodes(hasText(disabledHint)).fetchSemanticsNodes().isNotEmpty()
+    }
+    onNode(row).assertIsNotEnabled()
+
+    onNodeWithTag(TestTags.choice("state", NoticeState.ALL)).performScrollTo().performClick()
+    awaitCondition("안내가 사라짐") { onAllNodes(hasText(disabledHint)).fetchSemanticsNodes().isEmpty() }
+    onNode(row).assertIsEnabled().performScrollTo().performClick()
+    awaitCondition("체크 켜짐") {
+        onAllNodes(
+            row and
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ToggleableState,
+                    ToggleableState.On
+                )
+        )
+            .fetchSemanticsNodes().isNotEmpty()
+    }
+
+    awaitTag(TestTags.FILTER_APPLY).performClick()
+    awaitCondition("검색 조건 켬") {
+        fakes.animals.searchCalls.lastOrNull()?.includeEndedByDeath == true
+    }
+    awaitCondition("목록 칩 $chip") { onAllNodes(hasText(chip)).fetchSemanticsNodes().isNotEmpty() }
 }

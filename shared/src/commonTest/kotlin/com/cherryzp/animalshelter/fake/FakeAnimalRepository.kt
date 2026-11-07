@@ -35,9 +35,13 @@ class FakeAnimalRepository(initial: SearchResults = SearchResults()) : AnimalRep
     var onLoadMore: suspend () -> Unit = {}
     var onRefresh: suspend () -> Unit = {}
 
-    /** `getAnimal`의 응답. 기본: 지금 결과에서 찾고 없으면 `Success(null)`. */
+    /** `getAnimal`의 응답. 기본: 지금 결과(`items`, 없으면 `hidden` — 실제와 같다, 5d)에서 찾고 없으면 `Success(null)`. */
     var animalResult: (String) -> ApiResult<Animal?> = { no ->
-        ApiResult.Success(results.value.items.firstOrNull { it.desertionNo == no })
+        val current = results.value
+        ApiResult.Success(
+            current.items.firstOrNull { it.desertionNo == no }
+                ?: current.hidden.firstOrNull { it.desertionNo == no }
+        )
     }
 
     /** 있으면 `getAnimal`이 이것이 끝날 때까지 기다린다(조회 중 상태를 보려고). */

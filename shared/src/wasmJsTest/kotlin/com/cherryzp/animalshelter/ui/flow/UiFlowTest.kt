@@ -3,6 +3,7 @@ package com.cherryzp.animalshelter.ui.flow
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.cherryzp.animalshelter.PlatformHooks
 import com.cherryzp.animalshelter.model.ListLayout
+import com.cherryzp.animalshelter.navigation.NavigationBinding
 import kotlin.test.Test
 
 /**
@@ -184,6 +185,28 @@ class UiFlowTest {
         widthDp = WIDE_WIDTH_DP,
         heightDp = WIDE_HEIGHT_DP
     ) { twoPaneSystemBackClosesBookmarksFlow(it) }
+
+    /** T20 링크로 연 사망 종료 상세는 북마크도 필터도 아니면 숨김(5d). */
+    @Test
+    fun t20DeepLinkDeadDetailIsHidden() = runFlowTest(
+        fakes = deepLinkDeadFakes(),
+        hooks = PlatformHooks(navigation = NavigationBinding.StartAt(deepLinkDeadStack))
+    ) { deepLinkDeadHiddenFlow(it) }
+
+    /** T21 북마크된 동물은 사망 종료가 돼도 상세·북마크 목록에 보인다(5d). */
+    @Test
+    fun t21BookmarkedDeadStaysVisible() = runFlowTest { bookmarkedDeadStaysVisibleFlow(it) }
+
+    /** T22 두 칸에서 새로고침 뒤 hidden에 들어온 상세는 숨김(5d). */
+    @Test
+    fun t22TwoPaneDetailHiddenAfterRefresh() = runFlowTest(
+        widthDp = WIDE_WIDTH_DP,
+        heightDp = WIDE_HEIGHT_DP
+    ) { twoPaneHiddenAfterRefreshFlow(it) }
+
+    /** T23 필터 "사망으로 끝난 공고도 보기" — 상태 전체에서만, 켜면 검색 조건과 칩(5d). */
+    @Test
+    fun t23IncludeDeathsFilter() = runFlowTest { includeDeathsFilterFlow(it) }
 
     // T11 기본 모션(t11DefaultMotionKeepsBothScreensDuringTransition)은 기기에만 둔다 — CMP 웹의 Nav3 기본 전환이
     // None이라(navigation3-ui NavDisplay.web.kt) 웹에는 비교할 전환이 없다(4a 검토 F4).

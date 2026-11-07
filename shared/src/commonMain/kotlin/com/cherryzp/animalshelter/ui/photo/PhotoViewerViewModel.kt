@@ -6,14 +6,18 @@ import androidx.lifecycle.viewModelScope
 import com.cherryzp.animalshelter.data.api.ApiResult
 import com.cherryzp.animalshelter.data.api.EndpointSelector
 import com.cherryzp.animalshelter.data.repository.AnimalRepository
+import com.cherryzp.animalshelter.data.repository.BookmarkRepository
 import com.cherryzp.animalshelter.data.repository.ImageUrlPolicy
 import com.cherryzp.animalshelter.data.repository.SettingsRepository
 import com.cherryzp.animalshelter.di.AppConfig
+import com.cherryzp.animalshelter.model.isEndedByDeath
 import com.cherryzp.animalshelter.navigation.PhotoViewerKey
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.detail_hidden
 import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.canRetry
+import com.cherryzp.animalshelter.ui.common.showsEndedByDeath
 import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,12 +46,14 @@ data class PhotoViewerUiState(
 
 /**
  * 사진 뷰어(03 2.4, 브리핑 B1·B9). 키의 원본 사진을 지금 엔드포인트의 화면용 URL로 바꾼다(디버그 엔드포인트를 바꾸면
- * 다시 계산). 키에 사진이 없으면(Phase 4 주소 진입) `getAnimal(desertionNo, null)`로 찾는다.
+ * 다시 계산). 키에 사진이 없으면(Phase 4 주소 진입) `getAnimal(desertionNo, null)`로 찾는다. 찾은 것이 사망 종료면
+ * 북마크거나 필터가 켜졌을 때만 사진, 아니면 `detail_hidden`(5d).
  */
 class PhotoViewerViewModel(
     private val key: PhotoViewerKey,
     private val animals: AnimalRepository,
-    settings: SettingsRepository,
+    private val bookmarks: BookmarkRepository,
+    private val settings: SettingsRepository,
     private val endpoints: EndpointSelector,
     private val config: AppConfig,
 ) : ViewModel() {
@@ -90,8 +96,13 @@ class PhotoViewerViewModel(
             when (val result = animals.getAnimal(key.desertionNo, null)) {
                 is ApiResult.Success -> {
                     val animal = result.value
+                    // 사망 종료는 북마크거나 필터가 켜졌을 때만(5d) — 아니면 사유 없이 숨김, 다시 시도 없음
+                    val hidden = animal?.isEndedByDeath() == true &&
+                        !showsEndedByDeath(key.desertionNo, animals, bookmarks, settings)
                     local.update {
-                        if (animal == null) {
+                        if (hidden) {
+                            it.copy(isLoading = false, error = uiText(Res.string.detail_hidden))
+                        } else if (animal == null) {
                             it.copy(isLoading = false, error = uiText(Res.string.detail_not_found))
                         } else {
                             it.copy(

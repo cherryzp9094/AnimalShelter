@@ -14,6 +14,8 @@ import com.cherryzp.animalshelter.ui.common.UiText
  * @property error 보일 것이 없을 때만(가운데 오류). 보이는 것이 있으면 스낵바(`message`)
  * @property shelterToday 보호소 정보 캐시가 있으면 오늘 운영시간 부분(B7)
  * @property map 보호소 좌표가 있을 때만
+ * @property isHidden 사망 종료이고 북마크가 아니며 필터가 꺼져 있어 보이지 않는다(5d) — `detail_hidden` + 목록으로.
+ *   그때 `detail`·`shareUrl`은 null이고 로딩·오류·없음도 아니다
  * @property shareUrl 공유 링크(`<shareBaseUrl>/a/<구조번호>`, 4a S4). 공유 주소가 없으면(Android `shareHost` 없음) null —
  *   공유 버튼이 없다
  */
@@ -30,6 +32,7 @@ data class AnimalDetailUiState(
     val map: MapTarget? = null,
     val message: UiMessage? = null,
     val shareUrl: String? = null,
+    val isHidden: Boolean = false,
 )
 
 /**

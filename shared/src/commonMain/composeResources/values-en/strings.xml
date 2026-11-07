@@ -25,6 +25,7 @@
     <string name="sort_closing_soon">Closing soon</string>
     <string name="sort_too_many">Too many notices to sort. Narrow by region or species.</string>
     <string name="filter_none">All</string>
+    <string name="chip_include_deaths">Incl. deaths</string>
     <string name="date_default">Last month</string>
     <string name="date_range">%1$s – %2$s</string>
     <plurals name="list_total_count">
@@ -95,6 +96,8 @@
     <string name="state_protect">In care</string>
     <string name="filter_state_hint">Posted: notice open · In care: notice ended, still at the shelter</string>
     <string name="filter_state_closing_soon_hint">Closing-soon order shows posted animals only.</string>
+    <string name="filter_include_deaths">Include notices that ended in death</string>
+    <string name="filter_include_deaths_disabled">Available only when Status is All.</string>
     <string name="choice_all">All</string>
     <string name="choice_unknown">Unknown</string>
     <string name="choice_yes">Yes</string>
@@ -122,6 +125,7 @@
     <string name="detail_status_ended_hint">Care has ended.</string>
     <string name="detail_notice_gone">This notice is no longer available. Showing saved details.</string>
     <string name="detail_not_found">Couldn’t find this notice. It may have expired or the link may be wrong.</string>
+    <string name="detail_hidden">This notice is no longer shown.</string>
     <string name="section_notice">Notice</string>
     <string name="section_traits">Traits</string>
     <string name="section_found">Found</string>

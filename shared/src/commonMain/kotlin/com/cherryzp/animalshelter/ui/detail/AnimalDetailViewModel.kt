@@ -12,6 +12,7 @@ import com.cherryzp.animalshelter.data.repository.ShelterRepository
 import com.cherryzp.animalshelter.di.AppConfig
 import com.cherryzp.animalshelter.model.Animal
 import com.cherryzp.animalshelter.model.ShelterInfo
+import com.cherryzp.animalshelter.model.isEndedByDeath
 import com.cherryzp.animalshelter.model.todayInSeoul
 import com.cherryzp.animalshelter.navigation.AnimalDetailKey
 import com.cherryzp.animalshelter.platform.CopyFeedback
@@ -28,6 +29,7 @@ import com.cherryzp.animalshelter.ui.common.MessageIds
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.canRetry
 import com.cherryzp.animalshelter.ui.common.clearIfShown
+import com.cherryzp.animalshelter.ui.common.showsEndedByDeath
 import com.cherryzp.animalshelter.ui.common.toUiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import com.cherryzp.animalshelter.ui.shelter.todayParts
@@ -58,6 +60,9 @@ import kotlinx.datetime.LocalDate
  * - 0건: 스냅샷이 있으면 그것 + `isStale`, 없으면 `notFound`. 실패: 보이는 것이 있으면 두고 스낵바, 없으면 가운데 오류.
  * - 보호소 정보(오늘 운영시간·좌표)는 보이는 동물의 보호소 번호로 스트림을 모은다(전체 7일 캐시).
  * - 전화·지도·복사는 화면이 부르고 결과만 알려 준다([onExternalActionResult]·[onCopyResult]).
+ * - 사망 종료(5d 1.7): 북마크거나 필터가 켜졌으면 보이고(공유 없음), 아니면 숨김(`isHidden`). 처음 사망 종료 값을 얻을 때
+ *   (조회 결과·목록 결과의 `hidden`) 한 번 정하고 이 화면에서는 바꾸지 않는다. 숨긴 뒤에는 늦은 결과·다시 시도가 덮지 않는다.
+ *   스냅샷 쓰임(먼저 보이기·대신 보이기)은 그대로다 — 북마크는 늘 보인다.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnimalDetailViewModel(
@@ -77,6 +82,8 @@ class AnimalDetailViewModel(
         val notFound: Boolean = false,
         val error: ApiError? = null,
         val message: UiMessage? = null,
+        /** 사망 종료라 숨겼다(5d). 되돌리지 않는다. */
+        val hidden: Boolean = false,
     )
 
     private val local = MutableStateFlow(Local())
@@ -86,6 +93,9 @@ class AnimalDetailViewModel(
         ?.takeIf(String::isNotEmpty)?.let { "$it/a/${key.desertionNo}" }
     private val messages = MessageIds()
     private var loadJob: Job? = null
+
+    /** 사망 종료를 보일지 — 처음 사망 종료 값을 얻을 때 한 번 정한다(5d). */
+    private var showsDeath: Boolean? = null
 
     private val endpoint = settings.getSettingsStream().map { endpoints.current() }
         .distinctUntilChanged()
@@ -111,6 +121,13 @@ class AnimalDetailViewModel(
     ) { local, bookmarked, info, endpoint ->
         val today = clock.todayInSeoul()
         val error = local.error?.takeIf { local.animal == null }
+        if (local.hidden) {
+            return@combine AnimalDetailUiState(
+                isHidden = true,
+                isBookmarked = bookmarked,
+                message = local.message
+            )
+        }
         AnimalDetailUiState(
             detail = local.animal?.toDetailUi(today, endpoint),
             isLoading = local.isLoading,
@@ -122,7 +139,8 @@ class AnimalDetailViewModel(
             shelterToday = info?.todayParts(today).orEmpty(),
             map = info?.mapTarget(),
             message = local.message,
-            shareUrl = shareUrl.takeIf { local.animal != null }
+            // 사망 종료에는 공유가 없다(5d) — 받는 쪽(미리보기·웹 기본값)에서는 볼 수 없다
+            shareUrl = shareUrl.takeIf { local.animal?.isEndedByDeath() == false }
         )
     }.stateIn(
         scope = viewModelScope,
@@ -132,6 +150,7 @@ class AnimalDetailViewModel(
 
     init {
         load(showSnapshotFirst = key.fromBookmarks)
+        watchHiddenInResults()
     }
 
     /** 가운데 오류·스낵바의 다시 시도. */
@@ -214,6 +233,7 @@ class AnimalDetailViewModel(
     }
 
     private fun load(showSnapshotFirst: Boolean) {
+        if (local.value.hidden) return
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             if (showSnapshotFirst && local.value.animal == null) {
@@ -221,10 +241,14 @@ class AnimalDetailViewModel(
             }
             local.update { it.copy(isLoading = true, error = null, notFound = false) }
             val happenDate = key.happenDate?.let { LocalDate.Formats.ISO_BASIC.parseOrNull(it) }
-            when (val result = animals.getAnimal(key.desertionNo, happenDate)) {
+            val result = animals.getAnimal(key.desertionNo, happenDate)
+            if (local.value.hidden) return@launch
+            when (result) {
                 is ApiResult.Success -> {
                     val found = result.value
-                    if (found != null) {
+                    if (found != null && found.isEndedByDeath() && !showsDeath()) {
+                        hide()
+                    } else if (found != null) {
                         local.update { it.copy(animal = found, isLoading = false, isStale = false) }
                         refreshSnapshot(found)
                     } else {
@@ -259,6 +283,29 @@ class AnimalDetailViewModel(
                     }
                 }
             }
+        }
+    }
+
+    /** 사망 종료를 보일지(북마크거나 필터 켬) — 처음 한 번 정하고 이 화면에서는 그대로(5d). */
+    private suspend fun showsDeath(): Boolean = showsDeath
+        ?: showsEndedByDeath(key.desertionNo, animals, bookmarks, settings).also { showsDeath = it }
+
+    /** 숨김(5d): 보이던 것·로딩·오류를 지우고 되돌리지 않는다. */
+    private fun hide() {
+        local.update { Local(isLoading = false, message = it.message, hidden = true) }
+    }
+
+    /**
+     * 두 칸(S7): 목록 결과의 `hidden`(필터 끔일 때 뺀 사망 종료)에 이 번호가 들어오면, 보이지 않을 동물이면 진행 중인
+     * 조회를 취소하고 숨긴다(호출 0). 한 번 보면 더 보지 않는다.
+     */
+    private fun watchHiddenInResults() {
+        viewModelScope.launch {
+            animals.getSearchResultsStream()
+                .first { results -> results.hidden.any { it.desertionNo == key.desertionNo } }
+            if (local.value.hidden || showsDeath()) return@launch
+            loadJob?.cancel()
+            hide()
         }
     }
 

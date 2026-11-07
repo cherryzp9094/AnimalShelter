@@ -425,4 +425,42 @@ class AnimalListViewModelTest {
         advanceUntilIdle()
         assertTrue(second != env.state.queryKey)
     }
+
+    // ── 5d: 머리 건수 — 받은 쪽에서 뺀 사망 종료만큼 줄인다(U1~U3) ──
+
+    private fun dead(no: String) = testAnimal(desertionNo = no, processState = "종료(자연사)")
+
+    @Test
+    fun `최신순 머리는 totalCount에서 숨긴 수를 뺀다(5d U1)`() = runVmTest {
+        val env = Env(
+            initial = loaded(items = testAnimals(10), totalCount = 45)
+                .copy(hidden = listOf(dead("D1"), dead("D2"), dead("D3")))
+        ).also { subscribe(it) }
+
+        assertEquals(pluralText(Res.plurals.list_total_count, 42, "42"), env.state.header)
+    }
+
+    @Test
+    fun `머리는 보이는 카드 수보다 작아지지 않는다(5d U2)`() = runVmTest {
+        val env = Env(
+            initial = loaded(items = testAnimals(4), totalCount = 5)
+                .copy(hidden = listOf(dead("D1"), dead("D2"), dead("D3")))
+        ).also { subscribe(it) }
+
+        assertEquals(pluralText(Res.plurals.list_total_count, 4, "4"), env.state.header)
+    }
+
+    @Test
+    fun `마감 임박순 머리는 그대로 totalCount(5d U3)`() = runVmTest {
+        val env = Env(
+            initial = loaded(
+                items = testAnimals(3),
+                sort = SortOrder.CLOSING_SOON,
+                totalCount = 3,
+                hasMore = false
+            ).copy(hidden = listOf(dead("D1")))
+        ).also { subscribe(it) }
+
+        assertEquals(uiText(Res.string.list_noticing_count, "3"), env.state.header)
+    }
 }

@@ -7,6 +7,8 @@ import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.Sex
 import com.cherryzp.animalshelter.model.SortOrder
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.chip_include_deaths
+import com.cherryzp.animalshelter.resources.date_default
 import com.cherryzp.animalshelter.resources.date_last_7
 import com.cherryzp.animalshelter.resources.date_range
 import com.cherryzp.animalshelter.resources.kind_cat
@@ -22,6 +24,7 @@ import com.cherryzp.animalshelter.ui.common.UiText
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.datetime.LocalDate
 
 /** 요약 칩(브리핑 A7): 순서, 마감 임박순의 공고중 고정·정렬 칩. */
@@ -104,6 +107,44 @@ class SummaryChipsTest {
         assertEquals(
             listOf(uiText(Res.string.sex_female), uiText(Res.string.neuter_unknown)),
             tail(Sex.FEMALE, Neutered.UNKNOWN)
+        )
+    }
+
+    @Test
+    fun `사망 포함 칩은 켬·상태 전체·최신순일 때만, 그때 전체 칩은 없다(5d U5)`() {
+        val on = SearchFilter(includeEndedByDeath = true)
+        val chips = summaryChips(on, SortOrder.LATEST, today)
+        assertEquals(
+            listOf(
+                SummaryChip(uiText(Res.string.chip_include_deaths), ChipTarget.FILTER),
+                SummaryChip(uiText(Res.string.date_default), ChipTarget.FILTER)
+            ),
+            chips
+        )
+        // 지역 다음·날짜 앞(상태 자리)
+        val withRegion = summaryChips(
+            on.copy(sidoCode = "6110000", sidoName = "서울특별시"),
+            SortOrder.LATEST,
+            today
+        ).map { it.label }
+        assertEquals(
+            listOf(
+                UiText.Raw("서울특별시"),
+                uiText(Res.string.chip_include_deaths),
+                uiText(Res.string.date_default)
+            ),
+            withRegion
+        )
+
+        val deaths = uiText(Res.string.chip_include_deaths)
+        val notice = summaryChips(on.copy(state = NoticeState.NOTICE), SortOrder.LATEST, today)
+        assertTrue(notice.none { it.label == deaths })
+        assertEquals(uiText(Res.string.state_notice), notice.first().label)
+        assertTrue(summaryChips(on, SortOrder.CLOSING_SOON, today).none { it.label == deaths })
+        assertTrue(
+            summaryChips(SearchFilter(), SortOrder.LATEST, today).none {
+                it.label == deaths
+            }
         )
     }
 }

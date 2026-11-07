@@ -322,4 +322,31 @@ class FilterViewModelTest {
         assertEquals(date, pickerMillisToDate(date.toPickerMillis()))
         assertEquals(date, pickerMillisToDate(date.toPickerMillis() + 23 * 3_600_000L))
     }
+
+    @Test
+    fun `사망으로 끝난 공고도 보기 — 켜면 검색 조건에, 상태 전체에서만 고를 수 있고 초기화는 끔(5d U6)`() = runVmTest {
+        val e = env()
+        assertFalse(e.state.filter.includeEndedByDeath)
+        assertTrue(e.state.canIncludeEndedByDeath)
+
+        e.vm.onIncludeEndedByDeathChanged(true)
+        advanceUntilIdle()
+        assertTrue(e.state.filter.includeEndedByDeath)
+
+        e.vm.onStateSelected(NoticeState.NOTICE)
+        advanceUntilIdle()
+        assertFalse(e.state.canIncludeEndedByDeath)
+        assertTrue(e.state.filter.includeEndedByDeath) // 값은 남는다
+
+        e.vm.onStateSelected(NoticeState.ALL)
+        advanceUntilIdle()
+        assertTrue(e.state.canIncludeEndedByDeath)
+
+        e.vm.onApply()
+        assertEquals(listOf(SearchFilter(includeEndedByDeath = true)), e.animals.searchCalls)
+
+        e.vm.onReset()
+        advanceUntilIdle()
+        assertFalse(e.state.filter.includeEndedByDeath)
+    }
 }

@@ -70,6 +70,7 @@ import com.cherryzp.animalshelter.resources.action_call_shelter
 import com.cherryzp.animalshelter.resources.action_go_to_list
 import com.cherryzp.animalshelter.resources.action_retry
 import com.cherryzp.animalshelter.resources.action_share
+import com.cherryzp.animalshelter.resources.detail_hidden
 import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.detail_notice_gone
 import com.cherryzp.animalshelter.resources.error_network
@@ -289,6 +290,12 @@ fun AnimalDetailScreen(
                     onDial = onDial,
                     onOpenMap = onOpenMap,
                     onCopyAddress = onCopyAddress
+                )
+
+                state.isHidden -> FullScreenMessage(
+                    text = stringResource(Res.string.detail_hidden),
+                    primaryLabel = stringResource(Res.string.action_go_to_list),
+                    onPrimary = onGoToList
                 )
 
                 state.notFound -> FullScreenMessage(
@@ -533,6 +540,12 @@ private fun DetailStalePreview() {
 @Composable
 private fun DetailNotFoundPreview() {
     PreviewDetail(AnimalDetailUiState(notFound = true))
+}
+
+@Preview
+@Composable
+private fun DetailHiddenPreview() {
+    PreviewDetail(AnimalDetailUiState(isHidden = true))
 }
 
 @Preview

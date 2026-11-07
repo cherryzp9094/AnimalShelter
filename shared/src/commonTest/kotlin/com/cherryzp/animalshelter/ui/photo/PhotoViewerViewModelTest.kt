@@ -8,11 +8,14 @@ import com.cherryzp.animalshelter.data.api.EndpointSelector
 import com.cherryzp.animalshelter.data.repository.Settings
 import com.cherryzp.animalshelter.di.AppConfig
 import com.cherryzp.animalshelter.fake.FakeAnimalRepository
+import com.cherryzp.animalshelter.fake.FakeBookmarkRepository
 import com.cherryzp.animalshelter.fake.FakeSettingsRepository
 import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.model.Animal
+import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.navigation.PhotoViewerKey
 import com.cherryzp.animalshelter.resources.Res
+import com.cherryzp.animalshelter.resources.detail_hidden
 import com.cherryzp.animalshelter.resources.detail_not_found
 import com.cherryzp.animalshelter.resources.error_network
 import com.cherryzp.animalshelter.testing.runMainTest
@@ -38,14 +41,19 @@ class PhotoViewerViewModelTest {
     private fun TestScope.viewer(
         key: PhotoViewerKey,
         override: ApiEndpoint? = null,
+        bookmarks: FakeBookmarkRepository = FakeBookmarkRepository(),
+        lastFilter: SearchFilter? = null,
         result: (String) -> ApiResult<Animal?> = { ApiResult.Success(null) },
     ): Pair<PhotoViewerViewModel, FakeAnimalRepository> {
         val animals = FakeAnimalRepository().apply { animalResult = result }
-        val settings = FakeSettingsRepository(Settings(endpointOverride = override))
+        val settings = FakeSettingsRepository(
+            Settings(endpointOverride = override, lastFilter = lastFilter)
+        )
         val config = AppConfig(ApiEndpoint.Fixture, isDebug = true, versionName = "test")
         val vm = PhotoViewerViewModel(
             key = key,
             animals = animals,
+            bookmarks = bookmarks,
             settings = settings,
             endpoints = EndpointSelector(config) { settings.settings.value.endpointOverride },
             config = config
@@ -100,5 +108,32 @@ class PhotoViewerViewModelTest {
         failed.onRetry()
         advanceUntilIdle()
         assertEquals(2, animals.getAnimalCalls.size)
+    }
+
+    @Test
+    fun `주소로 연 사망 종료는 북마크도 필터도 아니면 숨김, 북마크거나 켬이면 사진(5d U13)`() = runVmTest {
+        val dead = testAnimal(photos = listOf(original), processState = "종료(안락사)")
+        val found: (String) -> ApiResult<Animal?> = { ApiResult.Success(dead) }
+
+        val (hidden, _) = viewer(PhotoViewerKey(dead.desertionNo), result = found)
+        assertEquals(uiText(Res.string.detail_hidden), hidden.uiState.value.error)
+        assertFalse(hidden.uiState.value.canRetry)
+        assertTrue(hidden.uiState.value.photos.isEmpty())
+        assertFalse(hidden.uiState.value.isLoading)
+
+        val marked = FakeBookmarkRepository().apply { add(dead) }
+        val (bookmarked, _) = viewer(
+            PhotoViewerKey(dead.desertionNo),
+            bookmarks = marked,
+            result = found
+        )
+        assertEquals(listOf(original), bookmarked.uiState.value.photos)
+
+        val (included, _) = viewer(
+            PhotoViewerKey(dead.desertionNo),
+            lastFilter = SearchFilter(includeEndedByDeath = true),
+            result = found
+        )
+        assertEquals(listOf(original), included.uiState.value.photos)
     }
 }

@@ -20,6 +20,8 @@ import kotlinx.datetime.LocalDate
  * @property dateError 날짜 인라인 오류(있으면 적용 불가)
  * @property quickDate 지금 날짜가 빠른 칩 하나와 같으면 그것
  * @property today 서울 기준 오늘(날짜 선택의 상한, 빠른 칩)
+ * @property canIncludeEndedByDeath "사망으로 끝난 공고도 보기"를 고를 수 있는지(상태 전체일 때만 — 5d). 아니면 줄이
+ *   비활성이고 값은 그대로 남는다
  */
 @Immutable
 data class FilterUiState(
@@ -34,4 +36,5 @@ data class FilterUiState(
     val today: LocalDate = LocalDate(2026, 1, 1),
     val showClosingSoonHint: Boolean = false,
     val canApply: Boolean = true,
+    val canIncludeEndedByDeath: Boolean = true,
 )

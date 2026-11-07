@@ -27,6 +27,8 @@ val viewModelModule: Module = module {
     viewModel { (key: AnimalDetailKey) ->
         AnimalDetailViewModel(key, get(), get(), get(), get(), get(), get(), get())
     }
-    viewModel { (key: PhotoViewerKey) -> PhotoViewerViewModel(key, get(), get(), get(), get()) }
+    viewModel { (key: PhotoViewerKey) ->
+        PhotoViewerViewModel(key, get(), get(), get(), get(), get())
+    }
     viewModel { (key: ShelterInfoKey) -> ShelterInfoViewModel(key, get(), get(), get(), get()) }
 }

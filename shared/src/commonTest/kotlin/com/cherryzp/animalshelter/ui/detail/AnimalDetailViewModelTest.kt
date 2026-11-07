@@ -8,6 +8,7 @@ import com.cherryzp.animalshelter.data.api.EndpointSelector
 import com.cherryzp.animalshelter.data.repository.BookmarkRepository
 import com.cherryzp.animalshelter.data.repository.CacheState
 import com.cherryzp.animalshelter.data.repository.SearchResults
+import com.cherryzp.animalshelter.data.repository.Settings
 import com.cherryzp.animalshelter.di.AppConfig
 import com.cherryzp.animalshelter.fake.FakeAnimalRepository
 import com.cherryzp.animalshelter.fake.FakeBookmarkRepository
@@ -16,6 +17,7 @@ import com.cherryzp.animalshelter.fake.FakeShelterRepository
 import com.cherryzp.animalshelter.fake.testAnimal
 import com.cherryzp.animalshelter.fake.testShelterInfo
 import com.cherryzp.animalshelter.model.Animal
+import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.navigation.AnimalDetailKey
 import com.cherryzp.animalshelter.platform.CopyFeedback
 import com.cherryzp.animalshelter.platform.ShareResult
@@ -34,6 +36,7 @@ import com.cherryzp.animalshelter.testing.FakeClock
 import com.cherryzp.animalshelter.testing.content
 import com.cherryzp.animalshelter.testing.runMainTest
 import com.cherryzp.animalshelter.ui.common.MessageAction
+import com.cherryzp.animalshelter.ui.common.StatusKind
 import com.cherryzp.animalshelter.ui.common.UiMessage
 import com.cherryzp.animalshelter.ui.common.uiText
 import kotlin.test.Test
@@ -43,6 +46,7 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -65,11 +69,12 @@ class AnimalDetailViewModelTest {
         val bookmarkFake: FakeBookmarkRepository = FakeBookmarkRepository(),
         bookmarks: BookmarkRepository = bookmarkFake,
         shareBaseUrl: String? = null,
+        savedSettings: Settings = Settings(),
         configure: FakeAnimalRepository.() -> Unit = {},
     ) {
         val animals = FakeAnimalRepository(results).apply(configure)
         val shelters = FakeShelterRepository()
-        val settings = FakeSettingsRepository()
+        val settings = FakeSettingsRepository(savedSettings)
         val config = AppConfig(
             ApiEndpoint.Fixture,
             isDebug = false,
@@ -386,5 +391,174 @@ class AnimalDetailViewModelTest {
         assertEquals("제목\n보호소", shareText("제목", "보호소", null))
         assertEquals("제목\n공고 ~11-13", shareText("제목", null, "공고 ~11-13"))
         assertEquals("제목", shareText("제목", " ", null))
+    }
+
+    // ── 5d: 사망 종료 한 마리 — 북마크거나 필터 켬이면 보이고, 아니면 숨김. 사망 종료는 공유 없음(U7~U12) ──
+
+    private val dead = animal.copy(processState = "종료(자연사)")
+    private val share = "https://a.example"
+    private val includeDeaths = SearchFilter(includeEndedByDeath = true)
+
+    @Test
+    fun `링크로 연 사망 종료는 북마크도 필터도 아니면 숨김(5d U7)`() = runVmTest {
+        val env = start(
+            Env(key = AnimalDetailKey(no), shareBaseUrl = share) {
+                animalResult = { ApiResult.Success(dead) }
+            }
+        )
+
+        assertTrue(env.state.isHidden)
+        assertNull(env.state.detail)
+        assertFalse(env.state.notFound)
+        assertFalse(env.state.isLoading)
+        assertFalse(env.state.isStale)
+        assertNull(env.state.error)
+        assertNull(env.state.shareUrl)
+        assertTrue(env.bookmarkFake.updateCalls.isEmpty())
+    }
+
+    @Test
+    fun `필터가 켜져 있으면 링크로 연 사망 종료도 보이고 공유는 없다(5d U8)`() = runVmTest {
+        val saved = start(
+            Env(
+                key = AnimalDetailKey(no),
+                shareBaseUrl = share,
+                savedSettings = Settings(lastFilter = includeDeaths)
+            ) { animalResult = { ApiResult.Success(dead) } }
+        )
+        assertFalse(saved.state.isHidden)
+        assertEquals(StatusKind.ENDED, saved.state.detail?.status?.kind)
+        assertNull(saved.state.shareUrl)
+
+        // 지금 목록 결과(받은 적 있음)의 조건이 저장된 조건보다 앞선다
+        val current = start(
+            Env(
+                key = AnimalDetailKey(no),
+                results = SearchResults(
+                    filter = includeDeaths,
+                    fetchedAt = Instant.parse("2026-11-04T00:50:00Z")
+                ),
+                shareBaseUrl = share
+            ) { animalResult = { ApiResult.Success(dead) } }
+        )
+        assertFalse(current.state.isHidden)
+        assertEquals(StatusKind.ENDED, current.state.detail?.status?.kind)
+
+        val currentOff = start(
+            Env(
+                key = AnimalDetailKey(no),
+                results = SearchResults(fetchedAt = Instant.parse("2026-11-04T00:50:00Z")),
+                savedSettings = Settings(lastFilter = includeDeaths)
+            ) { animalResult = { ApiResult.Success(dead) } }
+        )
+        assertTrue(currentOff.state.isHidden)
+    }
+
+    @Test
+    fun `북마크에서 연 동물이 사망 종료로 바뀌면 보이고 스냅샷을 갱신, 공유는 없다(5d U9)`() = runVmTest {
+        val bookmarks = FakeBookmarkRepository().apply { seed(animal) }
+        val gate = CompletableDeferred<Unit>()
+        val env = start(
+            Env(
+                key = AnimalDetailKey(no, "20261103", fromBookmarks = true),
+                bookmarkFake = bookmarks,
+                shareBaseUrl = share
+            ) {
+                getAnimalGate = gate
+                animalResult = { ApiResult.Success(dead) }
+            }
+        )
+        assertNotEquals(StatusKind.ENDED, env.state.detail?.status?.kind)
+        assertEquals("$share/a/$no", env.state.shareUrl)
+
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertFalse(env.state.isHidden)
+        assertEquals(StatusKind.ENDED, env.state.detail?.status?.kind)
+        assertEquals(listOf(dead), bookmarks.updateCalls)
+        assertNull(env.state.shareUrl)
+    }
+
+    @Test
+    fun `북마크된 사망 스냅샷은 북마크에서도 링크로도 보인다(5d U10)`() = runVmTest {
+        val fromBookmarks = FakeBookmarkRepository().apply { seed(dead) }
+        val gate = CompletableDeferred<Unit>()
+        val opened = start(
+            Env(
+                key = AnimalDetailKey(no, "20261103", fromBookmarks = true),
+                bookmarkFake = fromBookmarks
+            ) {
+                getAnimalGate = gate
+                animalResult = { ApiResult.Success(dead) }
+            }
+        )
+        assertEquals(StatusKind.ENDED, opened.state.detail?.status?.kind) // 스냅샷이 먼저
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertFalse(opened.state.isHidden)
+        assertEquals(1, opened.animals.getAnimalCalls.size)
+
+        val linked = start(
+            Env(
+                key = AnimalDetailKey(no),
+                bookmarkFake = FakeBookmarkRepository().apply { seed(dead) }
+            ) { animalResult = { ApiResult.Success(dead) } }
+        )
+        assertFalse(linked.state.isHidden)
+        assertEquals(StatusKind.ENDED, linked.state.detail?.status?.kind)
+        assertEquals(1, linked.animals.getAnimalCalls.size)
+    }
+
+    @Test
+    fun `두 칸 — 목록 결과의 hidden에 들어오면 북마크가 아닐 때만 숨기고 되돌리지 않는다(5d U11)`() = runVmTest {
+        val listed = SearchResults(
+            items = listOf(animal),
+            fetchedAt = Instant.parse("2026-11-04T00:50:00Z")
+        )
+        val plain = start(Env(results = listed, shareBaseUrl = share))
+        val marked = start(
+            Env(results = listed, bookmarkFake = FakeBookmarkRepository().apply { seed(animal) })
+        )
+        assertEquals<String?>(no, plain.state.detail?.desertionNo)
+
+        val refreshed = listed.copy(items = emptyList(), hidden = listOf(dead))
+        plain.animals.results.value = refreshed
+        marked.animals.results.value = refreshed
+        advanceUntilIdle()
+
+        assertTrue(plain.state.isHidden)
+        assertNull(plain.state.detail)
+        assertNull(plain.state.shareUrl)
+        val calls = plain.animals.getAnimalCalls.size
+        plain.animals.animalResult = { ApiResult.Success(animal) }
+        plain.vm.onRetry()
+        advanceUntilIdle()
+        assertTrue(plain.state.isHidden) // 다시 시도가 덮지 않는다
+        assertEquals(calls, plain.animals.getAnimalCalls.size)
+
+        assertFalse(marked.state.isHidden)
+        assertEquals<String?>(no, marked.state.detail?.desertionNo)
+    }
+
+    @Test
+    fun `살아 있는 동물은 공유 그대로, 북마크 + 조회 실패는 스냅샷과 스낵바(5d U12)`() = runVmTest {
+        val alive =
+            start(Env(results = SearchResults(items = listOf(animal)), shareBaseUrl = share))
+        assertEquals("$share/a/$no", alive.state.shareUrl)
+        assertFalse(alive.state.isHidden)
+
+        val bookmarks = FakeBookmarkRepository().apply { seed(animal) }
+        val failed = start(
+            Env(key = AnimalDetailKey(no, fromBookmarks = true), bookmarkFake = bookmarks) {
+                animalResult = { ApiResult.Failure(ApiError.Network) }
+            }
+        )
+        assertEquals<String?>(no, failed.state.detail?.desertionNo)
+        assertFalse(failed.state.isHidden)
+        assertEquals(
+            UiMessage(uiText(Res.string.error_network), MessageAction.RETRY),
+            failed.state.message.content()
+        )
     }
 }
