@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.JsonObject
 
 /** 목록 Repository(02-data 9절, D8·D9·D13). MockEngine으로 응답을 정한다. */
 class AnimalRepositoryTest {
@@ -528,5 +529,350 @@ class AnimalRepositoryTest {
         assertEquals(ApiError.Network, first.error)
         assertEquals(ApiError.Network, second.error)
         assertNotEquals(first.errorId, second.errorId)
+    }
+
+    // ── 5d: 사망 종료(자연사·안락사) 숨기기 — H2~H12 ──
+
+    private fun dead(no: String) = animalItem(no, processState = "종료(자연사)")
+
+    private fun euthanized(no: String) = animalItem(no, processState = "종료(안락사)")
+
+    private fun page(vararg items: JsonObject, totalCount: Int) =
+        ApiTestResponses.envelope(items.toList(), totalCount = totalCount)
+
+    private fun SearchResults.itemNos() = items.map { it.desertionNo }
+
+    private fun SearchResults.hiddenNos() = hidden.map { it.desertionNo }
+
+    @Test
+    fun `사망 종료는 items에서 빼 hidden으로, 원본 수는 그대로(5d H2)`() = runTest {
+        val (repo, harness) = repository {
+            respond(
+                page(
+                    animalItem("A"),
+                    dead("B"),
+                    animalItem("C", processState = "종료(입양)"),
+                    euthanized("D"),
+                    totalCount = 40
+                )
+            )
+        }
+
+        repo.search(SearchFilter())
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(listOf("A", "C"), results.itemNos())
+        assertEquals(listOf("B", "D"), results.hiddenNos())
+        assertEquals(40, results.totalCount)
+        assertTrue(results.hasMore)
+        assertEquals(1, harness.urls.size)
+    }
+
+    @Test
+    fun `다음 쪽의 같은 번호는 items·hidden을 통틀어 한 번(5d H3)`() = runTest {
+        val (repo, _) = repository { request ->
+            val body = when (request.url.parameters["pageNo"]) {
+                "1" -> page(animalItem("A"), dead("B"), totalCount = 90)
+                else -> page(dead("B"), animalItem("C"), euthanized("D"), totalCount = 90)
+            }
+            respond(body)
+        }
+
+        repo.search(SearchFilter())
+        repo.loadMore()
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(listOf("A", "C"), results.itemNos())
+        assertEquals(listOf("B", "D"), results.hiddenNos())
+    }
+
+    @Test
+    fun `다 숨겨진 첫 쪽은 같은 작업에서 다음 쪽을 이어 받고 결과는 끝에 한 번(5d H4)`() = runTest {
+        var duringPage2: SearchResults? = null
+        lateinit var repoRef: DefaultAnimalRepository
+        val (repo, harness) = repository { request ->
+            val body = when (request.url.parameters["pageNo"]) {
+                "1" -> page(dead("X1"), euthanized("X2"), dead("X3"), totalCount = 90)
+
+                else -> {
+                    duringPage2 = repoRef.getSearchResultsStream().value
+                    page(animalItem("E"), dead("F"), totalCount = 90)
+                }
+            }
+            respond(body)
+        }
+        repoRef = repo
+
+        repo.search(SearchFilter())
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(1, harness.pageRequests(1))
+        assertEquals(1, harness.pageRequests(2))
+        assertEquals(listOf("E"), results.itemNos())
+        assertEquals(listOf("X1", "X2", "X3", "F"), results.hiddenNos())
+        assertEquals(2, results.pageNo)
+        assertTrue(results.hasMore)
+        assertEquals(LoadState.IDLE, results.loading)
+        // 1쪽 결과를 중간에 내지 않았다 — 2쪽을 받는 동안 아직 첫 로딩이고 빈 목록
+        val during = duringPage2!!
+        assertEquals(LoadState.INITIAL, during.loading)
+        assertTrue(during.items.isEmpty() && during.hidden.isEmpty())
+        assertNull(during.fetchedAt)
+    }
+
+    @Test
+    fun `이어 받기는 한 동작에 많아야 3쪽, loadMore도 같은 상한(5d H5)`() = runTest {
+        val (repo, harness) = repository { request ->
+            val n = request.url.parameters["pageNo"]!!
+            respond(page(dead("D${n}a"), euthanized("D${n}b"), totalCount = 300))
+        }
+
+        repo.search(SearchFilter())
+        val first = repo.getSearchResultsStream().value
+        assertEquals(3, harness.urls.size)
+        assertTrue(first.items.isEmpty())
+        assertEquals(
+            listOf("D1a", "D1b", "D2a", "D2b", "D3a", "D3b"),
+            first.hiddenNos()
+        )
+        assertTrue(first.hasMore)
+        assertEquals(3, first.pageNo)
+        assertEquals(3, MAX_PAGES_PER_LOAD)
+
+        repo.loadMore()
+        val second = repo.getSearchResultsStream().value
+        assertEquals(6, harness.urls.size)
+        assertEquals(
+            (4..6).map {
+                it.toString()
+            },
+            harness.urls.drop(3).map { it.parameters["pageNo"] }
+        )
+        assertEquals(6, second.pageNo)
+        assertEquals(12, second.hidden.size)
+        assertTrue(second.items.isEmpty())
+    }
+
+    @Test
+    fun `다 숨겨진 쪽이 끝이면 더 받지 않는다(5d H6)`() = runTest {
+        val (repo, harness) = repository {
+            respond(page(dead("X1"), euthanized("X2"), totalCount = 30))
+        }
+
+        repo.search(SearchFilter())
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(1, harness.urls.size)
+        assertFalse(results.hasMore)
+        assertTrue(results.items.isEmpty())
+        assertEquals(listOf("X1", "X2"), results.hiddenNos())
+    }
+
+    @Test
+    fun `다음 쪽이 다 숨겨지면 그 작업에서 다음 쪽을 이어 받는다(5d H7)`() = runTest {
+        var duringPage3: SearchResults? = null
+        lateinit var repoRef: DefaultAnimalRepository
+        val (repo, harness) = repository { request ->
+            val body = when (request.url.parameters["pageNo"]) {
+                "1" -> page(animalItem("A"), totalCount = 90)
+
+                "2" -> page(dead("B1"), euthanized("B2"), totalCount = 90)
+
+                else -> {
+                    duringPage3 = repoRef.getSearchResultsStream().value
+                    page(animalItem("C"), totalCount = 90)
+                }
+            }
+            respond(body)
+        }
+        repoRef = repo
+        repo.search(SearchFilter())
+
+        repo.loadMore()
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(1, harness.pageRequests(2))
+        assertEquals(1, harness.pageRequests(3))
+        assertEquals(3, harness.urls.size)
+        assertEquals(listOf("A", "C"), results.itemNos())
+        assertEquals(listOf("B1", "B2"), results.hiddenNos())
+        assertEquals(3, results.pageNo)
+        assertEquals(LoadState.IDLE, results.loading)
+        assertEquals(LoadState.MORE, duringPage3!!.loading)
+        assertEquals(listOf("A"), duringPage3!!.itemNos())
+    }
+
+    @Test
+    fun `이어 받던 뒤 쪽이 실패하면 그때까지의 결과에 오류를 싣는다(5d H8)`() = runTest {
+        val (repo, _) = repository { request ->
+            if (request.url.parameters["pageNo"] == "1") {
+                respond(page(dead("X1"), euthanized("X2"), totalCount = 90))
+            } else {
+                respond("x", HttpStatusCode.InternalServerError)
+            }
+        }
+        val before = repo.getSearchResultsStream().value.errorId
+
+        repo.search(SearchFilter())
+
+        val results = repo.getSearchResultsStream().value
+        assertTrue(results.items.isEmpty())
+        assertEquals(listOf("X1", "X2"), results.hiddenNos())
+        assertEquals(1, results.pageNo)
+        assertTrue(results.hasMore)
+        assertEquals(ApiError.Http(500), results.error)
+        assertEquals(before + 1, results.errorId)
+        assertEquals(LoadState.IDLE, results.loading)
+    }
+
+    @Test
+    fun `다 숨겨진 쪽은 빈 쪽이 아니라 그 쪽의 totalCount를 쓴다(5d H9)`() = runTest {
+        val (repo, _) = repository { request ->
+            val body = when (request.url.parameters["pageNo"]) {
+                "1" -> page(animalItem("A"), totalCount = 90)
+                "2" -> page(dead("B"), totalCount = 70)
+                else -> ApiTestResponses.empty // 원본이 빈 끝 쪽(totalCount 0)은 앞의 수를 둔다
+            }
+            respond(body)
+        }
+        repo.search(SearchFilter())
+
+        repo.loadMore()
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(listOf("A"), results.itemNos())
+        assertEquals(listOf("B"), results.hiddenNos())
+        assertEquals(70, results.totalCount)
+        assertFalse(results.hasMore)
+        assertEquals(3, results.pageNo)
+    }
+
+    @Test
+    fun `getAnimal은 10분 안이면 hidden에서도 찾아 그대로 돌려준다(5d H10)`() = runTest {
+        val (repo, harness) = repository { request ->
+            val no = request.url.parameters["desertion_no"]
+            respond(
+                if (no != null) {
+                    page(dead(no), totalCount = 1)
+                } else {
+                    page(animalItem("A"), dead("B"), totalCount = 2)
+                }
+            )
+        }
+        repo.search(SearchFilter())
+        assertEquals(listOf("B"), repo.getSearchResultsStream().value.hiddenNos()) // items에는 없다
+
+        val cached = repo.getAnimal("B", null).getOrNull()
+        assertEquals(1, harness.urls.size)
+        assertEquals("B", cached?.desertionNo)
+        assertEquals("종료(자연사)", cached?.processState)
+
+        clock.advance(11.minutes)
+        val fetched = repo.getAnimal("B", null).getOrNull()
+        assertEquals(2, harness.urls.size)
+        assertEquals("B", fetched?.desertionNo) // 사망 종료도 그대로 — 숨기는 것은 부르는 쪽
+    }
+
+    @Test
+    fun `새로고침·최신순 전환·5000건 초과 되돌림 결과에도 사망 종료가 없다(5d H11)`() = runTest {
+        var tooMany = false
+        val (repo, _) = repository { request ->
+            val body = if (request.url.parameters["numOfRows"] == "1000") {
+                if (tooMany) {
+                    page(animalItem("C1"), totalCount = 7000)
+                } else {
+                    page(animalItem("C1"), totalCount = 1)
+                }
+            } else {
+                page(animalItem("A"), dead("B"), euthanized("C"), totalCount = 90)
+            }
+            respond(body)
+        }
+        repo.search(SearchFilter())
+
+        repo.refresh()
+        val refreshed = repo.getSearchResultsStream().value
+        repo.setSort(SortOrder.CLOSING_SOON)
+        repo.setSort(SortOrder.LATEST)
+        val switched = repo.getSearchResultsStream().value
+        tooMany = true
+        repo.setSort(SortOrder.CLOSING_SOON)
+        repo.search(SearchFilter(sidoCode = "6110000")) // 마감 임박순 검색이 넘쳐 최신순으로 되돌린다
+        val fallback = repo.getSearchResultsStream().value
+
+        for (r in listOf(refreshed, switched, fallback)) {
+            assertEquals(SortOrder.LATEST, r.sort)
+            assertEquals(listOf("A"), r.itemNos())
+            assertEquals(listOf("B", "C"), r.hiddenNos())
+        }
+        assertEquals(ApiError.TooManyResults(7000), fallback.error)
+    }
+
+    @Test
+    fun `마감 임박순도 사망 종료를 빼고 totalCount는 보이는 수(5d H12)`() = runTest {
+        val (repo, _) = repository { request ->
+            val body = if (request.url.parameters["numOfRows"] == "1000") {
+                page(
+                    animalItem("C1", noticeEdt = "20261106"),
+                    dead("C2"),
+                    animalItem("C3", noticeEdt = "20261105"),
+                    totalCount = 3
+                )
+            } else {
+                page(animalItem("L1"), totalCount = 1)
+            }
+            respond(body)
+        }
+        repo.search(SearchFilter())
+
+        repo.setSort(SortOrder.CLOSING_SOON)
+
+        val results = repo.getSearchResultsStream().value
+        assertEquals(SortOrder.CLOSING_SOON, results.sort)
+        assertEquals(listOf("C3", "C1"), results.itemNos())
+        assertEquals(listOf("C2"), results.hiddenNos())
+        assertEquals(2, results.totalCount)
+        // 10분 캐시에서 다시 꺼내도 나눈 그대로
+        repo.setSort(SortOrder.LATEST)
+        repo.setSort(SortOrder.CLOSING_SOON)
+        assertEquals(listOf("C3", "C1"), repo.getSearchResultsStream().value.itemNos())
+        assertEquals(listOf("C2"), repo.getSearchResultsStream().value.hiddenNos())
+    }
+
+    @Test
+    fun `필터 켬이면 사망 종료도 items, 이어 받기 없음 — 상태 공고중이면 효과 없음(5d H13)`() = runTest {
+        val (repo, harness) = repository { request ->
+            val body = when {
+                request.url.parameters["upr_cd"] == "allDead" ->
+                    page(dead("X1"), euthanized("X2"), totalCount = 90)
+
+                else -> page(
+                    animalItem("A"),
+                    dead("B"),
+                    animalItem("C", processState = "종료(입양)"),
+                    euthanized("D"),
+                    totalCount = 40
+                )
+            }
+            respond(body)
+        }
+        val on = SearchFilter(includeEndedByDeath = true)
+
+        repo.search(on)
+        val shown = repo.getSearchResultsStream().value
+        assertEquals(listOf("A", "B", "C", "D"), shown.itemNos())
+        assertTrue(shown.hidden.isEmpty())
+
+        repo.search(on.copy(sidoCode = "allDead"))
+        val allDead = repo.getSearchResultsStream().value
+        assertEquals(listOf("X1", "X2"), allDead.itemNos())
+        assertEquals(1, harness.urls.count { it.parameters["upr_cd"] == "allDead" }) // 이어 받기 없음
+
+        // 상태 공고중이면 칸 값은 남지만 뜻이 없다 — 섞여 온 사망 종료는 숨긴다
+        repo.search(on.copy(state = NoticeState.NOTICE))
+        val notice = repo.getSearchResultsStream().value
+        assertTrue(notice.filter.includeEndedByDeath)
+        assertEquals(listOf("A", "C"), notice.itemNos())
+        assertEquals(listOf("B", "D"), notice.hiddenNos())
     }
 }

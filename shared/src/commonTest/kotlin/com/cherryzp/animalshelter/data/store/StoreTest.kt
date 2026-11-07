@@ -144,6 +144,23 @@ class StoreTest {
     }
 
     @Test
+    fun `사망 포함 칸이 없는 옛 조건은 끔, 켬은 저장했다가 그대로 읽는다(5d H14)`() = runTest {
+        val old = preferencesOf(
+            SettingsStore.LAST_FILTER to """{"sidoCode":"6110000","state":"ALL"}"""
+        ).toSettings().lastFilter
+        assertEquals(false, old?.includeEndedByDeath)
+
+        withTestStores { stores ->
+            val store = stores.settings()
+            val on = SearchFilter(sidoCode = "6110000", includeEndedByDeath = true)
+            store.saveLastFilter(on)
+
+            assertEquals(on, store.settings.first().lastFilter)
+            assertEquals(true, store.settings.first().lastFilter?.includeEndedByDeath)
+        }
+    }
+
+    @Test
     fun `저장된 조건에 모르는 필드가 있어도 읽는다`() {
         val settings = preferencesOf(
             SettingsStore.LAST_FILTER to """{"sidoCode":"6110000","futureField":1}"""

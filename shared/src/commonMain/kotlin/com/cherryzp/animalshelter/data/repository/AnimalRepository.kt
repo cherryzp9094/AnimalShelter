@@ -38,6 +38,11 @@ data class SearchResults(
      * `error == null`이면 값은 뜻이 없다.
      */
     val errorId: Long = 0,
+    /**
+     * 필터가 꺼져 있을 때 받은 쪽에서 뺀 사망 종료(5d — `items`에는 없다). 받은 순서, 번호는 `items`와 통틀어
+     * 한 번. 화면에 그리지 않는다 — 머리 건수·`getAnimal` 재사용·두 칸 상세 숨김에만. 필터를 켜면 늘 빈 목록.
+     */
+    val hidden: List<Animal> = emptyList(),
 )
 
 /** 로딩 종류. INITIAL = 빈 목록에서 첫 로딩, MORE = 다음 페이지, REFRESH = 기존 목록을 둔 채 다시 받기. */
@@ -50,7 +55,10 @@ enum class LoadState { IDLE, INITIAL, MORE, REFRESH }
 interface AnimalRepository {
     fun getSearchResultsStream(): StateFlow<SearchResults>
 
-    /** 조건 바꾸기 = 결과 리셋 + 1페이지(LATEST) 또는 전체 수집(CLOSING_SOON). 정렬 전환 중이면 목표 정렬로. */
+    /**
+     * 조건 바꾸기 = 결과 리셋 + 1페이지(LATEST) 또는 전체 수집(CLOSING_SOON). 정렬 전환 중이면 목표 정렬로.
+     * 필터가 끔이면 사망 종료를 빼고, 다 숨겨진 쪽은 이어 받는다(한 동작 많아야 3쪽 — 5d).
+     */
     suspend fun search(filter: SearchFilter)
 
     /**
@@ -58,19 +66,27 @@ interface AnimalRepository {
      * 목표(`pendingSort ?: sort`)와 같으면 무시한다. 전환 중에 보이는 정렬을 고르면 전환을 취소하고
      * 지금 결과를 `IDLE`로 되돌린다(호출 0).
      * 마감 임박순은 같은 조건이면 10분 메모리 캐시. 5,000건을 넘으면 기존 목록·LATEST를 그대로 두고
-     * `error = TooManyResults`.
+     * `error = TooManyResults`. 필터가 끔이면 사망 종료를 빼고, 최신순은 다 숨겨진 쪽을 이어 받는다
+     * (한 동작 많아야 3쪽 — 5d).
      */
     suspend fun setSort(order: SortOrder)
 
-    /** LATEST에서 `hasMore`일 때만 다음 페이지. 로딩 중이면 무시한다. */
+    /**
+     * LATEST에서 `hasMore`일 때만 다음 페이지. 로딩 중이면 무시한다. 필터가 끔이면 사망 종료를 빼고, 다 숨겨진 쪽은
+     * 이어 받는다(한 동작 많아야 3쪽 — 5d).
+     */
     suspend fun loadMore()
 
-    /** 지금 조건·정렬로 다시 받는다(마감 임박순 캐시는 무시). */
+    /**
+     * 지금 조건·정렬로 다시 받는다(마감 임박순 캐시는 무시). 필터가 끔이면 사망 종료를 빼고, 다 숨겨진 쪽은 이어
+     * 받는다(한 동작 많아야 3쪽 — 5d).
+     */
     suspend fun refresh()
 
     /**
-     * 한 마리. 지금 결과를 받은 지 10분 안이고 그 안에 있으면 호출 없이 그것, 아니면 API(재조회 창 규칙).
-     * 찾지 못하면 `Success(null)`.
+     * 한 마리. 지금 결과를 받은 지 10분 안이고 그 안(`items`, 없으면 `hidden`)에 있으면 호출 없이 그것, 아니면
+     * API(재조회 창 규칙). 찾지 못하면 `Success(null)`. 사망 종료도 그대로 돌려준다 — 보일지는 부르는 쪽이 정한다
+     * (5d — 북마크면 보이고 스냅샷을 그 값으로 갱신한다).
      */
     suspend fun getAnimal(desertionNo: String, happenDate: LocalDate?): ApiResult<Animal?>
 }

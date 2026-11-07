@@ -144,6 +144,21 @@ class AnimalShelterApiTest {
     }
 
     @Test
+    fun `사망 포함 칸은 조회 파라미터에 붙지 않는다(5d H14)`() = runTest {
+        val harness = ApiTestHarness(handler = jsonOk(ApiFixtures.abandonmentPublicV2P1))
+        val off = SearchFilter(sidoCode = "6110000")
+        val on = off.copy(includeEndedByDeath = true)
+
+        assertEquals(off.toQuery(), on.toQuery())
+        harness.api.searchAnimals(off, pageNo = 1)
+        harness.api.searchAnimals(on, pageNo = 1)
+
+        val (withoutFlag, withFlag) = harness.urls.map { it.parameters }
+        assertEquals(withoutFlag.names(), withFlag.names())
+        withoutFlag.names().forEach { assertEquals(withoutFlag[it], withFlag[it]) }
+    }
+
+    @Test
     fun `품종 조회는 up_kind_cd`() = runTest {
         val harness = ApiTestHarness(handler = jsonOk(ApiFixtures.kindV2Dog))
 

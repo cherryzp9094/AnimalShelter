@@ -5,10 +5,10 @@ import com.cherryzp.animalshelter.data.api.ApiError
 import com.cherryzp.animalshelter.data.api.ApiResult
 import com.cherryzp.animalshelter.data.api.PAGE_SIZE
 import com.cherryzp.animalshelter.model.Animal
-import com.cherryzp.animalshelter.model.AnimalPage
 import com.cherryzp.animalshelter.model.NoticeState
 import com.cherryzp.animalshelter.model.SearchFilter
 import com.cherryzp.animalshelter.model.SortOrder
+import com.cherryzp.animalshelter.model.hidesEndedByDeath
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -30,6 +30,12 @@ import kotlinx.datetime.LocalDate
 
 /** 지금 결과로 상세를 대신하는 기간, 마감 임박순 메모리 캐시 기간. */
 internal val RESULTS_REUSE_WINDOW: Duration = 10.minutes
+
+/**
+ * 최신순 한 동작(검색·새로고침·최신순 전환·5,000건 초과 되돌림·다음 쪽)이 받는 쪽 수의 상한(처음 쪽 포함, 5d).
+ * 보이는 것이 하나도 늘지 않은 쪽만 이어 받는다 — 실측 연속 사망 최대 8건(survey 8절)이라 3쪽이면 넉넉하다.
+ */
+internal const val MAX_PAGES_PER_LOAD = 3
 
 /** 마감 임박순: 공고 종료일 → 접수일 오름차순, 없는 값은 뒤. */
 internal val ClosingSoonOrder: Comparator<Animal> =
@@ -54,9 +60,11 @@ internal class DefaultAnimalRepository(
     private var closingSoonCache: ClosingSoonCache? = null
     private var errorCounter = 0L
 
+    /** 마감 임박순 10분 캐시 — 나눈 채로(보이는 것은 정렬, 사망 종료는 [hidden]). */
     private class ClosingSoonCache(
         val filter: SearchFilter,
         val items: List<Animal>,
+        val hidden: List<Animal>,
         val fetchedAt: Instant,
     )
 
@@ -119,9 +127,12 @@ internal class DefaultAnimalRepository(
         val current = results.value
         val fetchedAt = current.fetchedAt
         if (fetchedAt != null && clock.now() - fetchedAt < RESULTS_REUSE_WINDOW) {
-            current.items.firstOrNull {
-                it.desertionNo == desertionNo
-            }?.let { return ApiResult.Success(it) }
+            // 목록에서 숨긴 사망 종료도 그대로 돌려준다 — 보일지는 부르는 쪽이 정한다(5d)
+            (
+                current.items.firstOrNull { it.desertionNo == desertionNo }
+                    ?: current.hidden.firstOrNull { it.desertionNo == desertionNo }
+                )
+                ?.let { return ApiResult.Success(it) }
         }
         return api.getAnimal(desertionNo, happenDate)
     }
@@ -145,11 +156,10 @@ internal class DefaultAnimalRepository(
         val sort = results.value.let { it.pendingSort ?: it.sort }
         results.value = SearchResults(filter = filter, sort = sort, loading = LoadState.INITIAL)
         if (sort == SortOrder.LATEST) {
-            val page = api.searchAnimals(filter, pageNo = 1, numOfRows = PAGE_SIZE)
             publish(
-                when (page) {
-                    is ApiResult.Success -> latestResults(filter, page.value)
-                    is ApiResult.Failure -> SearchResults(filter = filter, error = page.error)
+                when (val latest = fetchLatest(filter, base = null)) {
+                    is ApiResult.Success -> latest.value
+                    is ApiResult.Failure -> SearchResults(filter = filter, error = latest.error)
                 }
             )
             return
@@ -177,11 +187,7 @@ internal class DefaultAnimalRepository(
         results.value = current.copy(loading = LoadState.REFRESH, pendingSort = order)
         val next = when (order) {
             SortOrder.CLOSING_SOON -> collectClosingSoon(current.filter, useCache = useCache)
-
-            SortOrder.LATEST -> when (val page = api.searchAnimals(current.filter, 1, PAGE_SIZE)) {
-                is ApiResult.Success -> ApiResult.Success(latestResults(current.filter, page.value))
-                is ApiResult.Failure -> page
-            }
+            SortOrder.LATEST -> fetchLatest(current.filter, base = null)
         }
         publish(
             when (next) {
@@ -200,11 +206,10 @@ internal class DefaultAnimalRepository(
         val loading = if (current.items.isEmpty()) LoadState.INITIAL else LoadState.REFRESH
         results.value = current.copy(loading = loading)
         if (current.sort == SortOrder.LATEST) {
-            val page = api.searchAnimals(current.filter, pageNo = 1, numOfRows = PAGE_SIZE)
             publish(
-                when (page) {
-                    is ApiResult.Success -> latestResults(current.filter, page.value)
-                    is ApiResult.Failure -> current.copy(error = page.error)
+                when (val latest = fetchLatest(current.filter, base = null)) {
+                    is ApiResult.Success -> latest.value
+                    is ApiResult.Failure -> current.copy(error = latest.error)
                 }
             )
             return
@@ -226,32 +231,66 @@ internal class DefaultAnimalRepository(
     private suspend fun runLoadMore() {
         val current = results.value.copy(error = null)
         results.value = current.copy(loading = LoadState.MORE)
-        val next = when (
-            val page = api.searchAnimals(
-                current.filter,
-                current.pageNo + 1,
-                PAGE_SIZE
-            )
-        ) {
-            is ApiResult.Failure -> current.copy(loading = LoadState.IDLE, error = page.error)
-
-            is ApiResult.Success -> {
-                val known = current.items.mapTo(HashSet()) { it.desertionNo }
-                current.copy(
-                    items = current.items + page.value.items.filter { it.desertionNo !in known },
-                    // 빈 페이지(끝)는 totalCount를 0으로 주기도 한다(Fixture 2페이지) — 그때는 앞의 값을 둔다
-                    totalCount = if (page.value.items.isEmpty()) {
-                        current.totalCount
-                    } else {
-                        page.value.totalCount
-                    },
-                    pageNo = page.value.pageNo,
-                    hasMore = page.value.hasMore,
-                    loading = LoadState.IDLE
-                )
-            }
+        val next = when (val latest = fetchLatest(current.filter, base = current)) {
+            is ApiResult.Success -> latest.value
+            is ApiResult.Failure -> current.copy(loading = LoadState.IDLE, error = latest.error)
         }
         publish(next)
+    }
+
+    /**
+     * 최신순 쪽을 [base] 뒤에 받는다(base가 null이면 1쪽부터 — `fetchedAt`은 지금). 받은 쪽마다
+     * `filter.hidesEndedByDeath`는 `hidden`으로(필터 켬이면 모두 `items`), 번호는 `items`·`hidden`을 통틀어 한 번.
+     * 보이는 것이 하나도 늘지 않았고 `hasMore`면 이어 받는다 — 많아야 [MAX_PAGES_PER_LOAD]쪽(5d). 결과는 부르는 쪽이 끝에 한 번 낸다(중간 결과 없음).
+     * 첫 쪽이 실패하면 `Failure`, 뒤 쪽이 실패하면 그때까지의 결과 + `error`(`pageNo`는 마지막 성공 쪽).
+     * `totalCount`·`pageNo`·`hasMore`는 원본 기준이다 — 다 숨겨진 쪽은 빈 쪽이 아니다.
+     */
+    private suspend fun fetchLatest(
+        filter: SearchFilter,
+        base: SearchResults?,
+    ): ApiResult<SearchResults> {
+        var acc = base ?: SearchResults(filter = filter, sort = SortOrder.LATEST)
+        val known = (acc.items + acc.hidden).mapTo(HashSet()) { it.desertionNo }
+        var pages = 0
+        while (true) {
+            val page = when (
+                val result = api.searchAnimals(filter, acc.pageNo + 1, PAGE_SIZE)
+            ) {
+                is ApiResult.Success -> result.value
+
+                is ApiResult.Failure ->
+                    return if (pages ==
+                        0
+                    ) {
+                        result
+                    } else {
+                        ApiResult.Success(acc.copy(error = result.error))
+                    }
+            }
+            pages++
+            val (dead, alive) = page.items.filter { known.add(it.desertionNo) }
+                .partition { filter.hidesEndedByDeath(it) }
+            acc = acc.copy(
+                items = acc.items + alive,
+                hidden = acc.hidden + dead,
+                // 원본이 빈 쪽(끝)은 totalCount를 0으로 주기도 한다(Fixture 2페이지) — 그때는 앞의 값을 둔다
+                totalCount = if (page.items.isEmpty() && acc.totalCount != null) {
+                    acc.totalCount
+                } else {
+                    page.totalCount
+                },
+                pageNo = page.pageNo,
+                hasMore = page.hasMore
+            )
+            if (alive.isNotEmpty() || !page.hasMore || pages >= MAX_PAGES_PER_LOAD) break
+        }
+        return ApiResult.Success(
+            if (base == null) {
+                acc.copy(loading = LoadState.IDLE, error = null, fetchedAt = clock.now())
+            } else {
+                acc
+            }
+        )
     }
 
     /** 마감 임박순이 5,000건을 넘으면 LATEST 1페이지로 바꾸되 안내는 남긴다(D13). */
@@ -259,11 +298,10 @@ internal class DefaultAnimalRepository(
         filter: SearchFilter,
         tooMany: ApiError.TooManyResults,
         onFailure: SearchResults,
-    ): SearchResults =
-        when (val page = api.searchAnimals(filter, pageNo = 1, numOfRows = PAGE_SIZE)) {
-            is ApiResult.Success -> latestResults(filter, page.value).copy(error = tooMany)
-            is ApiResult.Failure -> onFailure.copy(loading = LoadState.IDLE, error = page.error)
-        }
+    ): SearchResults = when (val latest = fetchLatest(filter, base = null)) {
+        is ApiResult.Success -> latest.value.let { it.copy(error = it.error ?: tooMany) }
+        is ApiResult.Failure -> onFailure.copy(loading = LoadState.IDLE, error = latest.error)
+    }
 
     /** 공고중만 전부 받아 정렬한다. 같은 조건이면 10분 메모리 캐시(`useCache`일 때). */
     private suspend fun collectClosingSoon(
@@ -275,43 +313,33 @@ internal class DefaultAnimalRepository(
         if (useCache && cached != null && cached.filter == filter &&
             now - cached.fetchedAt < RESULTS_REUSE_WINDOW
         ) {
-            return ApiResult.Success(closingSoonResults(filter, cached.items, cached.fetchedAt))
+            return ApiResult.Success(closingSoonResults(cached))
         }
         return when (val all = api.searchAll(filter.copy(state = NoticeState.NOTICE))) {
             is ApiResult.Failure -> all
 
             is ApiResult.Success -> {
-                val sorted = all.value.sortedWith(ClosingSoonOrder)
-                closingSoonCache = ClosingSoonCache(filter, sorted, now)
-                ApiResult.Success(closingSoonResults(filter, sorted, now))
+                // 공고중만이라 보통 0건이지만 규칙은 한곳에 둔다(5d S2)
+                val (dead, alive) = all.value.partition { filter.hidesEndedByDeath(it) }
+                val cache = ClosingSoonCache(filter, alive.sortedWith(ClosingSoonOrder), dead, now)
+                closingSoonCache = cache
+                ApiResult.Success(closingSoonResults(cache))
             }
         }
     }
 
-    private fun latestResults(filter: SearchFilter, page: AnimalPage) = SearchResults(
-        filter = filter,
-        sort = SortOrder.LATEST,
-        items = page.items,
-        totalCount = page.totalCount,
-        pageNo = page.pageNo,
-        hasMore = page.hasMore,
+    private fun closingSoonResults(cache: ClosingSoonCache) = SearchResults(
+        filter = cache.filter,
+        sort = SortOrder.CLOSING_SOON,
+        items = cache.items,
+        totalCount = cache.items.size,
+        pageNo = 0,
+        hasMore = false,
         loading = LoadState.IDLE,
         error = null,
-        fetchedAt = clock.now()
+        fetchedAt = cache.fetchedAt,
+        hidden = cache.hidden
     )
-
-    private fun closingSoonResults(filter: SearchFilter, items: List<Animal>, fetchedAt: Instant) =
-        SearchResults(
-            filter = filter,
-            sort = SortOrder.CLOSING_SOON,
-            items = items,
-            totalCount = items.size,
-            pageNo = 0,
-            hasMore = false,
-            loading = LoadState.IDLE,
-            error = null,
-            fetchedAt = fetchedAt
-        )
 
     /** 취소된 작업은 결과를 쓰지 않는다. 오류를 실은 결과에는 새 [SearchResults.errorId]를 붙인다(R3). */
     private suspend fun publish(next: SearchResults) {

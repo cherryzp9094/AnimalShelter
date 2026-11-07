@@ -32,4 +32,19 @@ data class SearchFilter(
     val sigunguName: String? = null,
     /** 보호소 표시 이름(`shelterRegNo`의 이름). */
     val shelterName: String? = null,
+    /**
+     * 사망 종료(`종료(자연사)`·`종료(안락사)`)도 결과에 넣는다 — 필터의 "사망으로 끝난 공고도 보기"(5d, 기본 끔).
+     * API 파라미터가 아니다. `toQuery`가 무시하고 Repository가 거른다. 옛 저장 JSON(칸 없음)은 false로 읽힌다.
+     */
+    val includeEndedByDeath: Boolean = false,
 )
+
+/**
+ * 사망 종료를 실제로 보이는지(5d) — 켰고 상태가 전체일 때만. 상태가 공고중·보호중이면 API가 보호중만 주므로 칸 값은
+ * 남기되 뜻이 없다.
+ */
+val SearchFilter.showsEndedByDeath: Boolean get() = includeEndedByDeath && state == NoticeState.ALL
+
+/** 이 조건의 검색 결과에서 [animal]을 뺄지(5d — 사망 종료이고 [showsEndedByDeath]가 아니면). 목록 Repository가 쓴다. */
+fun SearchFilter.hidesEndedByDeath(animal: Animal): Boolean =
+    animal.isEndedByDeath() && !showsEndedByDeath
